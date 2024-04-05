@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  lopata-app:
+    build: ./backend
+    command: ./test-app
+    ports:
+      - 8000:8000
+    depends_on:
+      - postgres
+    environment:
+      - DB_PASSWORD=qwerty
+  
+
+  postgres:
+    restart: always
+    image: postgres:latest
+    
+    volumes:
+    - ./.database/postgres/data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=qwerty
+    ports:
+      - 5436:5432
+
+  migrations:
+    image: ghcr.io/kukymbr/goose-docker:latest
+    depends_on:
+      - postgres
+    environment:
+      - GOOSE_DRIVER=postgres
+      - GOOSE_DBSTRING=host=postgres port=5432 user=postgres password=qwerty dbname=postgres
+    volumes:
+      - ./backend/db/migrations:/migrations
+ 

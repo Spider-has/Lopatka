@@ -1,0 +1,46 @@
+*,
+*::after,
+*::before {
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+    outline: 0;
+}
+
+:root {
+    --accent-default: #f18805;
+    --primary-default: #01161e;
+
+    --text-default: #01161e;
+    --text-subdued: #817f83;
+    --text-oncolor-default: #fff1d7;
+
+    --background-default: #fff1d7;
+    --background-subdued: #a33b20;
+    --background-critical: #ffebea;
+    --background-success: #e6fcef;
+
+    --divider-default: #f7f7f7;
+    --white-background-default: #ffffff;
+    --background-hovered: #f1d6bc;
+
+    --border-default: #cecece;
+    --icon-default: #01161e;
+    --status-critical: #e86961;
+    --status-success: #67c38c;
+    --border-accent: #a33b20;
+    --border-accent: #47484c;
+    --background-bottom: #d0957b;
+    --background-hovered-search: #b75e47;
+
+    --text-header-1: 700 95px normal 'Raleway', sans-serif;
+    --text-header-2: 700 23px / normal 'Raleway', sans-serif;
+    --text-header-3: 700 24px/112% bold Mulish, sans-serif;
+    --text-body-text: 400 20px normal Mulish, sans-serif;
+    --text-1-for-big-button: 400 24px normal Mulish, sans-serif;
+    --text-2-for-middle-button: 400 22px normal Mulish, sans-serif;
+    --text-3-for-small-button: 700 18 bold Mulish, sans-serif;
+    --text-description: 400 18px normal Mulish, sans-serif;
+    --text-for-fields: 400 12px normal Mulish, sans-serif;
+    --text-4-button: 400 12px normal Mulish, sans-serif;
+}
