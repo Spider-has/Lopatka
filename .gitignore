@@ -25,3 +25,8 @@ build
 *.njsproj
 *.sln
 *.sw?
+
+.database
+.database/*
+
+.env
