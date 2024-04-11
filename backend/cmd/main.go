@@ -6,7 +6,6 @@ import (
 
 	"net/http"
 
-	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
@@ -53,10 +52,7 @@ func main() {
 		logrus.Fatalf("db err: %s", err.Error())
 	}
 
-	router := mux.NewRouter()
-	router.HandleFunc("/", handler)
 	logrus.Printf("Server is running at port: %s", viper.GetString("port"))
-
 	err = server.Run(viper.GetString("port"), handlers.InitRoutes())
 	if err != nil {
 		logrus.Fatal(err)

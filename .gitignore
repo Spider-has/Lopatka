@@ -26,6 +26,6 @@ build
 *.sln
 *.sw?
 
+
 .database
-.database\*
-/.database
+.database/*

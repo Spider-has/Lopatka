@@ -72,11 +72,11 @@ export const LoginPage = () => {
                                         userEmail: nameRef.current.value,
                                         password: passwordRef.current.value
                                     }).then((response) => {
+                                        console.log(response)
                                         if (!response.ok) {
                                             throw new Error('Error occurred!')
                                         }
-                                        window.location.assign("/mainPage");
-                                    }).catch(() => {
+                                    }).catch((error) => {
                                         if (nameRef.current) {
                                             setVisibleLoginError(nameRef.current.value === '');
                                         }
@@ -84,11 +84,8 @@ export const LoginPage = () => {
                                             setVisiblePasswordError(passwordRef.current.value === '');
                                         }
                                         setVisibleError(true);
+                                        console.log(error)
                                     });
-                                    console.log({
-                                        email: nameRef.current.value,
-                                        password: passwordRef.current.value
-                                    })
                                 }
                             }} type="submit" className="logination__input logination__input_submit-type" value="Войти" />
                         </label>

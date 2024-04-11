@@ -11,13 +11,12 @@ services:
     environment:
       - DB_PASSWORD=qwerty
   
-
   postgres:
     restart: always
     image: postgres:latest
     
     volumes:
-    - ./.database/postgres/data:/var/lib/postgresql/data
+      - ./.database/postgres/data:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=qwerty
     ports:
