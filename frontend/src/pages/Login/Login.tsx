@@ -3,6 +3,9 @@ import * as Icons from "../../icons/Icons"
 import { useRef, useState } from "react"
 import { fetchPostRequest } from "../../fetchRequests/fetchRequest";
 
+ const getToken = async (res) => {
+    console.log(res)
+}
 
 export const LoginPage = () => {
     const nameRef = useRef<HTMLInputElement>(null);
@@ -72,10 +75,13 @@ export const LoginPage = () => {
                                         userEmail: nameRef.current.value,
                                         password: passwordRef.current.value
                                     }).then((response) => {
-                                        console.log(response)
+                                       
                                         if (!response.ok) {
                                             throw new Error('Error occurred!')
                                         }
+                                        return response.json()
+                                    }).then((response) => {
+                                        getToken(response)
                                     }).catch((error) => {
                                         if (nameRef.current) {
                                             setVisibleLoginError(nameRef.current.value === '');

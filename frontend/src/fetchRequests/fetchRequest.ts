@@ -3,7 +3,6 @@ const fetchPostRequest = async (requestUrl: string, dataObject?: object) => {
         method: 'POST',
         body: JSON.stringify(dataObject),
     }).then(response => {
-        console.log(response)
         if (!response.ok) {
             throw new Error();
         }

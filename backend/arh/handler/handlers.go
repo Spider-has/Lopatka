@@ -18,6 +18,8 @@ func NewService(services *service.Service) *Handler {
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
 
+	router.Use(CORSMiddleware())
+
 	auth := router.Group("/auth")
 	{
 		auth.POST("/sign-up", h.signUp)
@@ -35,8 +37,6 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			news.DELETE("/:id", h.deleteNew)
 		}
 	}
-
-	router.Use(CORSMiddleware())
 
 	return router
 }
