@@ -17,6 +17,7 @@ assets
 build
 
 # Системные файлы vscode
+.vscode
 !.vscode/extensions.json
 .idea
 .DS_Store

@@ -1,11 +1,9 @@
 import "./Login.scss"
 import * as Icons from "../../icons/Icons"
-import { useRef, useState } from "react"
-import { fetchPostRequest } from "../../fetchRequests/fetchRequest";
-
- const getToken = async (res) => {
-    console.log(res)
-}
+import { useEffect, useRef, useState } from "react"
+import { signIn } from "../../utils/auth";
+import { useNavigate } from "react-router-dom";
+import { getJwtToken } from "../../utils/token";
 
 export const LoginPage = () => {
     const nameRef = useRef<HTMLInputElement>(null);
@@ -14,10 +12,16 @@ export const LoginPage = () => {
     const [visibleError, setVisibleError] = useState(false);
     const [visibleLoginError, setVisibleLoginError] = useState(false);
     const [visiblePasswordError, setVisiblePasswordError] = useState(false);
+    const navigate = useNavigate();
+    useEffect(() => {
+        const token = getJwtToken()
+        if (token)
+            navigate('/mainPage')
+    }, [])
     return (
         <div className="login-page">
             <div className="logination">
-                <Icons.LogoIcon />
+                <Icons.LogoIcon size={Icons.logoSizeType.Large} color={Icons.logoColorType.White} />
                 <form className="logination__form">
                     <h1 className="logination__header">
                         Вход в учётную запись
@@ -70,19 +74,8 @@ export const LoginPage = () => {
                         <label className="logination__input-wrapper">
                             <input onClick={(event) => {
                                 event.preventDefault()
-                                if (passwordRef.current && nameRef.current) {   
-                                    fetchPostRequest("http://localhost:8000/auth/sign-in", {
-                                        userEmail: nameRef.current.value,
-                                        password: passwordRef.current.value
-                                    }).then((response) => {
-                                       
-                                        if (!response.ok) {
-                                            throw new Error('Error occurred!')
-                                        }
-                                        return response.json()
-                                    }).then((response) => {
-                                        getToken(response)
-                                    }).catch((error) => {
+                                if (passwordRef.current && nameRef.current) {
+                                    signIn(nameRef.current.value, passwordRef.current.value).catch((error) => {
                                         if (nameRef.current) {
                                             setVisibleLoginError(nameRef.current.value === '');
                                         }
@@ -91,6 +84,8 @@ export const LoginPage = () => {
                                         }
                                         setVisibleError(true);
                                         console.log(error)
+                                    }).then(() => {
+                                        navigate('/mainPage')
                                     });
                                 }
                             }} type="submit" className="logination__input logination__input_submit-type" value="Войти" />
