@@ -29,7 +29,7 @@
     }
 
     &__header {
-        font: var(--text-header-3);
+        font: var(--text-header-4);
         color: var(--primary-default);
         text-align: center;
         margin-bottom: 30px;
@@ -48,6 +48,7 @@
     &__input_submit-type {
         color: var(--white-background-default);
         background-color: var(--primary-default);
+        border-radius: 100px;
     }
 
     &__input-wrapper {

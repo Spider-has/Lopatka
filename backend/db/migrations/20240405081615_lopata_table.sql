@@ -45,6 +45,10 @@ CREATE TABLE IF NOT EXISTS monuments_lists (
     user_id int references users (id) on delete cascade NOT NULL,
     monument_id int references monument_item (id) on delete cascade NOT NULL
 );
+
+
+INSERT INTO users (name, email, password, ) values ("Админ Админович Кистанов", "adminTest@lopata.ru", "qwerty");
+
 -- +goose StatementEnd
 
 -- +goose Down

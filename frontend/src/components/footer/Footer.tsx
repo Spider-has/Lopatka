@@ -28,7 +28,10 @@ export const Footer = () => {
                         </a>
                     </div>
                     <div>
-                        По всем вопросам +7 991 463-35-04
+                        По всем вопросам
+                        <span className="footer-wrapper__phone-text">
+                            +7 991 463-35-04
+                        </span>
                     </div>
                 </div>
             </div>
