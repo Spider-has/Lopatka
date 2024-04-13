@@ -3,25 +3,15 @@ import { Footer } from "../../components/footer/Footer";
 import { PostArea, PostsAreaProps } from "../../components/post/Post";
 import { TagsBar, TagsBarProps, tagModTypes } from "../../components/tagsBar/TagsBar";
 import { TopPanel } from "../../components/topPanel/TopPanel";
-import { AnotherIcon, CalendarIcon, ClockIcon, PlusIcon, ShovelIcon } from "../../icons/Icons";
+import { AnotherIcon, ClockIcon, PlusIcon, ShovelIcon } from "../../icons/Icons";
 import blankImg from "../../images/blank-img.jpg"
-import "./News.scss"
+import "./Monuments.scss"
 
 const tagsContent: TagsBarProps = {
     Tags: [
         {
             Icon: <ClockIcon />,
             Text: "Свежее",
-            tagMod: tagModTypes.NoneMod
-        },
-        {
-            Icon: <ShovelIcon />,
-            Text: "Экспедиции",
-            tagMod: tagModTypes.NoneMod
-        },
-        {
-            Icon: <CalendarIcon />,
-            Text: "События",
             tagMod: tagModTypes.NoneMod
         },
         {
@@ -78,7 +68,7 @@ const MainContent = () => {
     return (
         <section className="main-content-area-wrapper">
             <div className="main-content-area-wrapper__header">
-                <h1>Новости</h1>
+                <h1>Памятники</h1>
             </div>
             <div className="main-content-area-wrapper__content-wrapper">
                 <TagsBar Tags={tagsContent.Tags} />
@@ -97,7 +87,7 @@ const MainContent = () => {
     )
 }
 
-export const MainPage = () => {
+export const MonumentsPage = () => {
     return (
         <div className="main-page">
             <TopPanel />

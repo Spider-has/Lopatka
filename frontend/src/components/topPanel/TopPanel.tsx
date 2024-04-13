@@ -25,8 +25,8 @@ const BurgerPopover = (props: burgerPopoverProps) => {
         <div ref={popoverRef} className='burger-popover'>
             <Link className="burger-popover__link" to={""}>Главная</Link>
             <Link className="burger-popover__link" to={"/news"}>Новости</Link>
-            <Link className="burger-popover__link" to={""}>Памятники</Link>
-            <Link className="burger-popover__link" to={""}>Люди</Link>
+            <Link className="burger-popover__link" to={"/monuments"}>Памятники</Link>
+            <Link className="burger-popover__link" to={"/people"}>Люди</Link>
             <Link className="burger-popover__link" to={""}>Лента времени</Link>
             <Link className="burger-popover__link" to={""}>Раскопки</Link>
         </div>

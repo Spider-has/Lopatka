@@ -5,7 +5,7 @@ import { TagsBar, TagsBarProps, tagModTypes } from "../../components/tagsBar/Tag
 import { TopPanel } from "../../components/topPanel/TopPanel";
 import { AnotherIcon, CalendarIcon, ClockIcon, PlusIcon, ShovelIcon } from "../../icons/Icons";
 import blankImg from "../../images/blank-img.jpg"
-import "./News.scss"
+import "./People.scss"
 
 const tagsContent: TagsBarProps = {
     Tags: [
@@ -16,12 +16,12 @@ const tagsContent: TagsBarProps = {
         },
         {
             Icon: <ShovelIcon />,
-            Text: "Экспедиции",
+            Text: "Интервью",
             tagMod: tagModTypes.NoneMod
         },
         {
             Icon: <CalendarIcon />,
-            Text: "События",
+            Text: "Биография",
             tagMod: tagModTypes.NoneMod
         },
         {
@@ -36,7 +36,7 @@ const news: PostsAreaProps = {
     posts: [{
         tag: {
             Icon: <ShovelIcon />,
-            Text: "Экспедиции",
+            Text: "Интервью",
             tagMod: tagModTypes.SmallGap
         },
         author: "Иван Березин",
@@ -48,8 +48,8 @@ const news: PostsAreaProps = {
     },
     {
         tag: {
-            Icon: <ShovelIcon />,
-            Text: "Экспедиции",
+            Icon: <CalendarIcon />,
+            Text: "Биография",
             tagMod: tagModTypes.SmallGap
         },
         author: "Иван Березин",
@@ -61,8 +61,8 @@ const news: PostsAreaProps = {
     },
     {
         tag: {
-            Icon: <ShovelIcon />,
-            Text: "Экспедиции",
+            Icon: <AnotherIcon />,
+            Text: "Другое",
             tagMod: tagModTypes.SmallGap
         },
         author: "Иван Березин",
@@ -78,7 +78,7 @@ const MainContent = () => {
     return (
         <section className="main-content-area-wrapper">
             <div className="main-content-area-wrapper__header">
-                <h1>Новости</h1>
+                <h1>Люди</h1>
             </div>
             <div className="main-content-area-wrapper__content-wrapper">
                 <TagsBar Tags={tagsContent.Tags} />
@@ -97,7 +97,7 @@ const MainContent = () => {
     )
 }
 
-export const MainPage = () => {
+export const PeoplePage = () => {
     return (
         <div className="main-page">
             <TopPanel />

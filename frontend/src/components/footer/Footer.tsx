@@ -13,15 +13,19 @@ export const Footer = () => {
                         <div>
                             при поддержке лицея
                         </div>
-                        <div>
+                        <a href="https://www.infotech12.ru/" target="_blank" rel="noreferrer">
                             <InfotechLogo />
-                        </div>
+                        </a>
                     </div>
                 </div>
                 <div className="footer-wrapper__info-area">
                     <div>
-                        <VkLogo />
-                        <TgLogo />
+                        <a href="https://vk.com/arxays12" target="_blank" rel="noreferrer">
+                            <VkLogo />
+                        </a>
+                        <a href="https://t.me/arxlopata12" target="_blank" rel="noreferrer">
+                            <TgLogo />
+                        </a>
                     </div>
                     <div>
                         По всем вопросам +7 991 463-35-04
