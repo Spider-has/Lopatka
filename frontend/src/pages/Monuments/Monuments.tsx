@@ -1,32 +1,102 @@
+import { useRef } from "react";
 import { Button, ButtonContentTypes, ButtonTypes } from "../../components/button/Button";
 import { Footer } from "../../components/footer/Footer";
 import { PostArea, PostsAreaProps } from "../../components/post/Post";
-import { TagsBar, TagsBarProps, tagModTypes } from "../../components/tagsBar/TagsBar";
+import { MonumentsTagsBar, MonumentsTagsBarProps, tagListType, tagModTypes, tagTypes } from "../../components/tagsBar/TagsBar";
 import { TopPanel } from "../../components/topPanel/TopPanel";
-import { AnotherIcon, ClockIcon, PlusIcon, ShovelIcon } from "../../icons/Icons";
+import { UpArrow } from "../../components/upArrow/UpArrow";
+import { PlusIcon, ShovelIcon } from "../../icons/Icons";
 import blankImg from "../../images/blank-img.jpg"
 import "./Monuments.scss"
 
-const tagsContent: TagsBarProps = {
-    Tags: [
+const MonumentsTags: MonumentsTagsBarProps = {
+    lists: [
         {
-            Icon: <ClockIcon />,
-            Text: "Свежее",
-            tagMod: tagModTypes.NoneMod
+            listType: tagListType.Row,
+            listHeader: "Временной отрезок",
+            tags: [
+                {
+                    tagTypes: tagTypes.Text,
+                    text: "13-15 вв.",
+                    tagMod: tagModTypes.DescriptionText
+                },
+                {
+                    tagTypes: tagTypes.Text,
+                    text: "9-12 вв.",
+                    tagMod: tagModTypes.DescriptionText
+                },
+                {
+                    tagTypes: tagTypes.Text,
+                    text: "5-8 вв.",
+                    tagMod: tagModTypes.DescriptionText
+                },
+                {
+                    tagTypes: tagTypes.Text,
+                    text: "7 тыс. лет до н.э.",
+                    tagMod: tagModTypes.DescriptionText
+                },
+            ]
         },
         {
-            Icon: <AnotherIcon />,
-            Text: "Другое",
-            tagMod: tagModTypes.NoneMod
+            listType: tagListType.Column,
+            listHeader: "Эпоха",
+            tags: [
+                {
+                    tagTypes: tagTypes.Text,
+                    text: "Мезолит-неолит",
+                    tagMod: tagModTypes.DescriptionText
+                },
+                {
+                    tagTypes: tagTypes.Text,
+                    text: "Абашевская культура",
+                    tagMod: tagModTypes.DescriptionText
+                },
+                {
+                    tagTypes: tagTypes.Text,
+                    text: "Поздняковская культура",
+                    tagMod: tagModTypes.DescriptionText
+                },
+                {
+                    tagTypes: tagTypes.Text,
+                    text: "Балановская культура",
+                    tagMod: tagModTypes.DescriptionText
+                },
+                {
+                    tagTypes: tagTypes.Text,
+                    text: "Культура текстильной керамики",
+                    tagMod: tagModTypes.DescriptionText
+                },
+                {
+                    tagTypes: tagTypes.Text,
+                    text: "Древнемарийская культура",
+                    tagMod: tagModTypes.DescriptionText
+                },
+                {
+                    tagTypes: tagTypes.Text,
+                    text: "Мезолит",
+                    tagMod: tagModTypes.DescriptionText
+                },
+                {
+                    tagTypes: tagTypes.Text,
+                    text: "Ананьинская культура",
+                    tagMod: tagModTypes.DescriptionText
+                },
+            ]
         },
+        {
+            listType: tagListType.Column,
+            listHeader: "Район",
+            tags: []
+        }
     ]
 }
 
 const news: PostsAreaProps = {
     posts: [{
         tag: {
-            Icon: <ShovelIcon />,
-            Text: "Экспедиции",
+            tagTypes: tagTypes.IconText,
+            icon: <ShovelIcon />,
+            text: "Экспедиции",
             tagMod: tagModTypes.SmallGap
         },
         author: "Иван Березин",
@@ -34,44 +104,19 @@ const news: PostsAreaProps = {
         header: "Экспедиция на острове Амоксары",
         description: "С 21 июня по 10 июля 2022 г. отрядом Марийской археологической экспедиции (под руководством д.и.н. Никитиной Т.Б., при участии Акилбаева А.В., Михеев)",
         image: blankImg,
-        link: "/article"
-    },
-    {
-        tag: {
-            Icon: <ShovelIcon />,
-            Text: "Экспедиции",
-            tagMod: tagModTypes.SmallGap
-        },
-        author: "Иван Березин",
-        time: "3 часа назад",
-        header: "Экспедиция на острове Амоксары",
-        description: "С 21 июня по 10 июля 2022 г. отрядом Марийской археологической экспедиции (под руководством д.и.н. Никитиной Т.Б., при участии Акилбаева А.В., Михеев)",
-        image: blankImg,
-        link: "/article"
-    },
-    {
-        tag: {
-            Icon: <ShovelIcon />,
-            Text: "Экспедиции",
-            tagMod: tagModTypes.SmallGap
-        },
-        author: "Иван Березин",
-        time: "3 часа назад",
-        header: "Экспедиция на острове Амоксары",
-        description: "С 21 июня по 10 июля 2022 г. отрядом Марийской археологической экспедиции (под руководством д.и.н. Никитиной Т.Б., при участии Акилбаева А.В., Михеев)",
-        image: blankImg,
-        link: "/article"
+        link: "/"
     }]
 }
 
 const MainContent = () => {
+    const arrowRef = useRef<HTMLDivElement>(null)
     return (
         <section className="main-content-area-wrapper">
             <div className="main-content-area-wrapper__header">
                 <h1>Памятники</h1>
             </div>
             <div className="main-content-area-wrapper__content-wrapper">
-                <TagsBar Tags={tagsContent.Tags} />
+                <MonumentsTagsBar {...MonumentsTags} />
                 <div>
                     <PostArea {...news} />
                 </div>
@@ -81,6 +126,17 @@ const MainContent = () => {
                         icon: <PlusIcon />,
                         text: "Создать"
                     }} />
+                </div>
+                <div ref={arrowRef} className="main-content-area-wrapper__up-arrow">
+                    <UpArrow
+                        downHandler={() => {
+                            if (arrowRef.current)
+                                arrowRef.current.classList.add("main-content-area-wrapper__up-arrow_down-mod")
+                        }}
+                        upHandler={() => {
+                            if (arrowRef.current)
+                                arrowRef.current.classList.remove("main-content-area-wrapper__up-arrow_down-mod")
+                        }} />
                 </div>
             </div>
         </section>

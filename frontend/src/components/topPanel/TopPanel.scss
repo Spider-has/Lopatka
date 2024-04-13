@@ -3,6 +3,9 @@
     flex-direction: row;
     padding: 25px 0 25px 5%;
     background-color: var(--background-subdued);
+    position: sticky;
+    top: 0px;
+    z-index: 5;
 
     &__navigation-bar-wrapper {
         display: flex;
@@ -63,7 +66,7 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
-    padding: 35px 46px 37px 29px;
+    padding: 35px 46px 37px 15px;
     border-radius: 0 0 15px 15px;
     pointer-events: none;
     opacity: 0;
@@ -75,8 +78,16 @@
     transition: all 0.3s ease-in;
 
     &__link {
+        padding: 11px 27px 10px 13px;
         color: var(--text-oncolor-default);
-        width: 160px;
+        transition: all 0.1s ease-in;
+        box-sizing: border-box;
+        width: 200px;
+        border-radius: 15px;
+        &:hover {
+            font: var(--text-menu-hovered);
+            border: 1px solid var(--text-oncolor-default);
+        }
     }
 
     &_opened {

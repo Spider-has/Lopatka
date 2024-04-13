@@ -1,15 +1,18 @@
+import { useRef } from "react";
 import { Footer } from "../../components/footer/Footer";
 import { Article, ArticleProps, ContentType, TextMod } from "../../components/post/Article";
-import { tagModTypes } from "../../components/tagsBar/TagsBar";
+import { tagModTypes, tagTypes } from "../../components/tagsBar/TagsBar";
 import { TopPanel } from "../../components/topPanel/TopPanel";
+import { UpArrow } from "../../components/upArrow/UpArrow";
 import { ShovelIcon } from "../../icons/Icons";
 import blankImg from "../../images/blank-img.jpg"
 import rndImg from "../../images/randomImg.jpg"
 
 const article: ArticleProps = {
     tag: {
-        Icon: <ShovelIcon />,
-        Text: "Экспедиции",
+        tagTypes: tagTypes.IconText,
+        icon: <ShovelIcon />,
+        text: "Экспедиции",
         tagMod: tagModTypes.SmallGap
     },
     author: "Иван Березин",
@@ -45,10 +48,22 @@ const article: ArticleProps = {
 }
 
 const ArticleContentBlock = () => {
+    const arrowRef = useRef<HTMLDivElement>(null)
     return (
         <div className="main-content-area-wrapper">
             <div className="main-content-area-wrapper__content-wrapper">
                 <Article {...article} />
+            </div>
+            <div ref={arrowRef} className="main-content-area-wrapper__up-arrow">
+                <UpArrow
+                    downHandler={() => {
+                        if (arrowRef.current)
+                            arrowRef.current.classList.add("main-content-area-wrapper__up-arrow_down-mod")
+                    }}
+                    upHandler={() => {
+                        if (arrowRef.current)
+                            arrowRef.current.classList.remove("main-content-area-wrapper__up-arrow_down-mod")
+                    }} />
             </div>
         </div>
     )

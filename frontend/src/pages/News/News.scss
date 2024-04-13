@@ -7,6 +7,7 @@
     justify-content: flex-start;
     width: 100%;
     gap: 31px;
+    position: relative;
 
     &__header h1 {
         color: var(--primary-default);
@@ -23,12 +24,24 @@
     &__creation-button {
         margin-left: 44px;
     }
+    &__up-arrow {
+        position: fixed;
+        bottom: 50px;
+        right: 10%;
+
+        &_down-mod {
+            position: absolute;
+            bottom: 0;
+            right: 10%;
+        }
+    }
 }
 
 .main-page {
     display: flex;
     flex-direction: column;
     width: 100%;
-    justify-content: center;
     background-color: var(--text-oncolor-default);
+    min-height: 100vh;
+    position: relative;
 }
