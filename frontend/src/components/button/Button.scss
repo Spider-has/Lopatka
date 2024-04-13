@@ -1,0 +1,21 @@
+.button {
+    padding: 14px 30px;
+    border-radius: 90px;
+
+    display: flex;
+    align-items: center;
+    gap: 18px;
+
+    background-color: var(--accent-default);
+    color: var(--primary-default);
+
+    font: var(--text-2-for-middle-button);
+
+    cursor: pointer;
+
+    & div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}

@@ -1,5 +1,6 @@
 .main-content-area-wrapper {
     display: flex;
+    margin-top: 80px;
     width: 100%;
     flex-direction: column;
     align-items: center;
@@ -7,10 +8,10 @@
     width: 100%;
     gap: 31px;
 
-    &__header {
+    &__header h1 {
         color: var(--primary-default);
         font:
-            700 110px 'Trasevich old',
+            400 110px 'Tsarevich Old',
             sans-serif;
     }
 
@@ -18,6 +19,9 @@
         display: flex;
         align-items: flex-start;
         gap: 36px;
+    }
+    &__creation-button {
+        margin-left: 44px;
     }
 }
 

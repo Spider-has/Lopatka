@@ -21,5 +21,6 @@
                 "name": "typescript-plugin-css-modules"
             }
         ]
-    }
+    },
+    "include": ["src", "src/declare.d.ts"]
 }

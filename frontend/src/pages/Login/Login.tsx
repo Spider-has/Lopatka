@@ -16,7 +16,7 @@ export const LoginPage = () => {
     useEffect(() => {
         const token = getJwtToken()
         if (token)
-            navigate('/mainPage')
+            navigate('/news')
     }, [])
     return (
         <div className="login-page">
@@ -77,6 +77,7 @@ export const LoginPage = () => {
                                 if (passwordRef.current && nameRef.current) {
                                     signIn(nameRef.current.value, passwordRef.current.value).catch((error) => {
                                         if (nameRef.current) {
+                                            console.log(1)
                                             setVisibleLoginError(nameRef.current.value === '');
                                         }
                                         if (passwordRef.current) {
@@ -85,7 +86,8 @@ export const LoginPage = () => {
                                         setVisibleError(true);
                                         console.log(error)
                                     }).then(() => {
-                                        navigate('/mainPage')
+                                        if (getJwtToken())
+                                            navigate('/news')
                                     });
                                 }
                             }} type="submit" className="logination__input logination__input_submit-type" value="Войти" />
