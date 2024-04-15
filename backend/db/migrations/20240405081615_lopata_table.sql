@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS monuments_lists (
 );
 
 
-INSERT INTO users (name, email, password, ) values ("Админ Админович Кистанов", "adminTest@lopata.ru", "qwerty");
+INSERT INTO users (name, email, password) VALUES ('Админ Админович Кистанов', 'adminTest@lopata.ru', 'qwerty');
 
 -- +goose StatementEnd
 
