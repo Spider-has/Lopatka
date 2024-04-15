@@ -52,6 +52,7 @@ func main() {
 		logrus.Fatalf("db err: %s", err.Error())
 	}
 
+	logrus.Printf("Привет всем!")
 	logrus.Printf("Server is running at port: %s", viper.GetString("port"))
 	err = server.Run(viper.GetString("port"), handlers.InitRoutes())
 	if err != nil {
