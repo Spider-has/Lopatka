@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import { Tag, TagProps } from "../tagsBar/TagsBar"
 import "./Post.scss"
+
 type PostProps = {
     tag: TagProps,
     author: string,

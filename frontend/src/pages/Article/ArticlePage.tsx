@@ -1,16 +1,17 @@
 import { useRef } from "react";
 import { Footer } from "../../components/footer/Footer";
 import { Article, ArticleProps, ContentType, TextMod } from "../../components/post/Article";
-import { tagModTypes, tagTypes } from "../../components/tagsBar/TagsBar";
+import { tagModTypes } from "../../components/tagsBar/TagsBar";
 import { TopPanel } from "../../components/topPanel/TopPanel";
 import { UpArrow } from "../../components/upArrow/UpArrow";
 import { ShovelIcon } from "../../icons/Icons";
 import blankImg from "../../images/blank-img.jpg"
 import rndImg from "../../images/randomImg.jpg"
+import { ButtonContentTypes } from "../../components/button/Button";
 
 const article: ArticleProps = {
     tag: {
-        tagTypes: tagTypes.IconText,
+        tagTypes: ButtonContentTypes.IconText,
         icon: <ShovelIcon />,
         text: "Экспедиции",
         tagMod: tagModTypes.SmallGap

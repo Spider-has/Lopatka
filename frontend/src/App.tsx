@@ -5,6 +5,7 @@ import { MainPage } from './pages/News/News';
 import { MonumentsPage } from './pages/Monuments/Monuments';
 import { PeoplePage } from './pages/People/People';
 import { ArticlePage } from './pages/Article/ArticlePage';
+import { ArticleCreation } from './pages/ArticleCreation/ArticleCreation';
 
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
                 <Route path="/monuments" index element={<MonumentsPage />} />
                 <Route path="/people" index element={<PeoplePage />} />
                 <Route path="/article" index element={<ArticlePage />} />
+                <Route path="/articleCreation" index element={<ArticleCreation />} />
             </Routes>
         </BrowserRouter>)
 }

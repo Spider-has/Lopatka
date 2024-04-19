@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { Button, ButtonContentTypes, ButtonTypes } from "../../components/button/Button";
 import { Footer } from "../../components/footer/Footer";
 import { PostArea, PostsAreaProps } from "../../components/post/Post";
-import { MonumentsTagsBar, MonumentsTagsBarProps, tagListType, tagModTypes, tagTypes } from "../../components/tagsBar/TagsBar";
+import { MonumentsTagsBar, MonumentsTagsBarProps, tagListType, tagModTypes } from "../../components/tagsBar/TagsBar";
 import { TopPanel } from "../../components/topPanel/TopPanel";
 import { UpArrow } from "../../components/upArrow/UpArrow";
 import { PlusIcon, ShovelIcon } from "../../icons/Icons";
@@ -16,22 +16,22 @@ const MonumentsTags: MonumentsTagsBarProps = {
             listHeader: "Временной отрезок",
             tags: [
                 {
-                    tagTypes: tagTypes.Text,
+                    tagTypes: ButtonContentTypes.Text,
                     text: "13-15 вв.",
                     tagMod: tagModTypes.DescriptionText
                 },
                 {
-                    tagTypes: tagTypes.Text,
+                    tagTypes: ButtonContentTypes.Text,
                     text: "9-12 вв.",
                     tagMod: tagModTypes.DescriptionText
                 },
                 {
-                    tagTypes: tagTypes.Text,
+                    tagTypes: ButtonContentTypes.Text,
                     text: "5-8 вв.",
                     tagMod: tagModTypes.DescriptionText
                 },
                 {
-                    tagTypes: tagTypes.Text,
+                    tagTypes: ButtonContentTypes.Text,
                     text: "7 тыс. лет до н.э.",
                     tagMod: tagModTypes.DescriptionText
                 },
@@ -42,42 +42,42 @@ const MonumentsTags: MonumentsTagsBarProps = {
             listHeader: "Эпоха",
             tags: [
                 {
-                    tagTypes: tagTypes.Text,
+                    tagTypes: ButtonContentTypes.Text,
                     text: "Мезолит-неолит",
                     tagMod: tagModTypes.DescriptionText
                 },
                 {
-                    tagTypes: tagTypes.Text,
+                    tagTypes: ButtonContentTypes.Text,
                     text: "Абашевская культура",
                     tagMod: tagModTypes.DescriptionText
                 },
                 {
-                    tagTypes: tagTypes.Text,
+                    tagTypes: ButtonContentTypes.Text,
                     text: "Поздняковская культура",
                     tagMod: tagModTypes.DescriptionText
                 },
                 {
-                    tagTypes: tagTypes.Text,
+                    tagTypes: ButtonContentTypes.Text,
                     text: "Балановская культура",
                     tagMod: tagModTypes.DescriptionText
                 },
                 {
-                    tagTypes: tagTypes.Text,
+                    tagTypes: ButtonContentTypes.Text,
                     text: "Культура текстильной керамики",
                     tagMod: tagModTypes.DescriptionText
                 },
                 {
-                    tagTypes: tagTypes.Text,
+                    tagTypes: ButtonContentTypes.Text,
                     text: "Древнемарийская культура",
                     tagMod: tagModTypes.DescriptionText
                 },
                 {
-                    tagTypes: tagTypes.Text,
+                    tagTypes: ButtonContentTypes.Text,
                     text: "Мезолит",
                     tagMod: tagModTypes.DescriptionText
                 },
                 {
-                    tagTypes: tagTypes.Text,
+                    tagTypes: ButtonContentTypes.Text,
                     text: "Ананьинская культура",
                     tagMod: tagModTypes.DescriptionText
                 },
@@ -94,7 +94,7 @@ const MonumentsTags: MonumentsTagsBarProps = {
 const news: PostsAreaProps = {
     posts: [{
         tag: {
-            tagTypes: tagTypes.IconText,
+            tagTypes: ButtonContentTypes.IconText,
             icon: <ShovelIcon />,
             text: "Экспедиции",
             tagMod: tagModTypes.SmallGap

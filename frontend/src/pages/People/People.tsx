@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { Button, ButtonContentTypes, ButtonTypes } from "../../components/button/Button";
 import { Footer } from "../../components/footer/Footer";
 import { PostArea, PostsAreaProps } from "../../components/post/Post";
-import { TagsBar, TagsBarProps, tagModTypes, tagTypes } from "../../components/tagsBar/TagsBar";
+import { TagsBar, TagsBarProps, tagModTypes } from "../../components/tagsBar/TagsBar";
 import { TopPanel } from "../../components/topPanel/TopPanel";
 import { AnotherIcon, CalendarIcon, ClockIcon, PlusIcon, ShovelIcon } from "../../icons/Icons";
 import blankImg from "../../images/blank-img.jpg"
@@ -12,25 +12,25 @@ import { UpArrow } from "../../components/upArrow/UpArrow";
 const tagsContent: TagsBarProps = {
     Tags: [
         {
-            tagTypes: tagTypes.IconText,
+            tagTypes: ButtonContentTypes.IconText,
             icon: <ClockIcon />,
             text: "Свежее",
             tagMod: tagModTypes.NoneMod
         },
         {
-            tagTypes: tagTypes.IconText,
+            tagTypes: ButtonContentTypes.IconText,
             icon: <ShovelIcon />,
             text: "Экспедиции",
             tagMod: tagModTypes.NoneMod
         },
         {
-            tagTypes: tagTypes.IconText,
+            tagTypes: ButtonContentTypes.IconText,
             icon: <CalendarIcon />,
             text: "События",
             tagMod: tagModTypes.NoneMod
         },
         {
-            tagTypes: tagTypes.IconText,
+            tagTypes: ButtonContentTypes.IconText,
             icon: <AnotherIcon />,
             text: "Другое",
             tagMod: tagModTypes.NoneMod
@@ -41,7 +41,7 @@ const tagsContent: TagsBarProps = {
 const news: PostsAreaProps = {
     posts: [{
         tag: {
-            tagTypes: tagTypes.IconText,
+            tagTypes: ButtonContentTypes.IconText,
             icon: <ShovelIcon />,
             text: "Интервью",
             tagMod: tagModTypes.SmallGap

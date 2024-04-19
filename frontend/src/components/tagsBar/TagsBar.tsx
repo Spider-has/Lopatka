@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { OpenCloseListIcon } from "../../icons/Icons"
 import "./TagsBar.scss"
+import { ButtonContentTypes } from "../button/Button"
 
 export enum tagModTypes {
     NoneMod = "",
@@ -8,13 +9,8 @@ export enum tagModTypes {
     DescriptionText = "_text-small"
 }
 
-export enum tagTypes {
-    IconText = "IconText",
-    Text = "Text"
-}
-
 export type TagProps = {
-    tagTypes: tagTypes,
+    tagTypes: ButtonContentTypes,
     icon?: JSX.Element,
     text: string,
     tagMod: tagModTypes,
@@ -104,7 +100,7 @@ const TagsList = (props: TagsListProps) => {
 
 export const Tag = (props: TagProps) => {
     switch (props.tagTypes) {
-        case tagTypes.IconText:
+        case ButtonContentTypes.IconText:
             return (
                 <div className={`tag ${props.tagMod}`}>
                     {props.icon}
@@ -113,7 +109,7 @@ export const Tag = (props: TagProps) => {
                     </div>
                 </div>
             )
-        case tagTypes.Text:
+        case ButtonContentTypes.Text:
             return (
                 <div className={`tag ${props.tagMod}`}>
                     {props.text}

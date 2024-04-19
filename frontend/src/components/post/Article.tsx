@@ -2,8 +2,6 @@ import { Tag, TagProps } from "../tagsBar/TagsBar"
 import "./Post.scss"
 
 
-
-
 export enum ContentType {
     Text = "Text",
     Image = "Image"
