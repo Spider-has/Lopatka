@@ -1,8 +1,52 @@
 .input {
-    width: 100%;
-    padding: 17px 15px 16px 15px;
-    outline: none;
-    border: 1px solid var(--border-default);
-    border-radius: 10px;
-    box-sizing: border-box;
+  width: 100%;
+  padding: 16px 15px 16px 15px;
+  min-height: 40px;
+  outline: none;
+  border: 1px solid var(--border-default);
+  border-radius: 10px;
+  box-sizing: border-box;
+  font: var(--text-body-creating-article);
+  resize: none;
+  overflow: hidden;
+  &_full {
+    height: 100%;
+  }
+
+  &_auto {
+    height: 51px;
+  }
+
+  &_large {
+    height: 108px;
+  }
+}
+
+.input-image-uploader {
+  display: flex;
+  flex-direction: column;
+  color: var(--text-subdued);
+  font: var(--text-for-fields);
+  justify-content: center;
+  align-items: center;
+  height: 125px;
+  width: 255px;
+  gap: 2px;
+  border-radius: 15px;
+  border: 1px solid var(--border-default);
+  cursor: pointer;
+  &__input {
+    display: none;
+  }
+}
+
+.input-letter-counter {
+  position: absolute;
+  right: 0;
+  bottom: -17px;
+  font: var(--text-for-fields);
+  color: var(--text-subdued);
+  &_overflow {
+    background-color: var(--divider-default);
+  }
 }
