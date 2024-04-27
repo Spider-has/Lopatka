@@ -20,6 +20,10 @@
   &_large {
     height: 108px;
   }
+
+  &_editor {
+    overflow-y: auto;
+  }
 }
 
 .input-image-uploader {
@@ -48,5 +52,26 @@
   color: var(--text-subdued);
   &_overflow {
     background-color: var(--divider-default);
+  }
+}
+
+.content-editable-area {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  &__elem {
+    font: var(--text-body-text);
+    color: var(--primary-default);
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+    & b {
+      font: var(--text-body-bold-text);
+    }
+  }
+
+  &__image-tip {
+    font: var(--text-body-creating-article);
+    color: var(--text-subdued);
   }
 }

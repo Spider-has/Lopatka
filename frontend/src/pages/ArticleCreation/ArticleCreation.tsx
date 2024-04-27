@@ -109,7 +109,7 @@ const Form = () => {
               <div></div>
               <div className="creation-form__article-content">
                 <InputField
-                  type={InputTypes.Text}
+                  type={InputTypes.Editor}
                   validationTypes={ValidationTypes.Normal}
                   dataRef={ref}
                   required={true}
