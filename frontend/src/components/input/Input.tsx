@@ -7,7 +7,6 @@ import {
   SmallMinusIcon,
   SmallPlusIcon,
 } from '../../icons/Icons';
-import React from 'react';
 
 export enum InputTypes {
   Text = 'Text',
@@ -126,8 +125,15 @@ interface EditorElem {
 interface TextType extends EditorElem {
   type: ContentTypes.Text;
   value: string;
-  mods: { from: number; to: number; format: ModsTypes; size?: number }[];
+  mods: mod[];
 }
+
+type mod = {
+  from: number;
+  to: number;
+  format: ModsTypes;
+  size?: number;
+};
 
 interface ImageType extends EditorElem {
   type: ContentTypes.Image;
@@ -167,44 +173,18 @@ const RichTextEditor = (props: InputProps) => {
   const elems = editor.content.map((elem, i) => {
     switch (elem.type) {
       case ContentTypes.Text: {
-        let text = <>{elem.value}</>;
-        let diff = 0;
-        elem.mods.forEach(el => {
-          if (el.format == ModsTypes.Bold)
-            text = (
-              <>
-                {elem.value.slice(0, el.from + diff)}
-                <b>{elem.value.slice(el.from + diff, el.to + diff)}</b>
-                {elem.value.slice(el.to + diff, elem.value.length)}
-              </>
-            );
-          diff = diff + 7;
-        });
-        console.log(text);
         return (
           <span
             onInput={() => {
               if (editorRef.current) {
-                const element = editorRef.current.querySelector(`#${elem.id}`);
+                const element = editorRef.current.querySelector(`#${elem.id}`) as HTMLElement;
 
                 if (element) {
-                  const value = element.innerHTML
-                    .replaceAll('<br>', '\n')
-                    .replaceAll('&nbsp;', ' ')
-                    .replaceAll('<b>', '')
-                    .replaceAll('</b>', '');
+                  const value = replacer(element.innerHTML);
 
-                  setEditor({
-                    ...editor,
-                    content: editor.content.map(el => {
-                      if (el.id == elem.id) return { ...el, value: value };
-                      return { ...el };
-                    }),
-                  });
-                  console.log(editor);
+                  setEditor(editorEditSymbols(editor, cursor, value, elem.id));
                   const countbefore = (elem.value.match(/\n/g) || []).length;
                   const countnow = (value.match(/\n/g) || []).length;
-                  console.log(element.innerHTML.length);
                   if (window.getSelection) {
                     const sel = window.getSelection();
                     if (sel)
@@ -212,14 +192,12 @@ const RichTextEditor = (props: InputProps) => {
                         const range = sel.getRangeAt(0);
                         if (
                           range.commonAncestorContainer.parentElement &&
-                          range.commonAncestorContainer.parentElement.classList.contains(
+                          (range.commonAncestorContainer.parentElement.classList.contains(
                             'content-editable-area__elem',
-                          )
+                          ) ||
+                            range.commonAncestorContainer.parentElement.tagName == 'B')
                         ) {
-                          const rang =
-                            range.endOffset > element.innerHTML.length
-                              ? element.innerHTML.length
-                              : range.endOffset;
+                          const rang = getCursorPosInNode(element).end;
                           if (countbefore == countnow)
                             setCursor({ from: rang, to: rang, elemid: element.id });
                           else if (countnow > countbefore)
@@ -249,32 +227,38 @@ const RichTextEditor = (props: InputProps) => {
     if (cursor.elemid) {
       if (editorRef.current) {
         editor.content.forEach(el => {
-          const elem = editorRef!.current!.querySelector(`#${el.id}`);
+          const elem = editorRef.current?.querySelector(`#${el.id}`);
           if (el.type == ContentTypes.Text) {
-            let text = el.value;
-            let diff = 0;
-            el.mods.forEach(el1 => {
-              if (el1.format == ModsTypes.Bold)
-                text =
-                  text.slice(0, el1.from + diff) +
-                  '<b>' +
-                  text.slice(el1.from + diff, el1.to + diff) +
-                  '</b>' +
-                  text.slice(el1.to + diff, text.length);
-              diff = diff + 7;
-            });
+            const text = innertextTransform(el);
             if (elem) elem.innerHTML = text;
           }
         });
-        console.log(cursor);
         const elem = editorRef.current.querySelector(`#${cursor.elemid}`);
         if (elem) {
-          const value = elem.innerHTML;
           const range = document.createRange();
           const sel = window.getSelection();
-          const pos = cursor.from >= 0 ? (cursor.from > value.length ? value.length : cursor.from) : 0;
-
-          if (elem.childNodes[0]) range.setStart(elem.childNodes[0], pos);
+          if (elem.childNodes[0]) {
+            let i = 0;
+            let node = elem.childNodes[0];
+            let from = cursor.from;
+            let len;
+            if (node.textContent) len = node.textContent.length;
+            else if (node.innerText) len = node.innerText.length;
+            console.log(node, from);
+            while (from > len) {
+              from = from - len;
+              i++;
+              node = elem.childNodes[i];
+              if (node.textContent) len = node.textContent.length;
+              else if (node.innerText) len = node.innerText.length;
+            }
+            if (node.nodeName == '#text') {
+              range.setStart(node, from);
+            } else if (node.nodeName == 'B') {
+              if (node.childNodes[0]) range.setStart(node.childNodes[0], from);
+              else range.setStart(elem.childNodes[0], 0);
+            }
+          }
           range.collapse(true);
           if (sel) {
             sel.removeAllRanges();
@@ -288,19 +272,21 @@ const RichTextEditor = (props: InputProps) => {
   useEffect(() => {
     document.onselectionchange = () => {
       const selection = document.getSelection();
-      console.log(selection?.getRangeAt(0));
+
       if (selection?.anchorNode?.parentElement) {
-        if (selection.anchorNode.parentElement.classList.contains('content-editable-area__elem')) {
-          console.log(selection);
-          const selectedElemid = selection.anchorNode?.parentElement.id;
-          const fromPos = selection.anchorOffset;
-          const toPos = selection.focusOffset;
+        if (
+          selection.anchorNode.parentElement.classList.contains('content-editable-area__elem') ||
+          selection.anchorNode.parentElement.tagName == 'B'
+        ) {
+          let parentNode = getParent(selection);
+          parentNode = parentNode ? parentNode : selection?.anchorNode?.parentElement;
+          const cursor = getCursorPosInNode(parentNode);
+          const selectedElemid = parentNode.id;
           setCursor({
-            from: fromPos,
-            to: toPos,
+            from: cursor.start,
+            to: cursor.end,
             elemid: selectedElemid,
           });
-          console.log(fromPos, toPos, selectedElemid);
         }
       }
     };
@@ -313,27 +299,7 @@ const RichTextEditor = (props: InputProps) => {
         <SmallPlusIcon />
         <div
           onClick={() => {
-            console.log(cursor);
-
-            setEditor({
-              ...editor,
-              content: editor.content.map(el => {
-                if (el.id == cursor.elemid && el.type == ContentTypes.Text) {
-                  return {
-                    ...el,
-                    mods: [
-                      ...el.mods,
-                      {
-                        from: cursor.from,
-                        to: cursor.to,
-                        format: ModsTypes.Bold,
-                      },
-                    ],
-                  };
-                }
-                return { ...el };
-              }),
-            });
+            setEditor(setBolderContent(editor, cursor));
           }}
         >
           <BolderTextIcon />
@@ -351,3 +317,164 @@ const RichTextEditor = (props: InputProps) => {
     </div>
   );
 };
+
+const replacer = (value: string) => {
+  return value
+    .replaceAll('<br>', '\n')
+    .replaceAll('&nbsp;', ' ')
+    .replaceAll('<b>', '')
+    .replaceAll('</b>', '');
+};
+
+const innertextTransform = (el: TextType) => {
+  let text = el.value;
+  let diff = 0;
+  const elModsSorted = [...el.mods];
+  elModsSorted.sort((el1, el2) => {
+    if (el1.from > el2.from && el1.to > el2.to) return 1;
+    if (el1.from < el2.from && el1.to < el2.to) return -1;
+    if (el1.from < el2.from && el1.to > el2.to) return 0;
+    return 0;
+  });
+  console.log(elModsSorted);
+  elModsSorted.forEach(el1 => {
+    if (el1.format == ModsTypes.Bold)
+      text =
+        text.slice(0, el1.from + diff) +
+        '<b>' +
+        text.slice(el1.from + diff, el1.to + diff) +
+        '</b>' +
+        text.slice(el1.to + diff, text.length);
+    diff = diff + 7;
+  });
+  return text;
+};
+
+const getCursorPosInNode = (element: HTMLElement) => {
+  let caretOffset = 0;
+  let caretStart = 0;
+  const doc = element.ownerDocument;
+  const win = doc.defaultView;
+  let sel;
+  if (doc && win)
+    if (win.getSelection()) {
+      sel = win.getSelection();
+      if (sel && sel.rangeCount > 0) {
+        const range = sel.getRangeAt(0);
+        const preCaretRange = range.cloneRange();
+        preCaretRange.selectNodeContents(element);
+        preCaretRange.setEnd(range.endContainer, range.endOffset);
+        const startrange = preCaretRange.cloneRange();
+        startrange.setStart(range.startContainer, range.startOffset);
+        caretOffset = preCaretRange.toString().length;
+        caretStart = preCaretRange.toString().length - startrange.toString().length;
+      }
+    }
+  return {
+    start: caretStart,
+    end: caretOffset,
+  };
+};
+
+const getParent = (selection: globalThis.Selection) => {
+  let parentNode;
+  if (selection.anchorNode && selection.anchorNode.parentElement) {
+    parentNode = selection.anchorNode.parentElement;
+    if (
+      selection.anchorNode.parentElement.tagName == 'B' &&
+      selection.anchorNode.parentElement.parentElement
+    ) {
+      parentNode = selection.anchorNode.parentElement.parentElement;
+    }
+  }
+  return parentNode;
+};
+
+const editorEditSymbols = (editor: Editor, cursor: Selection, value: string, elemid: string) => {
+  return {
+    ...editor,
+    content: editor.content.map(el => {
+      if (el.id == elemid) {
+        if (el.type == ContentTypes.Text) {
+          const valuediff = value.length - el.value.length;
+          const mods: mod[] = [];
+          el.mods.forEach(mod => {
+            if (mod.from - mod.to < 0 && mod.from < el.value.length && mod.to < el.value.length)
+              if (cursor.from < mod.from && cursor.to < mod.from) {
+                mods.push({ ...mod, from: mod.from + valuediff, to: mod.to + valuediff });
+              } else if (cursor.from > mod.from && cursor.to <= mod.to) {
+                mods.push({ ...mod, to: mod.to + valuediff });
+              } else mods.push({ ...mod });
+          });
+          console.log(mods, el.mods);
+          return { ...el, value: value, mods: mods };
+        }
+        return { ...el };
+      }
+      return { ...el };
+    }),
+  };
+};
+
+const setBolderContent = (editor: Editor, cursor: Selection) => {
+  return {
+    ...editor,
+    content: editor.content.map(el => {
+      if (el.id == cursor.elemid && el.type == ContentTypes.Text) {
+        const mods: mod[] = [];
+        el.mods.push({
+          format: ModsTypes.Bold,
+          from: cursor.from,
+          to: cursor.to,
+        });
+        const elModsSorted = [...el.mods];
+        elModsSorted.sort((el1, el2) => {
+          if (el1.from > el2.from && el1.to > el2.to) return 1;
+          if (el1.from < el2.from && el1.to < el2.to) return -1;
+          if (el1.from < el2.from && el1.to > el2.to) return 0;
+          return 0;
+        });
+        if (elModsSorted.length > 1)
+          for (let i = 1; i < elModsSorted.length; i++) {
+            const now = elModsSorted[i];
+            const old = elModsSorted[i - 1];
+            if (now.from <= old.from && now.to >= old.to) {
+              mods.push({ ...now, from: now.from, to: now.to });
+            } else if (now.from <= old.from && now.to <= old.to && now.to >= old.from) {
+              mods.push({ ...now, from: now.from, to: old.to });
+            } else if (now.from >= old.from && now.to >= old.to && now.from <= old.to) {
+              mods.push({ ...now, from: old.from, to: now.to });
+            } else if (now.from >= old.from && now.to <= old.to) {
+              mods.push({ ...now, from: old.from, to: old.to });
+            } else {
+              if (i == 1) {
+                mods.push({ ...old });
+                mods.push({ ...now });
+              } else mods.push({ ...now });
+            }
+          }
+        else if (el.mods.length == 1) mods.push(el.mods[0]);
+        return {
+          ...el,
+          mods: mods,
+        };
+      }
+      return { ...el };
+    }),
+  };
+};
+
+// const checkMods = (mods: mod[]) => {
+//   const modscopy: mod[] = [];
+//   for (let i = 0; i < mods.length; i++) {
+//     for (let j = 0; j < mods.length; i++) {
+//       const mod = mods[i];
+//       const modNow = mods[j];
+//       if (j != i && mod.format == modNow.format) {
+//         if(mod.from > modNow.from && mod.to > modNow.to){
+//          s
+//         }
+//       }
+//     }
+//   }
+// };
