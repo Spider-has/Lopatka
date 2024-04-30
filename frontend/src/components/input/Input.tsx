@@ -244,7 +244,6 @@ const RichTextEditor = (props: InputProps) => {
             let len;
             if (node.textContent) len = node.textContent.length;
             else if (node.innerText) len = node.innerText.length;
-            console.log(node, from);
             while (from > len) {
               from = from - len;
               i++;
@@ -399,7 +398,7 @@ const editorEditSymbols = (editor: Editor, cursor: Selection, value: string, ele
           const valuediff = value.length - el.value.length;
           const mods: mod[] = [];
           el.mods.forEach(mod => {
-            if (mod.from - mod.to < 0 && mod.from < el.value.length && mod.to < el.value.length)
+            if (mod.from - mod.to < 0 && mod.from < el.value.length && mod.to <= el.value.length)
               if (cursor.from < mod.from && cursor.to < mod.from) {
                 mods.push({ ...mod, from: mod.from + valuediff, to: mod.to + valuediff });
               } else if (cursor.from > mod.from && cursor.to <= mod.to) {
@@ -421,39 +420,12 @@ const setBolderContent = (editor: Editor, cursor: Selection) => {
     ...editor,
     content: editor.content.map(el => {
       if (el.id == cursor.elemid && el.type == ContentTypes.Text) {
-        const mods: mod[] = [];
         el.mods.push({
           format: ModsTypes.Bold,
           from: cursor.from,
           to: cursor.to,
         });
-        const elModsSorted = [...el.mods];
-        elModsSorted.sort((el1, el2) => {
-          if (el1.from > el2.from && el1.to > el2.to) return 1;
-          if (el1.from < el2.from && el1.to < el2.to) return -1;
-          if (el1.from < el2.from && el1.to > el2.to) return 0;
-          return 0;
-        });
-        if (elModsSorted.length > 1)
-          for (let i = 1; i < elModsSorted.length; i++) {
-            const now = elModsSorted[i];
-            const old = elModsSorted[i - 1];
-            if (now.from <= old.from && now.to >= old.to) {
-              mods.push({ ...now, from: now.from, to: now.to });
-            } else if (now.from <= old.from && now.to <= old.to && now.to >= old.from) {
-              mods.push({ ...now, from: now.from, to: old.to });
-            } else if (now.from >= old.from && now.to >= old.to && now.from <= old.to) {
-              mods.push({ ...now, from: old.from, to: now.to });
-            } else if (now.from >= old.from && now.to <= old.to) {
-              mods.push({ ...now, from: old.from, to: old.to });
-            } else {
-              if (i == 1) {
-                mods.push({ ...old });
-                mods.push({ ...now });
-              } else mods.push({ ...now });
-            }
-          }
-        else if (el.mods.length == 1) mods.push(el.mods[0]);
+        const mods: mod[] = checkMods(el.mods);
         return {
           ...el,
           mods: mods,
@@ -464,17 +436,41 @@ const setBolderContent = (editor: Editor, cursor: Selection) => {
   };
 };
 
-// const checkMods = (mods: mod[]) => {
-//   const modscopy: mod[] = [];
-//   for (let i = 0; i < mods.length; i++) {
-//     for (let j = 0; j < mods.length; i++) {
-//       const mod = mods[i];
-//       const modNow = mods[j];
-//       if (j != i && mod.format == modNow.format) {
-//         if(mod.from > modNow.from && mod.to > modNow.to){
-//          s
-//         }
-//       }
-//     }
-//   }
-// };
+const checkMods = (mods: mod[]) => {
+  const modscopy: mod[] = [...mods];
+  console.log(modscopy);
+  for (let i = 0; i < modscopy.length; i++) {
+    const mod = { ...modscopy[i] };
+    for (let j = 0; j < modscopy.length; j++) {
+      console.log(i, [...modscopy]);
+      const modNow = { ...modscopy[j] };
+      if (j !== i && mod.format == modNow.format) {
+        if (mod.from <= modNow.from && mod.to >= modNow.to) {
+          modscopy.splice(j, 1);
+          i = 0;
+        } else if (mod.from >= modNow.from && mod.to <= modNow.to) {
+          modscopy.splice(i, 1);
+          i = 0;
+        } else if (mod.from <= modNow.from && mod.to <= modNow.to && mod.to >= modNow.from) {
+          modscopy.splice(j, 1);
+          modscopy.splice(i, 1, { format: mod.format, from: mod.from, to: modNow.to });
+          i = 0;
+        } else if (mod.from >= modNow.from && mod.to >= modNow.to && modNow.to >= mod.from) {
+          modscopy.splice(j, 1);
+          modscopy.splice(i, 1, { format: mod.format, from: modNow.from, to: mod.to });
+          i = 0;
+        } else if (mod.to == modNow.from) {
+          modscopy.splice(j, 1);
+          modscopy.splice(i, 1, { format: mod.format, from: mod.from, to: modNow.to });
+          i = 0;
+        } else if (mod.from == modNow.to) {
+          modscopy.splice(j, 1);
+          modscopy.splice(i, 1, { format: mod.format, from: modNow.from, to: mod.to });
+          i = 0;
+        }
+      }
+    }
+  }
+  console.log(modscopy);
+  return modscopy;
+};
