@@ -7,6 +7,7 @@ import {
   SmallMinusIcon,
   SmallPlusIcon,
 } from '../../icons/Icons';
+import React from 'react';
 
 export enum InputTypes {
   Text = 'Text',
@@ -177,7 +178,7 @@ const RichTextEditor = (props: InputProps) => {
                 {elem.value.slice(el.to + diff, elem.value.length)}
               </>
             );
-          diff = diff + 13;
+          diff = diff + 7;
         });
         console.log(text);
         return (
@@ -192,7 +193,6 @@ const RichTextEditor = (props: InputProps) => {
                     .replaceAll('&nbsp;', ' ')
                     .replaceAll('<b>', '')
                     .replaceAll('</b>', '');
-                  console.log(value.length);
 
                   setEditor({
                     ...editor,
@@ -204,7 +204,7 @@ const RichTextEditor = (props: InputProps) => {
                   console.log(editor);
                   const countbefore = (elem.value.match(/\n/g) || []).length;
                   const countnow = (value.match(/\n/g) || []).length;
-
+                  console.log(element.innerHTML.length);
                   if (window.getSelection) {
                     const sel = window.getSelection();
                     if (sel)
@@ -217,8 +217,8 @@ const RichTextEditor = (props: InputProps) => {
                           )
                         ) {
                           const rang =
-                            range.endOffset > element.innerHTML.length - 1
-                              ? element.innerHTML.length - 1
+                            range.endOffset > element.innerHTML.length
+                              ? element.innerHTML.length
                               : range.endOffset;
                           if (countbefore == countnow)
                             setCursor({ from: rang, to: rang, elemid: element.id });
@@ -228,7 +228,7 @@ const RichTextEditor = (props: InputProps) => {
                         }
                       }
                   }
-                  element.textContent = '';
+                  element.innerHTML = '';
                 }
               }
             }}
@@ -256,16 +256,17 @@ const RichTextEditor = (props: InputProps) => {
             el.mods.forEach(el1 => {
               if (el1.format == ModsTypes.Bold)
                 text =
-                  el.value.slice(0, el1.from + diff) +
+                  text.slice(0, el1.from + diff) +
                   '<b>' +
-                  el.value.slice(el1.from + diff, el1.to + diff) +
+                  text.slice(el1.from + diff, el1.to + diff) +
                   '</b>' +
-                  el.value.slice(el1.to + diff, el.value.length);
+                  text.slice(el1.to + diff, text.length);
               diff = diff + 7;
             });
             if (elem) elem.innerHTML = text;
           }
         });
+        console.log(cursor);
         const elem = editorRef.current.querySelector(`#${cursor.elemid}`);
         if (elem) {
           const value = elem.innerHTML;
@@ -287,8 +288,10 @@ const RichTextEditor = (props: InputProps) => {
   useEffect(() => {
     document.onselectionchange = () => {
       const selection = document.getSelection();
+      console.log(selection?.getRangeAt(0));
       if (selection?.anchorNode?.parentElement) {
         if (selection.anchorNode.parentElement.classList.contains('content-editable-area__elem')) {
+          console.log(selection);
           const selectedElemid = selection.anchorNode?.parentElement.id;
           const fromPos = selection.anchorOffset;
           const toPos = selection.focusOffset;
@@ -297,6 +300,7 @@ const RichTextEditor = (props: InputProps) => {
             to: toPos,
             elemid: selectedElemid,
           });
+          console.log(fromPos, toPos, selectedElemid);
         }
       }
     };
@@ -310,6 +314,7 @@ const RichTextEditor = (props: InputProps) => {
         <div
           onClick={() => {
             console.log(cursor);
+
             setEditor({
               ...editor,
               content: editor.content.map(el => {
