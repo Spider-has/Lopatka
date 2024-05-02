@@ -305,23 +305,53 @@ export const CursiveTextIcon = () => {
   );
 };
 
-export const SmallPlusIcon = () => {
+type SizeIconsProps = {
+  className?: string;
+};
+
+export const SmallPlusIcon = (props: SizeIconsProps) => {
   return (
-    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      className={props.className}
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <path
         d="M4.58333 5.41667H0.416667C0.186548 5.41667 0 5.23012 0 5C0 4.76988 0.186548 4.58333 0.416667 4.58333H4.58333V0.416667C4.58333 0.186548 4.76988 0 5 0C5.23012 0 5.41667 0.186548 5.41667 0.416667V4.58333H9.58333C9.81345 4.58333 10 4.76988 10 5C10 5.23012 9.81345 5.41667 9.58333 5.41667H5.41667V9.58333C5.41667 9.81345 5.23012 10 5 10C4.76988 10 4.58333 9.81345 4.58333 9.58333V5.41667Z"
-        fill="black"
+        fill="#140400"
       />
     </svg>
   );
 };
 
-export const SmallMinusIcon = () => {
+export const SmallMinusIcon = (props: SizeIconsProps) => {
   return (
-    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      className={props.className}
+      width="10"
+      height="10"
+      viewBox="0 0 10 10"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <path
         d="M0.416667 5.43294C0.186548 5.43294 0 5.24639 0 5.01628C0 4.78616 0.186548 4.59961 0.416667 4.59961H9.58333C9.81345 4.59961 10 4.78616 10 5.01628C10 5.24639 9.81345 5.43294 9.58333 5.43294H0.416667Z"
-        fill="black"
+        fill="#140400"
+      />
+    </svg>
+  );
+};
+
+export const CLoseIcon = () => {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="12" cy="12" r="11.6" fill="white" stroke="#CECECE" strokeWidth="0.8" />
+      <path
+        d="M6.67669 18.0425C6.47841 18.2408 6.15692 18.2408 5.95864 18.0425C5.76035 17.8442 5.76035 17.5228 5.95864 17.3245L11.2816 12.0016L5.95864 6.67865C5.76035 6.48036 5.76035 6.15888 5.95864 5.96059C6.15692 5.7623 6.47841 5.7623 6.67669 5.96059L11.9996 11.2835L17.3225 5.96059C17.5208 5.7623 17.8423 5.7623 18.0406 5.96059C18.2389 6.15888 18.2389 6.48036 18.0406 6.67865L12.7177 12.0016L18.0406 17.3245C18.2389 17.5228 18.2389 17.8442 18.0406 18.0425C17.8423 18.2408 17.5208 18.2408 17.3225 18.0425L11.9996 12.7196L6.67669 18.0425Z"
+        fill="#E86961"
       />
     </svg>
   );

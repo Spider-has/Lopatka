@@ -2,6 +2,7 @@ import { RefObject, useEffect, useRef, useState } from 'react';
 import './Input.scss';
 import {
   BolderTextIcon,
+  CLoseIcon,
   CursiveTextIcon,
   ImageUploaderIcon,
   SmallMinusIcon,
@@ -114,7 +115,7 @@ enum ContentTypes {
 enum ModsTypes {
   Bold = 'bold',
   Cursive = 'cursive',
-  textSize = 'textSize',
+  TextSize = 'textSize',
 }
 
 interface EditorElem {
@@ -131,7 +132,7 @@ interface TextType extends EditorElem {
 type mod = {
   from: number;
   to: number;
-  format: ModsTypes;
+  formats: ModsTypes[];
   size?: number;
 };
 
@@ -170,18 +171,43 @@ const RichTextEditor = (props: InputProps) => {
     elemid: 'el--1',
   });
 
+  const [fontSize, setFontSize] = useState<number>(20);
+  const sizeRef = useRef<HTMLInputElement>(null);
+
+  const [hoverMinusFont, setHoverMinusFont] = useState(false);
+  const [hoverFont, setHoverFont] = useState(false);
+  const [hoverPlusFont, setHoverPlusFont] = useState(false);
+  const [hoverBolderButton, setHoverBolderButton] = useState(false);
+  const [hoverCursiveButton, setHoverCursiveButton] = useState(false);
+
   const elems = editor.content.map((elem, i) => {
     switch (elem.type) {
       case ContentTypes.Text: {
         return (
           <span
+            onKeyDown={event => {
+              console.log(1);
+              if (event.key === 'Backspace') {
+                console.log(2);
+                if (editorRef.current) {
+                  const element = editorRef.current.querySelector(`#${elem.id}`) as HTMLElement;
+                  console.log(3);
+                  if (element) {
+                    console.log(4);
+                    if (element.textContent === '' && elem.id !== 'el-0') {
+                      console.log(5);
+                      setEditor(removeElem(editor, elem.id));
+                    }
+                  }
+                }
+              }
+            }}
             onInput={() => {
               if (editorRef.current) {
                 const element = editorRef.current.querySelector(`#${elem.id}`) as HTMLElement;
 
                 if (element) {
                   const value = replacer(element.innerHTML);
-
                   setEditor(editorEditSymbols(editor, cursor, value, elem.id));
                   const countbefore = (elem.value.match(/\n/g) || []).length;
                   const countnow = (value.match(/\n/g) || []).length;
@@ -195,7 +221,7 @@ const RichTextEditor = (props: InputProps) => {
                           (range.commonAncestorContainer.parentElement.classList.contains(
                             'content-editable-area__elem',
                           ) ||
-                            range.commonAncestorContainer.parentElement.tagName == 'B')
+                            tagNameCheck(range.commonAncestorContainer.parentElement.tagName))
                         ) {
                           const rang = getCursorPosInNode(element).end;
                           if (countbefore == countnow)
@@ -219,7 +245,54 @@ const RichTextEditor = (props: InputProps) => {
         );
       }
       case ContentTypes.Image:
-        return <img id={elem.id} src={elem.href} />;
+        if (elem.href)
+          return (
+            <div key={i} className="content-editable-area__input-image-wrapper">
+              <img className="content-editable-area__input-image" id={elem.id} src={elem.href} />
+              <div
+                className="content-editable-area__delete-image-button"
+                onClick={() => {
+                  setEditor(removeElem(editor, elem.id));
+                }}
+              >
+                <CLoseIcon />
+              </div>
+            </div>
+          );
+        else {
+          return (
+            <label key={i} className="content-editable-area__input-image-uploader">
+              <input
+                id={elem.id}
+                onChange={() => {
+                  if (editorRef.current) {
+                    const inp = editorRef.current.querySelector(`#${elem.id}`) as HTMLInputElement;
+                    if (inp && inp.files && inp.files[0]) {
+                      const reader = new FileReader();
+
+                      reader.onload = event => {
+                        if (event.target && event.target.result) {
+                          const href = event.target.result as string;
+                          inp.src = href;
+                          setEditor(setHref(editor, href, elem.id));
+                        }
+                      };
+
+                      reader.readAsDataURL(inp.files[0]);
+                    }
+                  }
+                }}
+                type="file"
+                className="input-image-uploader__input"
+              />
+              <ImageUploaderIcon />
+              <div className="content-editable-area__input-image-description">
+                <span>желательно ширина 720px</span>
+                <span>png, jpg, gif</span>
+              </div>
+            </label>
+          );
+        }
     }
   });
 
@@ -230,7 +303,9 @@ const RichTextEditor = (props: InputProps) => {
           const elem = editorRef.current?.querySelector(`#${el.id}`);
           if (el.type == ContentTypes.Text) {
             const text = innertextTransform(el);
-            if (elem) elem.innerHTML = text;
+            if (elem) {
+              elem.innerHTML = text;
+            }
           }
         });
         const elem = editorRef.current.querySelector(`#${cursor.elemid}`);
@@ -238,30 +313,30 @@ const RichTextEditor = (props: InputProps) => {
           const range = document.createRange();
           const sel = window.getSelection();
           if (elem.childNodes[0]) {
-            let i = 0;
-            let node = elem.childNodes[0];
-            let from = cursor.from;
-            let len;
-            if (node.textContent) len = node.textContent.length;
-            else if (node.innerText) len = node.innerText.length;
-            while (from > len) {
-              from = from - len;
-              i++;
-              node = elem.childNodes[i];
-              if (node.textContent) len = node.textContent.length;
-              else if (node.innerText) len = node.innerText.length;
+            const { node, from } = getCursorIntoNode(elem, cursor.from);
+
+            if (node && node.nodeName)
+              if (node.nodeName == '#text') {
+                range.setStart(node, from);
+              } else if (tagNameCheck(node.nodeName)) {
+                if (node.childNodes[0]) range.setStart(node.childNodes[0], from);
+                else range.setStart(elem.childNodes[0], 0);
+              }
+            if (cursor.from != cursor.to) {
+              const { node, from } = getCursorIntoNode(elem, cursor.to);
+              if (node && node.nodeName)
+                if (node.nodeName == '#text' && node.textContent?.length && node.textContent?.length > from) {
+                  range.setEnd(node, from);
+                } else if (tagNameCheck(node.nodeName)) {
+                  if (node.childNodes[0 && node.textContent?.length && node.textContent?.length > from])
+                    range.setEnd(node.childNodes[0], from);
+                  else range.setEnd(elem.childNodes[0], 0);
+                }
             }
-            if (node.nodeName == '#text') {
-              range.setStart(node, from);
-            } else if (node.nodeName == 'B') {
-              if (node.childNodes[0]) range.setStart(node.childNodes[0], from);
-              else range.setStart(elem.childNodes[0], 0);
+            if (sel) {
+              sel.removeAllRanges();
+              sel.addRange(range);
             }
-          }
-          range.collapse(true);
-          if (sel) {
-            sel.removeAllRanges();
-            sel.addRange(range);
           }
         }
       }
@@ -275,10 +350,18 @@ const RichTextEditor = (props: InputProps) => {
       if (selection?.anchorNode?.parentElement) {
         if (
           selection.anchorNode.parentElement.classList.contains('content-editable-area__elem') ||
-          selection.anchorNode.parentElement.tagName == 'B'
+          tagNameCheck(selection.anchorNode.parentElement.tagName)
         ) {
+          if (selection.focusNode?.parentElement) {
+            const style = window
+              .getComputedStyle(selection.focusNode.parentElement, null)
+              .getPropertyValue('font-size');
+            const fontSize = parseFloat(style);
+            if (fontSize) setFontSize(Number(fontSize));
+          }
           let parentNode = getParent(selection);
           parentNode = parentNode ? parentNode : selection?.anchorNode?.parentElement;
+
           const cursor = getCursorPosInNode(parentNode);
           const selectedElemid = parentNode.id;
           setCursor({
@@ -291,20 +374,143 @@ const RichTextEditor = (props: InputProps) => {
     };
   }, []);
 
+  useEffect(() => {
+    const keysBind = (event: KeyboardEvent) => {
+      if (event.ctrlKey && (event.key === 'b' || event.key === 'B' || event.key === 'и')) {
+        setEditor(setModificatedContent(editor, cursor, ModsTypes.Bold));
+        document.removeEventListener('keydown', keysBind);
+      } else if (event.ctrlKey && (event.key === 'i' || event.key === 'I' || event.key === 'ш')) {
+        setEditor(setModificatedContent(editor, cursor, ModsTypes.Cursive));
+        document.removeEventListener('keydown', keysBind);
+      } else if (
+        event.ctrlKey &&
+        event.shiftKey &&
+        (event.key === ',' || event.key === '<' || event.key === 'Б')
+      ) {
+        setEditor(setModificatedContent(editor, cursor, ModsTypes.TextSize, fontSize - 1));
+        document.removeEventListener('keydown', keysBind);
+      } else if (
+        event.ctrlKey &&
+        event.shiftKey &&
+        (event.key === '.' || event.key === '>' || event.key === 'Ю')
+      ) {
+        setEditor(setModificatedContent(editor, cursor, ModsTypes.TextSize, fontSize + 1));
+        document.removeEventListener('keydown', keysBind);
+      } else if (event.key == 'Tab') {
+        setEditor(addImageInEditor(editor));
+      }
+    };
+    document.addEventListener('keydown', keysBind);
+    return () => {
+      document.removeEventListener('keydown', keysBind);
+    };
+  }, [editor, cursor, fontSize]);
+
   return (
-    <div>
-      <div>
-        <SmallMinusIcon />
-        <SmallPlusIcon />
+    <div className="content-editor-wrapper">
+      <div className="content-editor-wrapper__buttons-area">
+        <div className="content-editor-wrapper__font-size-button">
+          <div
+            onClick={() => {
+              if (cursor.to - cursor.from > 0) {
+                setEditor(setModificatedContent(editor, cursor, ModsTypes.TextSize, fontSize - 1));
+              }
+              setFontSize(fontSize - 1);
+            }}
+            onMouseOver={() => {
+              setHoverMinusFont(true);
+            }}
+            onMouseOut={() => {
+              setHoverMinusFont(false);
+            }}
+            className="content-editor-wrapper__font-size-icon-wrapper"
+          >
+            <SmallMinusIcon />
+            <HintMessage
+              text={'Уменьшить размер шрифта'}
+              bolderText={'Ctrl + Shift + ,'}
+              show={hoverMinusFont}
+            />
+          </div>
+          <div
+            className="content-editor-wrapper__font-size-input-container"
+            onMouseOver={() => {
+              setHoverFont(true);
+            }}
+            onMouseOut={() => {
+              setHoverFont(false);
+            }}
+          >
+            <input
+              ref={sizeRef}
+              onChange={() => {
+                if (sizeRef.current) {
+                  if (sizeRef.current.value != '0' && Number(sizeRef.current.value) <= 400) {
+                    setFontSize(Number(sizeRef.current.value));
+                  }
+                }
+              }}
+              onBlur={() => {
+                setEditor(setModificatedContent(editor, cursor, ModsTypes.TextSize, fontSize + 1));
+              }}
+              type="number"
+              placeholder="15"
+              value={fontSize ? fontSize : ''}
+            />
+            <HintMessage text={'Размер шрифта'} show={hoverFont} />
+          </div>
+          <div
+            onMouseOver={() => {
+              setHoverPlusFont(true);
+            }}
+            onMouseOut={() => {
+              setHoverPlusFont(false);
+            }}
+            onClick={() => {
+              if (cursor.to - cursor.from > 0) {
+                setEditor(setModificatedContent(editor, cursor, ModsTypes.TextSize, fontSize + 1));
+              }
+              setFontSize(fontSize + 1);
+            }}
+            className="content-editor-wrapper__font-size-icon-wrapper"
+          >
+            <SmallPlusIcon />
+            <HintMessage
+              text={'Увеличить размер шрифта'}
+              bolderText={'Ctrl + Shift + .'}
+              show={hoverPlusFont}
+            />
+          </div>
+        </div>
         <div
+          className="content-editor-wrapper__button"
           onClick={() => {
-            setEditor(setBolderContent(editor, cursor));
+            setEditor(setModificatedContent(editor, cursor, ModsTypes.Bold));
+          }}
+          onMouseOver={() => {
+            setHoverBolderButton(true);
+          }}
+          onMouseOut={() => {
+            setHoverBolderButton(false);
           }}
         >
           <BolderTextIcon />
+          <HintMessage text={'Полужирный '} bolderText={'Ctrl + B'} show={hoverBolderButton} />
         </div>
-        <div>
+        <div
+          className="content-editor-wrapper__button"
+          onClick={() => {
+            setEditor(setModificatedContent(editor, cursor, ModsTypes.Cursive));
+          }}
+          onMouseOver={() => {
+            setHoverCursiveButton(true);
+          }}
+          onMouseOut={() => {
+            setHoverCursiveButton(false);
+          }}
+        >
           <CursiveTextIcon />
+          <HintMessage text={'Курсив'} bolderText={'Ctrl + I'} show={hoverCursiveButton} />
         </div>
       </div>
       <div className={`input input_editor ${props.heightType}`} ref={editorRef}>
@@ -317,12 +523,88 @@ const RichTextEditor = (props: InputProps) => {
   );
 };
 
+const setHref = (editor: Editor, href: string, id: string): Editor => {
+  return {
+    ...editor,
+    content: editor.content.map(el => {
+      if (el.id === id && el.type === ContentTypes.Image) {
+        return { ...el, href: href };
+      }
+      return el;
+    }),
+  };
+};
+const removeElem = (editor: Editor, id: string): Editor => {
+  const editorContentCopy: contentTypes[] = [];
+  editor.content.forEach(el => {
+    if (!(el.id === id)) editorContentCopy.push(el);
+  });
+  return {
+    ...editor,
+    content: editorContentCopy,
+  };
+};
+
+const addImageInEditor = (editor: Editor): Editor => {
+  return {
+    ...editor,
+    content: [
+      ...editor.content,
+      { type: ContentTypes.Image, href: '', id: `el-${editor.content.length}` },
+      { type: ContentTypes.Text, id: `el-${editor.content.length + 1}`, value: '', mods: [] },
+    ],
+  };
+};
+
+const getCursorIntoNode = (elem: Element, cursorPos: number) => {
+  let i = 0;
+  let node = elem.childNodes[0] as HTMLElement;
+  let from = cursorPos;
+  let len = 0;
+  if (node) {
+    if (node.textContent) len = node.textContent.length;
+    else if (node.innerText) len = node.innerText.length;
+    while (from > len && i < elem.childNodes.length) {
+      from = from - len;
+      i++;
+      node = elem.childNodes[i] as HTMLElement;
+      if (node) {
+        if (node.textContent) len = node.textContent.length;
+        else if (node.innerText) len = node.innerText.length;
+      } else {
+        from = 0;
+        break;
+      }
+    }
+  }
+  return { node: node, from: from };
+};
+
 const replacer = (value: string) => {
   return value
     .replaceAll('<br>', '\n')
     .replaceAll('&nbsp;', ' ')
     .replaceAll('<b>', '')
-    .replaceAll('</b>', '');
+    .replaceAll('</b>', '')
+    .replaceAll('<c>', '')
+    .replaceAll('</c>', '')
+    .replaceAll('<bc>', '')
+    .replaceAll('</bc>', '')
+    .replaceAll(/<.*?f.*?>/g, '')
+    .replaceAll(/<\/.*?f.*?>/g, '');
+};
+
+// <b> -- bold
+// <c> -- cursive
+// <f(num)> -- fontSize
+// <bf(num)> -- bold&fontSize
+// <cf(num)> -- cursive&fontSize
+// <bcf(num)> -- bold&cursive&fontSize
+
+const TagNameList = ['B', 'C', 'BC', 'CF', 'BF', 'BCF', 'F'];
+
+const tagNameCheck = (str: string) => {
+  return TagNameList.includes(str.replaceAll(/[0-9]/g, ''));
 };
 
 const innertextTransform = (el: TextType) => {
@@ -335,18 +617,50 @@ const innertextTransform = (el: TextType) => {
     if (el1.from < el2.from && el1.to > el2.to) return 0;
     return 0;
   });
-  console.log(elModsSorted);
   elModsSorted.forEach(el1 => {
-    if (el1.format == ModsTypes.Bold)
-      text =
-        text.slice(0, el1.from + diff) +
-        '<b>' +
-        text.slice(el1.from + diff, el1.to + diff) +
-        '</b>' +
-        text.slice(el1.to + diff, text.length);
-    diff = diff + 7;
+    const { openedTag, closedTag } = tagConvertor(el1);
+    text =
+      text.slice(0, el1.from + diff) +
+      openedTag +
+      text.slice(el1.from + diff, el1.to + diff) +
+      closedTag +
+      text.slice(el1.to + diff, text.length);
+    diff = diff + openedTag.length + closedTag.length;
   });
   return text;
+};
+
+const tagConvertor = (el: mod) => {
+  let openedtag = '';
+  let closedtag = '';
+  const fontSize = `style="font-size:${el.size}px;"`;
+  if (
+    el.formats.includes(ModsTypes.Bold) &&
+    el.formats.includes(ModsTypes.Cursive) &&
+    el.formats.includes(ModsTypes.TextSize)
+  ) {
+    openedtag = `<bcf ${fontSize}>`;
+    closedtag = `</bcf ${fontSize}>`;
+  } else if (el.formats.includes(ModsTypes.Bold) && el.formats.includes(ModsTypes.Cursive)) {
+    openedtag = '<bc>';
+    closedtag = '</bc>';
+  } else if (el.formats.includes(ModsTypes.Bold) && el.formats.includes(ModsTypes.TextSize)) {
+    openedtag = `<bf ${fontSize}>`;
+    closedtag = `</bf ${fontSize}>`;
+  } else if (el.formats.includes(ModsTypes.Bold)) {
+    openedtag = '<b>';
+    closedtag = '</b>';
+  } else if (el.formats.includes(ModsTypes.Cursive) && el.formats.includes(ModsTypes.TextSize)) {
+    openedtag = `<cf ${fontSize}>`;
+    closedtag = `</cf ${fontSize}>`;
+  } else if (el.formats.includes(ModsTypes.Cursive)) {
+    openedtag = '<c>';
+    closedtag = '</c>';
+  } else if (el.formats.includes(ModsTypes.TextSize)) {
+    openedtag = `<f ${fontSize}>`;
+    closedtag = `</f ${fontSize}>`;
+  }
+  return { openedTag: openedtag, closedTag: closedtag };
 };
 
 const getCursorPosInNode = (element: HTMLElement) => {
@@ -380,7 +694,7 @@ const getParent = (selection: globalThis.Selection) => {
   if (selection.anchorNode && selection.anchorNode.parentElement) {
     parentNode = selection.anchorNode.parentElement;
     if (
-      selection.anchorNode.parentElement.tagName == 'B' &&
+      tagNameCheck(selection.anchorNode.parentElement.tagName) &&
       selection.anchorNode.parentElement.parentElement
     ) {
       parentNode = selection.anchorNode.parentElement.parentElement;
@@ -396,16 +710,35 @@ const editorEditSymbols = (editor: Editor, cursor: Selection, value: string, ele
       if (el.id == elemid) {
         if (el.type == ContentTypes.Text) {
           const valuediff = value.length - el.value.length;
-          const mods: mod[] = [];
+          let mods: mod[] = [];
           el.mods.forEach(mod => {
-            if (mod.from - mod.to < 0 && mod.from < el.value.length && mod.to <= el.value.length)
+            if (
+              mod.from - mod.to < 0 &&
+              mod.from < el.value.length &&
+              mod.to <= el.value.length &&
+              mod.from >= 0 &&
+              mod.to >= 0
+            )
               if (cursor.from < mod.from && cursor.to < mod.from) {
                 mods.push({ ...mod, from: mod.from + valuediff, to: mod.to + valuediff });
-              } else if (cursor.from > mod.from && cursor.to <= mod.to) {
+              } else if (cursor.from < mod.from && cursor.to >= mod.from && cursor.to < mod.to) {
+                mods.push({
+                  ...mod,
+                  from: mod.from + valuediff + (cursor.to - mod.from),
+                  to: mod.to + valuediff,
+                });
+              } else if (cursor.from > mod.from && cursor.to >= mod.to && cursor.from < mod.to) {
+                mods.push({
+                  ...mod,
+                  to: mod.to - (mod.to - cursor.from),
+                });
+              } else if (cursor.from >= mod.from && cursor.to < mod.to) {
                 mods.push({ ...mod, to: mod.to + valuediff });
-              } else mods.push({ ...mod });
+              } else if (!(cursor.from <= mod.from && cursor.to > mod.to)) {
+                mods.push({ ...mod });
+              }
           });
-          console.log(mods, el.mods);
+          mods = getCheckedMods(mods);
           return { ...el, value: value, mods: mods };
         }
         return { ...el };
@@ -415,17 +748,24 @@ const editorEditSymbols = (editor: Editor, cursor: Selection, value: string, ele
   };
 };
 
-const setBolderContent = (editor: Editor, cursor: Selection) => {
+const setModificatedContent = (
+  editor: Editor,
+  cursor: Selection,
+  modification: ModsTypes,
+  fontSize?: number,
+) => {
   return {
     ...editor,
     content: editor.content.map(el => {
       if (el.id == cursor.elemid && el.type == ContentTypes.Text) {
-        el.mods.push({
-          format: ModsTypes.Bold,
+        const newMod: mod = {
+          formats: [modification],
           from: cursor.from,
           to: cursor.to,
-        });
-        const mods: mod[] = checkMods(el.mods);
+          size: fontSize,
+        };
+        let mods = checkElemForModText(el.mods, newMod);
+        mods = getCheckedMods(mods);
         return {
           ...el,
           mods: mods,
@@ -436,41 +776,320 @@ const setBolderContent = (editor: Editor, cursor: Selection) => {
   };
 };
 
-const checkMods = (mods: mod[]) => {
+const getCheckedMods = (mods: mod[]) => {
   const modscopy: mod[] = [...mods];
-  console.log(modscopy);
+
   for (let i = 0; i < modscopy.length; i++) {
     const mod = { ...modscopy[i] };
     for (let j = 0; j < modscopy.length; j++) {
-      console.log(i, [...modscopy]);
       const modNow = { ...modscopy[j] };
-      if (j !== i && mod.format == modNow.format) {
+      if (j !== i && formatsCompare(modNow.formats, mod.formats)) {
+        const size = mod.size ? mod.size : modNow.size;
         if (mod.from <= modNow.from && mod.to >= modNow.to) {
           modscopy.splice(j, 1);
           i = 0;
+          break;
         } else if (mod.from >= modNow.from && mod.to <= modNow.to) {
           modscopy.splice(i, 1);
           i = 0;
-        } else if (mod.from <= modNow.from && mod.to <= modNow.to && mod.to >= modNow.from) {
+          break;
+        } else if (mod.from <= modNow.from && mod.to <= modNow.to && mod.to > modNow.from) {
           modscopy.splice(j, 1);
-          modscopy.splice(i, 1, { format: mod.format, from: mod.from, to: modNow.to });
+          modscopy.splice(i, 1, { formats: mod.formats, from: mod.from, to: modNow.to, size: size });
           i = 0;
-        } else if (mod.from >= modNow.from && mod.to >= modNow.to && modNow.to >= mod.from) {
+          break;
+        } else if (mod.from >= modNow.from && mod.to >= modNow.to && modNow.to > mod.from) {
           modscopy.splice(j, 1);
-          modscopy.splice(i, 1, { format: mod.format, from: modNow.from, to: mod.to });
+          modscopy.splice(i, 1, { formats: mod.formats, from: modNow.from, to: mod.to, size: size });
           i = 0;
-        } else if (mod.to == modNow.from) {
-          modscopy.splice(j, 1);
-          modscopy.splice(i, 1, { format: mod.format, from: mod.from, to: modNow.to });
+          break;
+        }
+      } else if (j !== i && !formatsCompare(modNow.formats, mod.formats)) {
+        const modSize = mod.size ? mod.size : modNow.size;
+        const modNowSize = modNow.size ? modNow.size : mod.size;
+        if (mod.from > modNow.from && mod.to > modNow.to && mod.from < modNow.to) {
+          const k = i > j ? i : j;
+          const n = i > j ? j : i;
+          modscopy.splice(k, 1);
+          const mergeFormats = FormatMerger(mod.formats, modNow.formats);
+          modscopy.splice(
+            n,
+            1,
+            { formats: modNow.formats, from: modNow.from, to: mod.from, size: modNowSize },
+            { formats: mergeFormats, from: mod.from, to: modNow.to, size: modSize },
+            { formats: mod.formats, from: modNow.to, to: mod.to, size: modSize },
+          );
           i = 0;
-        } else if (mod.from == modNow.to) {
-          modscopy.splice(j, 1);
-          modscopy.splice(i, 1, { format: mod.format, from: modNow.from, to: mod.to });
+          break;
+        } else if (mod.from < modNow.from && mod.to > modNow.to) {
+          const k = i > j ? i : j;
+          const n = i > j ? j : i;
+          modscopy.splice(k, 1);
+          const mergeFormats = FormatMerger(mod.formats, modNow.formats);
+          modscopy.splice(
+            n,
+            1,
+            { formats: mod.formats, from: mod.from, to: modNow.from, size: modSize },
+            { formats: mergeFormats, from: modNow.from, to: modNow.to, size: modNowSize },
+            { formats: mod.formats, from: modNow.to, to: mod.to, size: modSize },
+          );
           i = 0;
+          break;
+        } else if (mod.from == modNow.from && mod.to == modNow.to) {
+          const k = i > j ? i : j;
+          const n = i > j ? j : i;
+          modscopy.splice(k, 1);
+          const mergeFormats = FormatMerger(mod.formats, modNow.formats);
+          modscopy.splice(n, 1, { formats: mergeFormats, from: mod.from, to: mod.to, size: modSize });
+          i = 0;
+          break;
+        } else if (mod.from == modNow.from && mod.to < modNow.to) {
+          const k = i > j ? i : j;
+          const n = i > j ? j : i;
+          modscopy.splice(k, 1);
+          const mergeFormats = FormatMerger(mod.formats, modNow.formats);
+          modscopy.splice(
+            n,
+            1,
+            { formats: mergeFormats, from: mod.from, to: mod.to, size: modSize },
+            { formats: modNow.formats, from: mod.to, to: modNow.to, size: modNowSize },
+          );
+          i = 0;
+          break;
+        } else if (mod.from > modNow.from && mod.to == modNow.to) {
+          const k = i > j ? i : j;
+          const n = i > j ? j : i;
+          modscopy.splice(k, 1);
+          const mergeFormats = FormatMerger(mod.formats, modNow.formats);
+          modscopy.splice(
+            n,
+            1,
+            { formats: modNow.formats, from: modNow.from, to: mod.from, size: modNowSize },
+            { formats: mergeFormats, from: mod.from, to: modNow.to, size: modSize },
+          );
+          i = 0;
+          break;
         }
       }
     }
   }
-  console.log(modscopy);
   return modscopy;
+};
+
+const checkElemForModText = (mods: mod[], newMod: mod) => {
+  const modscopy = [...mods];
+  let flag = true;
+  if (newMod.from - newMod.to < 0) {
+    for (let i = 0; i < modscopy.length; i++) {
+      const modNow = { ...modscopy[i] };
+      if (formatsCompare(modNow.formats, newMod.formats)) {
+        if (modNow.formats.includes(ModsTypes.TextSize)) {
+          if (modNow.from <= newMod.from && modNow.to >= newMod.to) {
+            if (modNow.from < newMod.from && modNow.to > newMod.to) {
+              modscopy.splice(
+                i,
+                1,
+                { formats: modNow.formats, from: modNow.from, to: newMod.from, size: modNow.size },
+                { formats: newMod.formats, from: newMod.from, to: newMod.to, size: newMod.size },
+                { formats: modNow.formats, from: newMod.to, to: modNow.to, size: modNow.size },
+              );
+            } else if (modNow.from == newMod.from && modNow.to != newMod.to) {
+              modscopy.splice(
+                i,
+                1,
+                {
+                  formats: modNow.formats,
+                  from: newMod.from,
+                  to: newMod.to,
+                  size: modNow.size,
+                },
+                {
+                  formats: modNow.formats,
+                  from: newMod.to,
+                  to: modNow.to,
+                  size: newMod.size,
+                },
+              );
+            } else if (modNow.from != newMod.from && modNow.to == newMod.to) {
+              modscopy.splice(
+                i,
+                1,
+                {
+                  formats: modNow.formats,
+                  from: modNow.from,
+                  to: newMod.from,
+                  size: modNow.size,
+                },
+                {
+                  formats: modNow.formats,
+                  from: newMod.from,
+                  to: newMod.to,
+                  size: newMod.size,
+                },
+              );
+            } else {
+              modscopy.splice(i, 1, {
+                formats: modNow.formats,
+                from: newMod.from,
+                to: newMod.to,
+                size: newMod.size,
+              });
+            }
+            flag = false;
+          }
+        } else if (modNow.from <= newMod.from && modNow.to >= newMod.to) {
+          if (modNow.from != newMod.from && modNow.to != newMod.to) {
+            modscopy.splice(
+              i,
+              1,
+              { formats: modNow.formats, from: modNow.from, to: newMod.from },
+              { formats: modNow.formats, from: newMod.to, to: modNow.to },
+            );
+          } else if (modNow.from == newMod.from && modNow.to != newMod.to) {
+            modscopy.splice(i, 1, { formats: modNow.formats, from: modNow.to, to: newMod.to });
+          } else if (modNow.from != newMod.from && modNow.to == newMod.to) {
+            modscopy.splice(i, 1, { formats: modNow.formats, from: modNow.from, to: newMod.from });
+          } else {
+            modscopy.splice(i, 1);
+          }
+          flag = false;
+          i = i - 1;
+        }
+      } else if (newMod.formats.includes(ModsTypes.TextSize)) {
+        if (modNow.from >= newMod.from && modNow.to <= newMod.to) {
+          if (modNow.from > newMod.from && modNow.to < newMod.to) {
+            const mergedFormats = FormatMerger(modNow.formats, newMod.formats);
+            modscopy.splice(
+              i,
+              1,
+              { formats: newMod.formats, from: newMod.from, to: modNow.from, size: newMod.size },
+              { formats: mergedFormats, from: modNow.from, to: modNow.to, size: newMod.size },
+              { formats: newMod.formats, from: modNow.to, to: newMod.to, size: newMod.size },
+            );
+          } else if (modNow.from == newMod.from && modNow.to < newMod.to) {
+            const mergedFormats = FormatMerger(modNow.formats, newMod.formats);
+            modscopy.splice(
+              i,
+              1,
+              { formats: mergedFormats, from: newMod.from, to: modNow.to, size: newMod.size },
+              { formats: newMod.formats, from: modNow.to, to: newMod.to, size: newMod.size },
+            );
+          } else if (modNow.from > newMod.from && modNow.to == newMod.to) {
+            const mergedFormats = FormatMerger(modNow.formats, newMod.formats);
+            modscopy.splice(
+              i,
+              1,
+              { formats: newMod.formats, from: newMod.from, to: modNow.from, size: newMod.size },
+              { formats: mergedFormats, from: modNow.from, to: newMod.to, size: newMod.size },
+            );
+          } else if (modNow.from == newMod.from && modNow.to == newMod.to) {
+            const mergedFormats = FormatMerger(modNow.formats, newMod.formats);
+            modscopy.splice(i, 1, {
+              formats: mergedFormats,
+              from: newMod.from,
+              to: newMod.to,
+              size: newMod.size,
+            });
+          }
+          flag = false;
+          break;
+        }
+      } else if (modNow.formats.includes(newMod.formats[0])) {
+        if (modNow.from <= newMod.from && modNow.to >= newMod.to) {
+          const newFormats = modNow.formats.toSpliced(modNow.formats.indexOf(newMod.formats[0]), 1);
+          if (modNow.from < newMod.from && modNow.to > newMod.to) {
+            modscopy.splice(
+              i,
+              1,
+              { formats: modNow.formats, from: modNow.from, to: newMod.from, size: modNow.size },
+              { formats: newFormats, from: newMod.from, to: newMod.to, size: modNow.size },
+              { formats: modNow.formats, from: newMod.to, to: modNow.to, size: modNow.size },
+            );
+          } else if (modNow.from == newMod.from && modNow.to != newMod.to) {
+            modscopy.splice(
+              i,
+              1,
+              { formats: newFormats, from: modNow.from, to: newMod.to, size: modNow.size },
+              { formats: modNow.formats, from: newMod.to, to: modNow.to, size: modNow.size },
+            );
+          } else if (modNow.from != newMod.from && modNow.to == newMod.to) {
+            modscopy.splice(
+              i,
+              1,
+              { formats: modNow.formats, from: modNow.from, to: newMod.from, size: modNow.size },
+              { formats: newFormats, from: newMod.from, to: newMod.to, size: modNow.size },
+            );
+          } else {
+            modscopy.splice(i, 1, {
+              formats: newFormats,
+              from: newMod.from,
+              to: newMod.to,
+              size: modNow.size,
+            });
+          }
+          flag = false;
+          break;
+        }
+      }
+    }
+    if (flag) {
+      modscopy.push(newMod);
+    }
+  }
+  return modscopy;
+};
+
+type hintProps = {
+  text?: string;
+  bolderText?: string;
+  show: boolean;
+};
+
+const HintMessage = (props: hintProps) => {
+  const hintRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (hintRef.current) {
+      if (props.show) hintRef.current.classList.add('hint-message_opened');
+      else hintRef.current.classList.remove('hint-message_opened');
+    }
+  }, [props.show]);
+  useEffect(() => {
+    if (hintRef.current) {
+      const width = hintRef.current.offsetWidth;
+      hintRef.current.style.right = -width / 2 + 12 + 'px';
+    }
+  }, []);
+  return (
+    <div ref={hintRef} className="hint-message">
+      {props.text != undefined && <span className="hint-message__text">{props.text}</span>}
+      {props.bolderText != undefined && (
+        <span className="hint-message__text hint-message__text_bolder">{props.bolderText}</span>
+      )}
+    </div>
+  );
+};
+
+const FormatMerger = (f1: ModsTypes[], f2: ModsTypes[]) => {
+  const newFormat = [...f1];
+  for (let i = 0; i < f2.length; i++) {
+    if (!newFormat.includes(f2[i])) newFormat.push(f2[i]);
+  }
+  return newFormat;
+};
+
+const formatsCompare = (f1: ModsTypes[], f2: ModsTypes[]) => {
+  const f1copy = [...f1];
+  const f2copy = [...f2];
+  f1copy.sort();
+  f2copy.sort();
+  if (f1copy.length == f2copy.length) {
+    for (let i = 0; i < f1copy.length; i++) {
+      if (f1copy[i] != f2copy[i]) {
+        return false;
+      }
+    }
+  } else {
+    return false;
+  }
+  return true;
 };
