@@ -20,21 +20,31 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	router.Use(CORSMiddleware())
 
+	router.Static("/static", "./static")
+
 	auth := router.Group("/auth")
 	{
 		auth.POST("/sign-up", h.signUp)
 		auth.POST("/sign-in", h.signIn)
+		auth.POST("/token-check", h.userIdentity)
 	}
 
 	api := router.Group("/api")
 	{
 		news := api.Group("/news")
 		{
-			news.POST("/", h.createNew)
-			news.GET("/", h.getAllNews)
-			news.GET("/:id", h.getNewById)
-			news.PUT("/:id", h.updateNew)
-			news.DELETE("/:id", h.deleteNew)
+			public := news.Group("/public")
+			{
+				public.GET("/", h.getAllNews)
+				public.GET("/:id", h.getNewById)
+			}
+			private := news.Group("/private", h.userIdentity)
+			{
+				private.POST("/", h.createNew)
+				private.PUT("/:id", h.updateNew)
+				private.DELETE("/:id", h.deleteNew)
+			}
+			
 		}
 	}
 

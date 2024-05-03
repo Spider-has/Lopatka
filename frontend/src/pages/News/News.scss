@@ -1,47 +1,56 @@
 .main-content-area-wrapper {
+  display: flex;
+  margin-top: 80px;
+  width: 100%;
+  flex-direction: column;
+  width: 100%;
+  gap: 31px;
+  position: relative;
+
+  &__header {
     display: flex;
-    margin-top: 80px;
-    width: 100%;
-    flex-direction: column;
+    justify-content: center;
+    h1 {
+      color: var(--primary-default);
+      font:
+        400 110px 'Tsarevich Old',
+        sans-serif;
+    }
+  }
+
+  &__single-content-wrapper {
+    display: flex;
     align-items: center;
-    justify-content: flex-start;
-    width: 100%;
-    gap: 31px;
-    position: relative;
+    justify-content: center;
+  }
 
-    &__header h1 {
-        color: var(--primary-default);
-        font:
-            400 110px 'Tsarevich Old',
-            sans-serif;
-    }
+  &__content-wrapper {
+    display: flex;
+    align-items: flex-start;
+    padding: 0 9%;
+    gap: 36px;
+  }
+  &__creation-button {
+    margin-left: 44px;
+  }
+  &__up-arrow {
+    position: fixed;
+    bottom: 50px;
+    right: 10%;
 
-    &__content-wrapper {
-        display: flex;
-        align-items: flex-start;
-        gap: 36px;
+    &_down-mod {
+      position: absolute;
+      bottom: 0;
+      right: 10%;
     }
-    &__creation-button {
-        margin-left: 44px;
-    }
-    &__up-arrow {
-        position: fixed;
-        bottom: 50px;
-        right: 10%;
-
-        &_down-mod {
-            position: absolute;
-            bottom: 0;
-            right: 10%;
-        }
-    }
+  }
 }
 
 .main-page {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    background-color: var(--text-oncolor-default);
-    min-height: 100vh;
-    position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  background-color: var(--text-oncolor-default);
+  min-height: 100vh;
+  position: relative;
 }

@@ -1,5 +1,8 @@
 -- +goose Up
 -- +goose StatementBegin
+
+
+
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY unique,
     name VARCHAR(255),
@@ -10,12 +13,11 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS new_item (
     id SERIAL PRIMARY KEY unique,
     header VARCHAR(255) NOT NULL,
-    content VARCHAR(255) NOT NULL,
-    authorName VARCHAR(255) NOT NULL,
-    creationDate VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    author_name VARCHAR(255) NOT NULL,
+    creation_date DATE NOT NULL,
     description  VARCHAR(255) NOT NULL,
-    mainImage  VARCHAR(255) NOT NULL,
-    images  VARCHAR(255) NOT NULL,
+    main_image  VARCHAR(255) NOT NULL,
     theme  VARCHAR(255) NOT NULL
 );
 
@@ -28,13 +30,12 @@ CREATE TABLE IF NOT EXISTS news_lists (
 CREATE TABLE IF NOT EXISTS monument_item (
     id SERIAL PRIMARY KEY,
     header VARCHAR(255) NOT NULL,
-    content VARCHAR(255) NOT NULL,
-    authorName VARCHAR(255) NOT NULL,
-    creationDate VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL,
+    author_name VARCHAR(255) NOT NULL,
+    creation_date DATE NOT NULL,
     description  VARCHAR(255) NOT NULL,
-    mainImage  VARCHAR(255) NOT NULL,
-    images  VARCHAR(255) NOT NULL,
-    timeInterval  VARCHAR(255) NOT NULL,
+    main_image  VARCHAR(255) NOT NULL,
+    time_interval  VARCHAR(255) NOT NULL,
     era VARCHAR(255) NOT NULL,
     area VARCHAR(255) NOT NULL,
     coords VARCHAR(255) NOT NULL

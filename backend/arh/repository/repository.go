@@ -14,6 +14,9 @@ type NewsList interface {
 }
 
 type New interface {
+	Create(New lopata.News) (int, error)
+	GetAll() ([]lopata.NewPreview, error)
+	GetById(id int) (lopata.News, error)
 }
 
 type Repository struct {
@@ -25,5 +28,6 @@ type Repository struct {
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		Authorization: NewAuthPostgres(db),
+		New: NewNewPostgres(db),
 	}
 }

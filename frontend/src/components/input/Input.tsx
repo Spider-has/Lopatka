@@ -1,22 +1,17 @@
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { RefObject, useEffect, useState } from 'react';
 import './Input.scss';
-import {
-  BolderTextIcon,
-  CLoseIcon,
-  CursiveTextIcon,
-  ImageUploaderIcon,
-  SmallMinusIcon,
-  SmallPlusIcon,
-} from '../../icons/Icons';
+import { CLoseIcon, ImageUploaderIcon, OpenCloseListIcon } from '../../icons/Icons';
+import { Editor, ImgNameLen, RichTextEditor, generateImgName } from '../richTextEditor/RichTextEditor';
 
 export enum InputTypes {
-  Text = 'Text',
-  Password = 'Password',
-  TextField = 'TextField',
-  List = 'List',
-  ImageUploader = 'ImageUploader',
-  Submit = 'Submit',
-  Editor = 'Editor',
+  Text = 'text',
+  Password = 'password',
+  TextField = 'textField',
+  List = 'list',
+  ImageUploader = 'imageUploader',
+  Submit = 'submit',
+  Editor = 'editor',
+  Datalist = 'Datalist',
 }
 
 export enum ValidationTypes {
@@ -29,14 +24,21 @@ export enum InputHeightTypes {
   Auto = 'input_auto',
 }
 
+export type ImageData = {
+  name: string;
+  href: string;
+};
+
 export type InputProps = {
   type: InputTypes;
   validationTypes: ValidationTypes;
   heightType?: InputHeightTypes;
-  dataRef: RefObject<HTMLTextAreaElement>;
+  dataRef?: RefObject<HTMLTextAreaElement> | RefObject<HTMLInputElement>;
   placeholder?: string;
   required: boolean;
   lettersCount?: number;
+  setEditor?: (editor: Editor) => void;
+  setImage?: (image: ImageData) => void;
 };
 
 export const InputField = (props: InputProps) => {
@@ -49,22 +51,24 @@ export const InputField = (props: InputProps) => {
       const letterCount = props.lettersCount ? props.lettersCount : 0;
       const [letterCounter, setCount] = useState(0);
       const overflowClass = letterCounter >= letterCount ? 'input-letter-counter_overflow' : '';
+      const InpRef = props.dataRef as RefObject<HTMLTextAreaElement>;
       if (letterCount)
         return (
           <>
             <textarea
               onInput={() => {
-                if (props.dataRef.current) {
-                  setCount(props.dataRef.current.value.length);
-                  if (props.heightType == InputHeightTypes.Auto) {
-                    props.dataRef.current.style.height = ``;
-                    props.dataRef.current.style.height = props.dataRef.current.scrollHeight + 'px';
+                if (props.dataRef)
+                  if (props.dataRef.current) {
+                    setCount(props.dataRef.current.value.length);
+                    if (props.heightType == InputHeightTypes.Auto) {
+                      props.dataRef.current.style.height = ``;
+                      props.dataRef.current.style.height = props.dataRef.current.scrollHeight + 'px';
+                    }
                   }
-                }
               }}
               rows={props.heightType == InputHeightTypes.Auto ? 1 : undefined}
               required={props.required}
-              ref={props.dataRef}
+              ref={InpRef}
               maxLength={props.lettersCount}
               className={`input ${overflowClass} ${props.heightType}`}
             ></textarea>
@@ -77,16 +81,17 @@ export const InputField = (props: InputProps) => {
         return (
           <textarea
             onInput={() => {
-              if (props.dataRef.current) {
-                if (props.heightType == InputHeightTypes.Auto) {
-                  props.dataRef.current.style.height = ``;
-                  props.dataRef.current.style.height = props.dataRef.current.scrollHeight + 'px';
+              if (props.dataRef)
+                if (props.dataRef.current) {
+                  if (props.heightType == InputHeightTypes.Auto) {
+                    props.dataRef.current.style.height = ``;
+                    props.dataRef.current.style.height = props.dataRef.current.scrollHeight + 'px';
+                  }
                 }
-              }
             }}
             rows={props.heightType == InputHeightTypes.Auto ? 1 : undefined}
             required={props.required}
-            ref={props.dataRef}
+            ref={InpRef}
             className={`input ${props.heightType}`}
           ></textarea>
         );
@@ -94,1002 +99,95 @@ export const InputField = (props: InputProps) => {
     case InputTypes.Password:
     case InputTypes.TextField:
     case InputTypes.List:
-    case InputTypes.ImageUploader:
+    case InputTypes.Datalist: {
+      const InpRef = props.dataRef as RefObject<HTMLInputElement>;
+      const [option, setOption] = useState<string>('');
+      const [open, setOpen] = useState(false);
+      const openedClass = open ? 'input-list-element__open-list-icon_opened' : '';
       return (
-        <div className="input-image-uploader">
-          <input type="file" className="input-image-uploader__input" />
-          <ImageUploaderIcon />
-          <span>png,jpg</span>
+        <div className="input-list-element">
+          <input ref={InpRef} value={option} readOnly />
+          <div className="input-list-element__option-now ">
+            <span>{option}</span>
+            <div
+              onClick={() => {
+                setOpen(!open);
+              }}
+              className={`input-list-element__open-list-icon ${openedClass}`}
+            >
+              <OpenCloseListIcon />
+            </div>
+          </div>
+          {open && (
+            <div className="input-list-element__list">
+              <div onClick={() => setOption('Экспедиции')}>Экспедиции</div>
+              <div onClick={() => setOption('События')}>События</div>
+              <div onClick={() => setOption('Люди')}>Люди</div>
+              <div onClick={() => setOption('Другое')}>Другое</div>
+            </div>
+          )}
         </div>
       );
-    case InputTypes.Editor:
-      return <RichTextEditor {...props} />;
-  }
-};
-
-enum ContentTypes {
-  Text = 'Text',
-  Image = 'Image',
-}
-
-enum ModsTypes {
-  Bold = 'bold',
-  Cursive = 'cursive',
-  TextSize = 'textSize',
-}
-
-interface EditorElem {
-  type: ContentTypes;
-  id: string;
-}
-
-interface TextType extends EditorElem {
-  type: ContentTypes.Text;
-  value: string;
-  mods: mod[];
-}
-
-type mod = {
-  from: number;
-  to: number;
-  formats: ModsTypes[];
-  size?: number;
-};
-
-interface ImageType extends EditorElem {
-  type: ContentTypes.Image;
-  href: string;
-}
-
-type contentTypes = TextType | ImageType;
-
-type Editor = {
-  content: contentTypes[];
-};
-
-type Selection = {
-  from: number;
-  to: number;
-  elemid: string;
-};
-
-const RichTextEditor = (props: InputProps) => {
-  const editorRef = useRef<HTMLDivElement>(null);
-  const [editor, setEditor] = useState<Editor>({
-    content: [
-      {
-        type: ContentTypes.Text,
-        value: '',
-        mods: [],
-        id: 'el-0',
-      },
-    ],
-  });
-  const [cursor, setCursor] = useState<Selection>({
-    from: -1,
-    to: -1,
-    elemid: 'el--1',
-  });
-
-  const [fontSize, setFontSize] = useState<number>(20);
-  const sizeRef = useRef<HTMLInputElement>(null);
-
-  const [hoverMinusFont, setHoverMinusFont] = useState(false);
-  const [hoverFont, setHoverFont] = useState(false);
-  const [hoverPlusFont, setHoverPlusFont] = useState(false);
-  const [hoverBolderButton, setHoverBolderButton] = useState(false);
-  const [hoverCursiveButton, setHoverCursiveButton] = useState(false);
-
-  const elems = editor.content.map((elem, i) => {
-    switch (elem.type) {
-      case ContentTypes.Text: {
-        return (
-          <span
-            onKeyDown={event => {
-              console.log(1);
-              if (event.key === 'Backspace') {
-                console.log(2);
-                if (editorRef.current) {
-                  const element = editorRef.current.querySelector(`#${elem.id}`) as HTMLElement;
-                  console.log(3);
-                  if (element) {
-                    console.log(4);
-                    if (element.textContent === '' && elem.id !== 'el-0') {
-                      console.log(5);
-                      setEditor(removeElem(editor, elem.id));
-                    }
-                  }
-                }
-              }
-            }}
-            onInput={() => {
-              if (editorRef.current) {
-                const element = editorRef.current.querySelector(`#${elem.id}`) as HTMLElement;
-
-                if (element) {
-                  const value = replacer(element.innerHTML);
-                  setEditor(editorEditSymbols(editor, cursor, value, elem.id));
-                  const countbefore = (elem.value.match(/\n/g) || []).length;
-                  const countnow = (value.match(/\n/g) || []).length;
-                  if (window.getSelection) {
-                    const sel = window.getSelection();
-                    if (sel)
-                      if (sel.rangeCount) {
-                        const range = sel.getRangeAt(0);
-                        if (
-                          range.commonAncestorContainer.parentElement &&
-                          (range.commonAncestorContainer.parentElement.classList.contains(
-                            'content-editable-area__elem',
-                          ) ||
-                            tagNameCheck(range.commonAncestorContainer.parentElement.tagName))
-                        ) {
-                          const rang = getCursorPosInNode(element).end;
-                          if (countbefore == countnow)
-                            setCursor({ from: rang, to: rang, elemid: element.id });
-                          else if (countnow > countbefore)
-                            setCursor({ from: cursor.from + 1, to: cursor.from + 1, elemid: element.id });
-                          else setCursor({ from: rang, to: rang, elemid: element.id });
-                        }
-                      }
-                  }
-                  element.innerHTML = '';
-                }
-              }
-            }}
-            key={i}
-            id={elem.id}
-            className="content-editable-area__elem"
-            contentEditable={true}
-            suppressContentEditableWarning={true}
-          ></span>
-        );
-      }
-      case ContentTypes.Image:
-        if (elem.href)
-          return (
-            <div key={i} className="content-editable-area__input-image-wrapper">
-              <img className="content-editable-area__input-image" id={elem.id} src={elem.href} />
+    }
+    case InputTypes.Submit:
+      return <input type={props.type} className="submit-input" />;
+    case InputTypes.ImageUploader: {
+      const InpRef = props.dataRef as RefObject<HTMLInputElement>;
+      const [imageD, setImageD] = useState<ImageData>({
+        name: '',
+        href: '',
+      });
+      useEffect(() => {
+        if (props.setImage) {
+          props.setImage(imageD);
+        }
+      }, [imageD.href, imageD.name]);
+      return (
+        <div className="input-image-uploader">
+          {imageD.href.length > 0 && (
+            <div className="input-image-uploader__input-image-wrapper">
+              <img className="input-image-uploader__input-image" src={imageD.href} />
               <div
-                className="content-editable-area__delete-image-button"
+                className="input-image-uploader__delete-image-button"
                 onClick={() => {
-                  setEditor(removeElem(editor, elem.id));
+                  setImageD({ href: '', name: '' });
                 }}
               >
                 <CLoseIcon />
               </div>
             </div>
-          );
-        else {
-          return (
-            <label key={i} className="content-editable-area__input-image-uploader">
+          )}
+          {imageD.href.length == 0 && (
+            <label>
               <input
-                id={elem.id}
                 onChange={() => {
-                  if (editorRef.current) {
-                    const inp = editorRef.current.querySelector(`#${elem.id}`) as HTMLInputElement;
-                    if (inp && inp.files && inp.files[0]) {
+                  if (InpRef.current) {
+                    if (InpRef.current && InpRef.current.files && InpRef.current.files[0]) {
                       const reader = new FileReader();
 
                       reader.onload = event => {
                         if (event.target && event.target.result) {
                           const href = event.target.result as string;
-                          inp.src = href;
-                          setEditor(setHref(editor, href, elem.id));
+                          setImageD({ href: href, name: generateImgName(ImgNameLen) });
                         }
                       };
 
-                      reader.readAsDataURL(inp.files[0]);
+                      reader.readAsDataURL(InpRef.current.files[0]);
                     }
                   }
                 }}
+                ref={InpRef}
                 type="file"
                 className="input-image-uploader__input"
               />
               <ImageUploaderIcon />
-              <div className="content-editable-area__input-image-description">
-                <span>желательно ширина 720px</span>
-                <span>png, jpg, gif</span>
-              </div>
+              <span>png,jpg</span>
             </label>
-          );
-        }
-    }
-  });
-
-  useEffect(() => {
-    if (cursor.elemid) {
-      if (editorRef.current) {
-        editor.content.forEach(el => {
-          const elem = editorRef.current?.querySelector(`#${el.id}`);
-          if (el.type == ContentTypes.Text) {
-            const text = innertextTransform(el);
-            if (elem) {
-              elem.innerHTML = text;
-            }
-          }
-        });
-        const elem = editorRef.current.querySelector(`#${cursor.elemid}`);
-        if (elem) {
-          const range = document.createRange();
-          const sel = window.getSelection();
-          if (elem.childNodes[0]) {
-            const { node, from } = getCursorIntoNode(elem, cursor.from);
-
-            if (node && node.nodeName)
-              if (node.nodeName == '#text') {
-                range.setStart(node, from);
-              } else if (tagNameCheck(node.nodeName)) {
-                if (node.childNodes[0]) range.setStart(node.childNodes[0], from);
-                else range.setStart(elem.childNodes[0], 0);
-              }
-            if (cursor.from != cursor.to) {
-              const { node, from } = getCursorIntoNode(elem, cursor.to);
-              if (node && node.nodeName)
-                if (node.nodeName == '#text' && node.textContent?.length && node.textContent?.length > from) {
-                  range.setEnd(node, from);
-                } else if (tagNameCheck(node.nodeName)) {
-                  if (node.childNodes[0 && node.textContent?.length && node.textContent?.length > from])
-                    range.setEnd(node.childNodes[0], from);
-                  else range.setEnd(elem.childNodes[0], 0);
-                }
-            }
-            if (sel) {
-              sel.removeAllRanges();
-              sel.addRange(range);
-            }
-          }
-        }
-      }
-    }
-  }, [editor]);
-
-  useEffect(() => {
-    document.onselectionchange = () => {
-      const selection = document.getSelection();
-
-      if (selection?.anchorNode?.parentElement) {
-        if (
-          selection.anchorNode.parentElement.classList.contains('content-editable-area__elem') ||
-          tagNameCheck(selection.anchorNode.parentElement.tagName)
-        ) {
-          if (selection.focusNode?.parentElement) {
-            const style = window
-              .getComputedStyle(selection.focusNode.parentElement, null)
-              .getPropertyValue('font-size');
-            const fontSize = parseFloat(style);
-            if (fontSize) setFontSize(Number(fontSize));
-          }
-          let parentNode = getParent(selection);
-          parentNode = parentNode ? parentNode : selection?.anchorNode?.parentElement;
-
-          const cursor = getCursorPosInNode(parentNode);
-          const selectedElemid = parentNode.id;
-          setCursor({
-            from: cursor.start,
-            to: cursor.end,
-            elemid: selectedElemid,
-          });
-        }
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    const keysBind = (event: KeyboardEvent) => {
-      if (event.ctrlKey && (event.key === 'b' || event.key === 'B' || event.key === 'и')) {
-        setEditor(setModificatedContent(editor, cursor, ModsTypes.Bold));
-        document.removeEventListener('keydown', keysBind);
-      } else if (event.ctrlKey && (event.key === 'i' || event.key === 'I' || event.key === 'ш')) {
-        setEditor(setModificatedContent(editor, cursor, ModsTypes.Cursive));
-        document.removeEventListener('keydown', keysBind);
-      } else if (
-        event.ctrlKey &&
-        event.shiftKey &&
-        (event.key === ',' || event.key === '<' || event.key === 'Б')
-      ) {
-        setEditor(setModificatedContent(editor, cursor, ModsTypes.TextSize, fontSize - 1));
-        document.removeEventListener('keydown', keysBind);
-      } else if (
-        event.ctrlKey &&
-        event.shiftKey &&
-        (event.key === '.' || event.key === '>' || event.key === 'Ю')
-      ) {
-        setEditor(setModificatedContent(editor, cursor, ModsTypes.TextSize, fontSize + 1));
-        document.removeEventListener('keydown', keysBind);
-      } else if (event.key == 'Tab') {
-        setEditor(addImageInEditor(editor));
-      }
-    };
-    document.addEventListener('keydown', keysBind);
-    return () => {
-      document.removeEventListener('keydown', keysBind);
-    };
-  }, [editor, cursor, fontSize]);
-
-  return (
-    <div className="content-editor-wrapper">
-      <div className="content-editor-wrapper__buttons-area">
-        <div className="content-editor-wrapper__font-size-button">
-          <div
-            onClick={() => {
-              if (cursor.to - cursor.from > 0) {
-                setEditor(setModificatedContent(editor, cursor, ModsTypes.TextSize, fontSize - 1));
-              }
-              setFontSize(fontSize - 1);
-            }}
-            onMouseOver={() => {
-              setHoverMinusFont(true);
-            }}
-            onMouseOut={() => {
-              setHoverMinusFont(false);
-            }}
-            className="content-editor-wrapper__font-size-icon-wrapper"
-          >
-            <SmallMinusIcon />
-            <HintMessage
-              text={'Уменьшить размер шрифта'}
-              bolderText={'Ctrl + Shift + ,'}
-              show={hoverMinusFont}
-            />
-          </div>
-          <div
-            className="content-editor-wrapper__font-size-input-container"
-            onMouseOver={() => {
-              setHoverFont(true);
-            }}
-            onMouseOut={() => {
-              setHoverFont(false);
-            }}
-          >
-            <input
-              ref={sizeRef}
-              onChange={() => {
-                if (sizeRef.current) {
-                  if (sizeRef.current.value != '0' && Number(sizeRef.current.value) <= 400) {
-                    setFontSize(Number(sizeRef.current.value));
-                  }
-                }
-              }}
-              onBlur={() => {
-                setEditor(setModificatedContent(editor, cursor, ModsTypes.TextSize, fontSize + 1));
-              }}
-              type="number"
-              placeholder="15"
-              value={fontSize ? fontSize : ''}
-            />
-            <HintMessage text={'Размер шрифта'} show={hoverFont} />
-          </div>
-          <div
-            onMouseOver={() => {
-              setHoverPlusFont(true);
-            }}
-            onMouseOut={() => {
-              setHoverPlusFont(false);
-            }}
-            onClick={() => {
-              if (cursor.to - cursor.from > 0) {
-                setEditor(setModificatedContent(editor, cursor, ModsTypes.TextSize, fontSize + 1));
-              }
-              setFontSize(fontSize + 1);
-            }}
-            className="content-editor-wrapper__font-size-icon-wrapper"
-          >
-            <SmallPlusIcon />
-            <HintMessage
-              text={'Увеличить размер шрифта'}
-              bolderText={'Ctrl + Shift + .'}
-              show={hoverPlusFont}
-            />
-          </div>
+          )}
         </div>
-        <div
-          className="content-editor-wrapper__button"
-          onClick={() => {
-            setEditor(setModificatedContent(editor, cursor, ModsTypes.Bold));
-          }}
-          onMouseOver={() => {
-            setHoverBolderButton(true);
-          }}
-          onMouseOut={() => {
-            setHoverBolderButton(false);
-          }}
-        >
-          <BolderTextIcon />
-          <HintMessage text={'Полужирный '} bolderText={'Ctrl + B'} show={hoverBolderButton} />
-        </div>
-        <div
-          className="content-editor-wrapper__button"
-          onClick={() => {
-            setEditor(setModificatedContent(editor, cursor, ModsTypes.Cursive));
-          }}
-          onMouseOver={() => {
-            setHoverCursiveButton(true);
-          }}
-          onMouseOut={() => {
-            setHoverCursiveButton(false);
-          }}
-        >
-          <CursiveTextIcon />
-          <HintMessage text={'Курсив'} bolderText={'Ctrl + I'} show={hoverCursiveButton} />
-        </div>
-      </div>
-      <div className={`input input_editor ${props.heightType}`} ref={editorRef}>
-        <div className="content-editable-area">
-          {elems}
-          <span className="content-editable-area__image-tip">Нажмите Tab для вставки фото</span>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const setHref = (editor: Editor, href: string, id: string): Editor => {
-  return {
-    ...editor,
-    content: editor.content.map(el => {
-      if (el.id === id && el.type === ContentTypes.Image) {
-        return { ...el, href: href };
-      }
-      return el;
-    }),
-  };
-};
-const removeElem = (editor: Editor, id: string): Editor => {
-  const editorContentCopy: contentTypes[] = [];
-  editor.content.forEach(el => {
-    if (!(el.id === id)) editorContentCopy.push(el);
-  });
-  return {
-    ...editor,
-    content: editorContentCopy,
-  };
-};
-
-const addImageInEditor = (editor: Editor): Editor => {
-  return {
-    ...editor,
-    content: [
-      ...editor.content,
-      { type: ContentTypes.Image, href: '', id: `el-${editor.content.length}` },
-      { type: ContentTypes.Text, id: `el-${editor.content.length + 1}`, value: '', mods: [] },
-    ],
-  };
-};
-
-const getCursorIntoNode = (elem: Element, cursorPos: number) => {
-  let i = 0;
-  let node = elem.childNodes[0] as HTMLElement;
-  let from = cursorPos;
-  let len = 0;
-  if (node) {
-    if (node.textContent) len = node.textContent.length;
-    else if (node.innerText) len = node.innerText.length;
-    while (from > len && i < elem.childNodes.length) {
-      from = from - len;
-      i++;
-      node = elem.childNodes[i] as HTMLElement;
-      if (node) {
-        if (node.textContent) len = node.textContent.length;
-        else if (node.innerText) len = node.innerText.length;
-      } else {
-        from = 0;
-        break;
-      }
+      );
     }
+    case InputTypes.Editor:
+      if (props.setEditor) return <RichTextEditor {...props} />;
   }
-  return { node: node, from: from };
-};
-
-const replacer = (value: string) => {
-  return value
-    .replaceAll('<br>', '\n')
-    .replaceAll('&nbsp;', ' ')
-    .replaceAll('<b>', '')
-    .replaceAll('</b>', '')
-    .replaceAll('<c>', '')
-    .replaceAll('</c>', '')
-    .replaceAll('<bc>', '')
-    .replaceAll('</bc>', '')
-    .replaceAll(/<.*?f.*?>/g, '')
-    .replaceAll(/<\/.*?f.*?>/g, '');
-};
-
-// <b> -- bold
-// <c> -- cursive
-// <f(num)> -- fontSize
-// <bf(num)> -- bold&fontSize
-// <cf(num)> -- cursive&fontSize
-// <bcf(num)> -- bold&cursive&fontSize
-
-const TagNameList = ['B', 'C', 'BC', 'CF', 'BF', 'BCF', 'F'];
-
-const tagNameCheck = (str: string) => {
-  return TagNameList.includes(str.replaceAll(/[0-9]/g, ''));
-};
-
-const innertextTransform = (el: TextType) => {
-  let text = el.value;
-  let diff = 0;
-  const elModsSorted = [...el.mods];
-  elModsSorted.sort((el1, el2) => {
-    if (el1.from > el2.from && el1.to > el2.to) return 1;
-    if (el1.from < el2.from && el1.to < el2.to) return -1;
-    if (el1.from < el2.from && el1.to > el2.to) return 0;
-    return 0;
-  });
-  elModsSorted.forEach(el1 => {
-    const { openedTag, closedTag } = tagConvertor(el1);
-    text =
-      text.slice(0, el1.from + diff) +
-      openedTag +
-      text.slice(el1.from + diff, el1.to + diff) +
-      closedTag +
-      text.slice(el1.to + diff, text.length);
-    diff = diff + openedTag.length + closedTag.length;
-  });
-  return text;
-};
-
-const tagConvertor = (el: mod) => {
-  let openedtag = '';
-  let closedtag = '';
-  const fontSize = `style="font-size:${el.size}px;"`;
-  if (
-    el.formats.includes(ModsTypes.Bold) &&
-    el.formats.includes(ModsTypes.Cursive) &&
-    el.formats.includes(ModsTypes.TextSize)
-  ) {
-    openedtag = `<bcf ${fontSize}>`;
-    closedtag = `</bcf ${fontSize}>`;
-  } else if (el.formats.includes(ModsTypes.Bold) && el.formats.includes(ModsTypes.Cursive)) {
-    openedtag = '<bc>';
-    closedtag = '</bc>';
-  } else if (el.formats.includes(ModsTypes.Bold) && el.formats.includes(ModsTypes.TextSize)) {
-    openedtag = `<bf ${fontSize}>`;
-    closedtag = `</bf ${fontSize}>`;
-  } else if (el.formats.includes(ModsTypes.Bold)) {
-    openedtag = '<b>';
-    closedtag = '</b>';
-  } else if (el.formats.includes(ModsTypes.Cursive) && el.formats.includes(ModsTypes.TextSize)) {
-    openedtag = `<cf ${fontSize}>`;
-    closedtag = `</cf ${fontSize}>`;
-  } else if (el.formats.includes(ModsTypes.Cursive)) {
-    openedtag = '<c>';
-    closedtag = '</c>';
-  } else if (el.formats.includes(ModsTypes.TextSize)) {
-    openedtag = `<f ${fontSize}>`;
-    closedtag = `</f ${fontSize}>`;
-  }
-  return { openedTag: openedtag, closedTag: closedtag };
-};
-
-const getCursorPosInNode = (element: HTMLElement) => {
-  let caretOffset = 0;
-  let caretStart = 0;
-  const doc = element.ownerDocument;
-  const win = doc.defaultView;
-  let sel;
-  if (doc && win)
-    if (win.getSelection()) {
-      sel = win.getSelection();
-      if (sel && sel.rangeCount > 0) {
-        const range = sel.getRangeAt(0);
-        const preCaretRange = range.cloneRange();
-        preCaretRange.selectNodeContents(element);
-        preCaretRange.setEnd(range.endContainer, range.endOffset);
-        const startrange = preCaretRange.cloneRange();
-        startrange.setStart(range.startContainer, range.startOffset);
-        caretOffset = preCaretRange.toString().length;
-        caretStart = preCaretRange.toString().length - startrange.toString().length;
-      }
-    }
-  return {
-    start: caretStart,
-    end: caretOffset,
-  };
-};
-
-const getParent = (selection: globalThis.Selection) => {
-  let parentNode;
-  if (selection.anchorNode && selection.anchorNode.parentElement) {
-    parentNode = selection.anchorNode.parentElement;
-    if (
-      tagNameCheck(selection.anchorNode.parentElement.tagName) &&
-      selection.anchorNode.parentElement.parentElement
-    ) {
-      parentNode = selection.anchorNode.parentElement.parentElement;
-    }
-  }
-  return parentNode;
-};
-
-const editorEditSymbols = (editor: Editor, cursor: Selection, value: string, elemid: string) => {
-  return {
-    ...editor,
-    content: editor.content.map(el => {
-      if (el.id == elemid) {
-        if (el.type == ContentTypes.Text) {
-          const valuediff = value.length - el.value.length;
-          let mods: mod[] = [];
-          el.mods.forEach(mod => {
-            if (
-              mod.from - mod.to < 0 &&
-              mod.from < el.value.length &&
-              mod.to <= el.value.length &&
-              mod.from >= 0 &&
-              mod.to >= 0
-            )
-              if (cursor.from < mod.from && cursor.to < mod.from) {
-                mods.push({ ...mod, from: mod.from + valuediff, to: mod.to + valuediff });
-              } else if (cursor.from < mod.from && cursor.to >= mod.from && cursor.to < mod.to) {
-                mods.push({
-                  ...mod,
-                  from: mod.from + valuediff + (cursor.to - mod.from),
-                  to: mod.to + valuediff,
-                });
-              } else if (cursor.from > mod.from && cursor.to >= mod.to && cursor.from < mod.to) {
-                mods.push({
-                  ...mod,
-                  to: mod.to - (mod.to - cursor.from),
-                });
-              } else if (cursor.from >= mod.from && cursor.to < mod.to) {
-                mods.push({ ...mod, to: mod.to + valuediff });
-              } else if (!(cursor.from <= mod.from && cursor.to > mod.to)) {
-                mods.push({ ...mod });
-              }
-          });
-          mods = getCheckedMods(mods);
-          return { ...el, value: value, mods: mods };
-        }
-        return { ...el };
-      }
-      return { ...el };
-    }),
-  };
-};
-
-const setModificatedContent = (
-  editor: Editor,
-  cursor: Selection,
-  modification: ModsTypes,
-  fontSize?: number,
-) => {
-  return {
-    ...editor,
-    content: editor.content.map(el => {
-      if (el.id == cursor.elemid && el.type == ContentTypes.Text) {
-        const newMod: mod = {
-          formats: [modification],
-          from: cursor.from,
-          to: cursor.to,
-          size: fontSize,
-        };
-        let mods = checkElemForModText(el.mods, newMod);
-        mods = getCheckedMods(mods);
-        return {
-          ...el,
-          mods: mods,
-        };
-      }
-      return { ...el };
-    }),
-  };
-};
-
-const getCheckedMods = (mods: mod[]) => {
-  const modscopy: mod[] = [...mods];
-
-  for (let i = 0; i < modscopy.length; i++) {
-    const mod = { ...modscopy[i] };
-    for (let j = 0; j < modscopy.length; j++) {
-      const modNow = { ...modscopy[j] };
-      if (j !== i && formatsCompare(modNow.formats, mod.formats)) {
-        const size = mod.size ? mod.size : modNow.size;
-        if (mod.from <= modNow.from && mod.to >= modNow.to) {
-          modscopy.splice(j, 1);
-          i = 0;
-          break;
-        } else if (mod.from >= modNow.from && mod.to <= modNow.to) {
-          modscopy.splice(i, 1);
-          i = 0;
-          break;
-        } else if (mod.from <= modNow.from && mod.to <= modNow.to && mod.to > modNow.from) {
-          modscopy.splice(j, 1);
-          modscopy.splice(i, 1, { formats: mod.formats, from: mod.from, to: modNow.to, size: size });
-          i = 0;
-          break;
-        } else if (mod.from >= modNow.from && mod.to >= modNow.to && modNow.to > mod.from) {
-          modscopy.splice(j, 1);
-          modscopy.splice(i, 1, { formats: mod.formats, from: modNow.from, to: mod.to, size: size });
-          i = 0;
-          break;
-        }
-      } else if (j !== i && !formatsCompare(modNow.formats, mod.formats)) {
-        const modSize = mod.size ? mod.size : modNow.size;
-        const modNowSize = modNow.size ? modNow.size : mod.size;
-        if (mod.from > modNow.from && mod.to > modNow.to && mod.from < modNow.to) {
-          const k = i > j ? i : j;
-          const n = i > j ? j : i;
-          modscopy.splice(k, 1);
-          const mergeFormats = FormatMerger(mod.formats, modNow.formats);
-          modscopy.splice(
-            n,
-            1,
-            { formats: modNow.formats, from: modNow.from, to: mod.from, size: modNowSize },
-            { formats: mergeFormats, from: mod.from, to: modNow.to, size: modSize },
-            { formats: mod.formats, from: modNow.to, to: mod.to, size: modSize },
-          );
-          i = 0;
-          break;
-        } else if (mod.from < modNow.from && mod.to > modNow.to) {
-          const k = i > j ? i : j;
-          const n = i > j ? j : i;
-          modscopy.splice(k, 1);
-          const mergeFormats = FormatMerger(mod.formats, modNow.formats);
-          modscopy.splice(
-            n,
-            1,
-            { formats: mod.formats, from: mod.from, to: modNow.from, size: modSize },
-            { formats: mergeFormats, from: modNow.from, to: modNow.to, size: modNowSize },
-            { formats: mod.formats, from: modNow.to, to: mod.to, size: modSize },
-          );
-          i = 0;
-          break;
-        } else if (mod.from == modNow.from && mod.to == modNow.to) {
-          const k = i > j ? i : j;
-          const n = i > j ? j : i;
-          modscopy.splice(k, 1);
-          const mergeFormats = FormatMerger(mod.formats, modNow.formats);
-          modscopy.splice(n, 1, { formats: mergeFormats, from: mod.from, to: mod.to, size: modSize });
-          i = 0;
-          break;
-        } else if (mod.from == modNow.from && mod.to < modNow.to) {
-          const k = i > j ? i : j;
-          const n = i > j ? j : i;
-          modscopy.splice(k, 1);
-          const mergeFormats = FormatMerger(mod.formats, modNow.formats);
-          modscopy.splice(
-            n,
-            1,
-            { formats: mergeFormats, from: mod.from, to: mod.to, size: modSize },
-            { formats: modNow.formats, from: mod.to, to: modNow.to, size: modNowSize },
-          );
-          i = 0;
-          break;
-        } else if (mod.from > modNow.from && mod.to == modNow.to) {
-          const k = i > j ? i : j;
-          const n = i > j ? j : i;
-          modscopy.splice(k, 1);
-          const mergeFormats = FormatMerger(mod.formats, modNow.formats);
-          modscopy.splice(
-            n,
-            1,
-            { formats: modNow.formats, from: modNow.from, to: mod.from, size: modNowSize },
-            { formats: mergeFormats, from: mod.from, to: modNow.to, size: modSize },
-          );
-          i = 0;
-          break;
-        }
-      }
-    }
-  }
-  return modscopy;
-};
-
-const checkElemForModText = (mods: mod[], newMod: mod) => {
-  const modscopy = [...mods];
-  let flag = true;
-  if (newMod.from - newMod.to < 0) {
-    for (let i = 0; i < modscopy.length; i++) {
-      const modNow = { ...modscopy[i] };
-      if (formatsCompare(modNow.formats, newMod.formats)) {
-        if (modNow.formats.includes(ModsTypes.TextSize)) {
-          if (modNow.from <= newMod.from && modNow.to >= newMod.to) {
-            if (modNow.from < newMod.from && modNow.to > newMod.to) {
-              modscopy.splice(
-                i,
-                1,
-                { formats: modNow.formats, from: modNow.from, to: newMod.from, size: modNow.size },
-                { formats: newMod.formats, from: newMod.from, to: newMod.to, size: newMod.size },
-                { formats: modNow.formats, from: newMod.to, to: modNow.to, size: modNow.size },
-              );
-            } else if (modNow.from == newMod.from && modNow.to != newMod.to) {
-              modscopy.splice(
-                i,
-                1,
-                {
-                  formats: modNow.formats,
-                  from: newMod.from,
-                  to: newMod.to,
-                  size: modNow.size,
-                },
-                {
-                  formats: modNow.formats,
-                  from: newMod.to,
-                  to: modNow.to,
-                  size: newMod.size,
-                },
-              );
-            } else if (modNow.from != newMod.from && modNow.to == newMod.to) {
-              modscopy.splice(
-                i,
-                1,
-                {
-                  formats: modNow.formats,
-                  from: modNow.from,
-                  to: newMod.from,
-                  size: modNow.size,
-                },
-                {
-                  formats: modNow.formats,
-                  from: newMod.from,
-                  to: newMod.to,
-                  size: newMod.size,
-                },
-              );
-            } else {
-              modscopy.splice(i, 1, {
-                formats: modNow.formats,
-                from: newMod.from,
-                to: newMod.to,
-                size: newMod.size,
-              });
-            }
-            flag = false;
-          }
-        } else if (modNow.from <= newMod.from && modNow.to >= newMod.to) {
-          if (modNow.from != newMod.from && modNow.to != newMod.to) {
-            modscopy.splice(
-              i,
-              1,
-              { formats: modNow.formats, from: modNow.from, to: newMod.from },
-              { formats: modNow.formats, from: newMod.to, to: modNow.to },
-            );
-          } else if (modNow.from == newMod.from && modNow.to != newMod.to) {
-            modscopy.splice(i, 1, { formats: modNow.formats, from: modNow.to, to: newMod.to });
-          } else if (modNow.from != newMod.from && modNow.to == newMod.to) {
-            modscopy.splice(i, 1, { formats: modNow.formats, from: modNow.from, to: newMod.from });
-          } else {
-            modscopy.splice(i, 1);
-          }
-          flag = false;
-          i = i - 1;
-        }
-      } else if (newMod.formats.includes(ModsTypes.TextSize)) {
-        if (modNow.from >= newMod.from && modNow.to <= newMod.to) {
-          if (modNow.from > newMod.from && modNow.to < newMod.to) {
-            const mergedFormats = FormatMerger(modNow.formats, newMod.formats);
-            modscopy.splice(
-              i,
-              1,
-              { formats: newMod.formats, from: newMod.from, to: modNow.from, size: newMod.size },
-              { formats: mergedFormats, from: modNow.from, to: modNow.to, size: newMod.size },
-              { formats: newMod.formats, from: modNow.to, to: newMod.to, size: newMod.size },
-            );
-          } else if (modNow.from == newMod.from && modNow.to < newMod.to) {
-            const mergedFormats = FormatMerger(modNow.formats, newMod.formats);
-            modscopy.splice(
-              i,
-              1,
-              { formats: mergedFormats, from: newMod.from, to: modNow.to, size: newMod.size },
-              { formats: newMod.formats, from: modNow.to, to: newMod.to, size: newMod.size },
-            );
-          } else if (modNow.from > newMod.from && modNow.to == newMod.to) {
-            const mergedFormats = FormatMerger(modNow.formats, newMod.formats);
-            modscopy.splice(
-              i,
-              1,
-              { formats: newMod.formats, from: newMod.from, to: modNow.from, size: newMod.size },
-              { formats: mergedFormats, from: modNow.from, to: newMod.to, size: newMod.size },
-            );
-          } else if (modNow.from == newMod.from && modNow.to == newMod.to) {
-            const mergedFormats = FormatMerger(modNow.formats, newMod.formats);
-            modscopy.splice(i, 1, {
-              formats: mergedFormats,
-              from: newMod.from,
-              to: newMod.to,
-              size: newMod.size,
-            });
-          }
-          flag = false;
-          break;
-        }
-      } else if (modNow.formats.includes(newMod.formats[0])) {
-        if (modNow.from <= newMod.from && modNow.to >= newMod.to) {
-          const newFormats = modNow.formats.toSpliced(modNow.formats.indexOf(newMod.formats[0]), 1);
-          if (modNow.from < newMod.from && modNow.to > newMod.to) {
-            modscopy.splice(
-              i,
-              1,
-              { formats: modNow.formats, from: modNow.from, to: newMod.from, size: modNow.size },
-              { formats: newFormats, from: newMod.from, to: newMod.to, size: modNow.size },
-              { formats: modNow.formats, from: newMod.to, to: modNow.to, size: modNow.size },
-            );
-          } else if (modNow.from == newMod.from && modNow.to != newMod.to) {
-            modscopy.splice(
-              i,
-              1,
-              { formats: newFormats, from: modNow.from, to: newMod.to, size: modNow.size },
-              { formats: modNow.formats, from: newMod.to, to: modNow.to, size: modNow.size },
-            );
-          } else if (modNow.from != newMod.from && modNow.to == newMod.to) {
-            modscopy.splice(
-              i,
-              1,
-              { formats: modNow.formats, from: modNow.from, to: newMod.from, size: modNow.size },
-              { formats: newFormats, from: newMod.from, to: newMod.to, size: modNow.size },
-            );
-          } else {
-            modscopy.splice(i, 1, {
-              formats: newFormats,
-              from: newMod.from,
-              to: newMod.to,
-              size: modNow.size,
-            });
-          }
-          flag = false;
-          break;
-        }
-      }
-    }
-    if (flag) {
-      modscopy.push(newMod);
-    }
-  }
-  return modscopy;
-};
-
-type hintProps = {
-  text?: string;
-  bolderText?: string;
-  show: boolean;
-};
-
-const HintMessage = (props: hintProps) => {
-  const hintRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (hintRef.current) {
-      if (props.show) hintRef.current.classList.add('hint-message_opened');
-      else hintRef.current.classList.remove('hint-message_opened');
-    }
-  }, [props.show]);
-  useEffect(() => {
-    if (hintRef.current) {
-      const width = hintRef.current.offsetWidth;
-      hintRef.current.style.right = -width / 2 + 12 + 'px';
-    }
-  }, []);
-  return (
-    <div ref={hintRef} className="hint-message">
-      {props.text != undefined && <span className="hint-message__text">{props.text}</span>}
-      {props.bolderText != undefined && (
-        <span className="hint-message__text hint-message__text_bolder">{props.bolderText}</span>
-      )}
-    </div>
-  );
-};
-
-const FormatMerger = (f1: ModsTypes[], f2: ModsTypes[]) => {
-  const newFormat = [...f1];
-  for (let i = 0; i < f2.length; i++) {
-    if (!newFormat.includes(f2[i])) newFormat.push(f2[i]);
-  }
-  return newFormat;
-};
-
-const formatsCompare = (f1: ModsTypes[], f2: ModsTypes[]) => {
-  const f1copy = [...f1];
-  const f2copy = [...f2];
-  f1copy.sort();
-  f2copy.sort();
-  if (f1copy.length == f2copy.length) {
-    for (let i = 0; i < f1copy.length; i++) {
-      if (f1copy[i] != f2copy[i]) {
-        return false;
-      }
-    }
-  } else {
-    return false;
-  }
-  return true;
 };
