@@ -185,6 +185,7 @@ export const RichTextEditor = (props: InputProps) => {
                 }}
                 type="file"
                 className="input-image-uploader__input"
+                accept='image/png, image/jpeg, image/gif'
               />
               <ImageUploaderIcon />
               <div className="content-editable-area__input-image-description">

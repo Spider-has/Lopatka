@@ -179,6 +179,7 @@ export const InputField = (props: InputProps) => {
                 ref={InpRef}
                 type="file"
                 className="input-image-uploader__input"
+                accept="image/png, image/jpeg"
               />
               <ImageUploaderIcon />
               <span>png,jpg</span>
