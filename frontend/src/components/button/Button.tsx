@@ -8,7 +8,7 @@ export enum ButtonTypes {
 
 export enum ButtonContentTypes {
   Icon = 'Icon',
-  Text = 'IcoTextn',
+  Text = 'Text',
   IconText = 'IconText',
   TextIcon = 'TextIcon',
 }
@@ -21,6 +21,7 @@ export enum ButtonColorTypes {
   None = '',
   Black = 'button_black',
   Transparent = 'button_transparent',
+  RedBorder = 'button_red-border ',
 }
 
 type ButtonProps = {

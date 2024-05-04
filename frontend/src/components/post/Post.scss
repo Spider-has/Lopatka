@@ -8,8 +8,21 @@
     display: flex;
     gap: 30px;
     align-items: center;
-    padding: 51px 75px 0 75px;
     font: var(--text-caption);
+  }
+
+  &__article-info-wrapper {
+    padding: 38px 63px 0 75px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  &_no-post-content {
+    box-sizing: border-box;
+    padding: 40px;
+    justify-content: center;
+    align-items: center;
   }
 
   &__publication-time {

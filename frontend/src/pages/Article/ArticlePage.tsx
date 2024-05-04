@@ -1,13 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Footer } from '../../components/footer/Footer';
-import { Article, ArticleProps } from '../../components/post/Article';
-import { tagModTypes } from '../../components/tagsBar/TagsBar';
+import { Article, ArticleProps, convertDbDataToArticleProps } from '../../components/post/Article';
 import { TopPanel } from '../../components/topPanel/TopPanel';
 import { UpArrow } from '../../components/upArrow/UpArrow';
-import { ButtonContentTypes } from '../../components/button/Button';
 import { useParams } from 'react-router-dom';
 import { fetchGetRequest } from '../../utils/fetchRequests/fetchRequest';
-import { parseThemeIntoTag } from '../../components/post/Post';
 
 const ArticleContentBlock = (props: ArticleProps) => {
   const arrowRef = useRef<HTMLDivElement>(null);
@@ -34,26 +31,12 @@ const ArticleContentBlock = (props: ArticleProps) => {
 
 export const ArticlePage = () => {
   const { id } = useParams();
-  const [articleData, setData] = useState<ArticleProps>({
-    Header: '',
-    Description: '',
-    Date: '',
-    AuthorName: '',
-    FirstScreenImageName: '',
-    Theme: '',
-    MainContent: '',
-    tag: {
-      tagTypes: ButtonContentTypes.Icon,
-      text: '',
-      tagMod: tagModTypes.NoneMod,
-    },
-  });
+  const [articleData, setData] = useState<ArticleProps>();
   useEffect(() => {
     if (id) {
       fetchGetRequest('http://localhost:8000/api/news/public/' + id).then(res => {
         if (res) {
-          console.log(res);
-          setData(res);
+          setData(convertDbDataToArticleProps(res));
         }
       });
     }
@@ -62,7 +45,7 @@ export const ArticlePage = () => {
   return (
     <div className="main-page">
       <TopPanel />
-      <ArticleContentBlock {...articleData} tag={parseThemeIntoTag(articleData.Theme)} />
+      {articleData != undefined && <ArticleContentBlock {...articleData} />}
       <Footer />
     </div>
   );

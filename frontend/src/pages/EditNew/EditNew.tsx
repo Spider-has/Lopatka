@@ -1,5 +1,3 @@
-import './ArticleCreation.scss';
-
 import {
   ImageData,
   InputField,
@@ -7,51 +5,71 @@ import {
   InputTypes,
   ValidationTypes,
 } from '../../components/input/Input';
-import { ArrowBackIcon, LogoIcon, SmallCross, logoColorType, logoSizeType } from '../../icons/Icons';
+import { ArrowBackIcon, LogoIcon, logoColorType, logoSizeType } from '../../icons/Icons';
 import { useEffect, useRef, useState } from 'react';
 import {
   ContentTypes,
   Editor,
+  ModsTypes,
   getOnlyImageContent,
   getParsedContentIntoBD,
+  mod,
 } from '../../components/richTextEditor/RichTextEditor';
-import { fetchPostRequestWithVerify } from '../../utils/fetchRequests/fetchRequest';
+import { fetchGetRequest, fetchPostRequestWithVerify } from '../../utils/fetchRequests/fetchRequest';
 import { getJwtToken } from '../../utils/token';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { isUserAuthCorrect } from '../../utils/auth';
-import {
-  Button,
-  ButtonColorTypes,
-  ButtonContentTypes,
-  ButtonSizeTypes,
-  ButtonTypes,
-} from '../../components/button/Button';
-import { convertDateIntoDBStyle } from '../../utils/utils';
+import { Button, ButtonColorTypes, ButtonContentTypes, ButtonTypes } from '../../components/button/Button';
+import { convertDateIntoDBStyle, serverImageUrl } from '../../utils/utils';
+import { ArticleProps, convertDbDataToArticleProps } from '../../components/post/Article';
+import { tagModTypes } from '../../components/tagsBar/TagsBar';
+import { DeletePopup } from '../ArticleCreation/ArticleCreation';
 
-const Form = () => {
+const Form = (props: ArticleProps) => {
   const navigate = useNavigate();
+
+  const [dataLoad, ondataLoad] = useState(false);
   const [editorData, setEditor] = useState<Editor>({
-    count: 1,
-    content: [
-      {
-        type: ContentTypes.Text,
-        value: '',
-        mods: [],
-        id: 'el-0',
-      },
-    ],
+    count: 0,
+    content: [],
   });
   const [imageData, setImageData] = useState<ImageData>({
     name: '',
     href: '',
   });
+
   const headerRef = useRef<HTMLTextAreaElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const dateRef = useRef<HTMLTextAreaElement>(null);
   const authorRef = useRef<HTMLTextAreaElement>(null);
   const ImageRef = useRef<HTMLInputElement>(null);
   const themeRef = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    console.log(1);
+    if (
+      props.id &&
+      headerRef.current &&
+      descriptionRef.current &&
+      dateRef.current &&
+      authorRef.current &&
+      themeRef.current &&
+      ImageRef.current
+    ) {
+      headerRef.current.value = props.Header;
+      descriptionRef.current.value = props.Description;
+      dateRef.current.value = props.Date;
+      authorRef.current.value = props.AuthorName;
+      themeRef.current.value = props.Theme;
+      console.log(props.MainContent);
+      setEditor(convertIntoEditorFormat(props.MainContent));
+      setImageData({
+        name: props.FirstScreenImageName,
+        href: serverImageUrl + props.FirstScreenImageName,
+      });
 
+      ondataLoad(true);
+    }
+  }, [props]);
   return (
     <section className="creation-form">
       <div className="creation-form__header-wrapper">
@@ -138,6 +156,7 @@ const Form = () => {
                     required={true}
                     lettersCount={60}
                     heightType={InputHeightTypes.Auto}
+                    loaded={dataLoad}
                   />
                 </label>
                 <label className="creation-form__input-area">
@@ -149,6 +168,7 @@ const Form = () => {
                     required={true}
                     lettersCount={150}
                     heightType={InputHeightTypes.Large}
+                    loaded={dataLoad}
                   />
                 </label>
                 <label className="creation-form__input-area">
@@ -227,9 +247,32 @@ const Form = () => {
   );
 };
 
-export const ArticleCreation = () => {
+export const EditNew = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const [articleData, setData] = useState<ArticleProps>({
+    id: '',
+    Header: '',
+    Description: '',
+    Date: '',
+    AuthorName: '',
+    FirstScreenImageName: '',
+    Theme: '',
+    MainContent: '',
+    tag: {
+      tagTypes: ButtonContentTypes.Icon,
+      text: '',
+      tagMod: tagModTypes.NoneMod,
+    },
+  });
   useEffect(() => {
+    if (id) {
+      fetchGetRequest('http://localhost:8000/api/news/public/' + id).then(res => {
+        if (res) {
+          setData(convertDbDataToArticleProps(res));
+        }
+      });
+    }
     isUserAuthCorrect().then(res => {
       if (!res) {
         navigate('/news');
@@ -248,7 +291,7 @@ export const ArticleCreation = () => {
             <LogoIcon size={logoSizeType.Small} color={logoColorType.Dark} />
           </Link>
         </header>
-        <Form />
+        <Form {...articleData} />
         <div>
           <Button
             type={ButtonTypes.Functional}
@@ -277,61 +320,137 @@ export const ArticleCreation = () => {
   );
 };
 
-export const DeletePopup = (props: { deleteHandler: () => void; setPopupClosed: () => void }) => {
-  const popupRef = useRef<HTMLDivElement>(null);
-  return (
-    <>
-      <div
-        onClick={() => {
-          props.setPopupClosed();
-        }}
-        className="popup-background"
-      ></div>
-      <div className="popup popup_delete-type" ref={popupRef}>
-        <div className="popup__cross-area">
-          <div
-            className="popup__cross"
-            onClick={() => {
-              props.setPopupClosed();
-            }}
-          >
-            <SmallCross />
-          </div>
-        </div>
-        <div className="popup__main-area">
-          <div>Вы уверены, что хотите удалить новость?</div>
-          <div className="popup__buttons-area">
-            <div>
-              <Button
-                type={ButtonTypes.Functional}
-                handler={() => {
-                  props.deleteHandler();
-                }}
-                colors={ButtonColorTypes.Transparent}
-                size={ButtonSizeTypes.LargePadding}
-                content={{
-                  contentType: ButtonContentTypes.Text,
-                  text: 'Да',
-                }}
-              />
-            </div>
-            <div>
-              <Button
-                handler={() => {
-                  props.setPopupClosed();
-                }}
-                type={ButtonTypes.Functional}
-                colors={ButtonColorTypes.Black}
-                size={ButtonSizeTypes.LargePadding}
-                content={{
-                  contentType: ButtonContentTypes.Text,
-                  text: 'Нет',
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
+const convertIntoEditorFormat = (data: string): Editor => {
+  let dataCopy = data.substring(0, data.length);
+  const editor: Editor = { count: 0, content: [] };
+  console.log(dataCopy);
+  const spanPos = dataCopy.search(/<span.*?>/g);
+  const imgPos = dataCopy.search(/<img.*?>/g);
+  while (spanPos != -1 || imgPos != -1) {
+    console.log(spanPos, imgPos);
+    if ((imgPos != -1 && spanPos != -1 && spanPos < imgPos) || (spanPos != -1 && imgPos == -1)) {
+      dataCopy = dataCopy.replace(/<span.*?>/g, '');
+      const endSpanPos = dataCopy.search(/<\/span>/g);
+      if (endSpanPos != -1) {
+        transformSpanIntoEditorType(dataCopy, spanPos, endSpanPos);
+        console.log(1);
+        dataCopy = dataCopy.replace(/<\/span.*?>/g, '');
+        dataCopy = dataCopy.slice(endSpanPos, dataCopy.length);
+      } else break;
+    } else if (imgPos != -1 && imgPos < spanPos) {
+      //
+      break;
+    }
+    break;
+  }
+
+  return {
+    count: 1,
+    content: [
+      {
+        type: ContentTypes.Text,
+        value: '',
+        mods: [],
+        id: 'el-0',
+      },
+    ],
+  };
+};
+
+const transformSpanIntoEditorType = (dataCopy: string, spanStart: number, spanEnd: number) => {
+  let spanContent = dataCopy.slice(spanStart, spanEnd);
+  const mods: mod[] = [];
+  console.log(spanContent);
+  while (ModsInclude(spanContent)) {
+    const minPos = getMinPos(spanContent);
+    console.log(minPos);
+    console.log(spanContent);
+    if (spanContent.search('<b>') == minPos) {
+      const data = replaceAndGetModPositions(spanContent, '<b>', '</b>');
+      spanContent = data.strCopy;
+      mods.push({
+        from: data.Start,
+        to: data.End,
+        formats: [ModsTypes.Bold],
+      });
+    } else if (spanContent.search('<c>') == minPos) {
+      const data = replaceAndGetModPositions(spanContent, '<c>', '</c>');
+      spanContent = data.strCopy;
+      mods.push({
+        from: data.Start,
+        to: data.End,
+        formats: [ModsTypes.Cursive],
+      });
+    } else if (spanContent.search('<bc>') == minPos) {
+      const data = replaceAndGetModPositions(spanContent, '<bc>', '</bc>');
+      spanContent = data.strCopy;
+      mods.push({
+        from: data.Start,
+        to: data.End,
+        formats: [ModsTypes.Bold, ModsTypes.Cursive],
+      });
+    } else break;
+  }
+  console.log(spanContent);
+  console.log(mods);
+};
+
+const replaceAndGetModPositions = (str: string, openTag: string, closeTag: string) => {
+  let strCopy = str;
+  const Start = strCopy.search(openTag);
+  strCopy = strCopy.replace(openTag, '');
+  const End = strCopy.search(closeTag);
+  strCopy = strCopy.replace(closeTag, '');
+  return { strCopy, Start, End };
+};
+
+const ModsInclude = (str: string): boolean => {
+  if (
+    str.search('<b>') != -1 ||
+    str.search('<c>') != -1 ||
+    str.search('<bc>') != -1 ||
+    str.search(/<.*?f.*?>/g) != -1
+  )
+    return true;
+  else return false;
+};
+
+const getMinPos = (str: string): number => {
+  let minPos = 1000000;
+  if (str.search('<b>') != -1) {
+    minPos = Math.min(str.search('<b>'), minPos);
+  }
+  if (str.search('<c>') != -1) {
+    minPos = Math.min(str.search('<c>'), minPos);
+  }
+  if (str.search(/<f.*?>/g) != -1) {
+    minPos = Math.min(str.search(/<f.*?>/g), minPos);
+  }
+  if (str.search('<bc>') != -1) {
+    minPos = Math.min(str.search('<bc>'), minPos);
+  }
+  if (str.search(/<bcf.*?>/g) != -1) {
+    minPos = Math.min(str.search(/<bcf.*?>/g), minPos);
+  }
+  if (str.search(/<bf.*?>/g) != -1) {
+    minPos = Math.min(str.search(/<bf.*?>/g), minPos);
+  }
+  if (str.search(/<cf.*?>/g) != -1) {
+    minPos = Math.min(str.search(/<cf.*?>/g), minPos);
+  }
+  return minPos;
+};
+
+const replacer = (value: string) => {
+  return value
+    .replaceAll('<br>', '\n')
+    .replaceAll('&nbsp;', ' ')
+    .replaceAll('<b>', '')
+    .replaceAll('</b>', '')
+    .replaceAll('<c>', '')
+    .replaceAll('</c>', '')
+    .replaceAll('<bc>', '')
+    .replaceAll('</bc>', '')
+    .replaceAll(/<.*?f.*?>/g, '')
+    .replaceAll(/<\/.*?f.*?>/g, '');
 };

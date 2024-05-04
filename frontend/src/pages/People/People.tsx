@@ -2,14 +2,16 @@ import { useRef } from 'react';
 import { Button, ButtonContentTypes, ButtonTypes } from '../../components/button/Button';
 import { Footer } from '../../components/footer/Footer';
 import { PostArea, PostsAreaProps } from '../../components/post/Post';
-import { TagsBar, TagsBarProps, tagModTypes } from '../../components/tagsBar/TagsBar';
+import { FilterTagsBar, TagsBarProps, tagModTypes } from '../../components/tagsBar/TagsBar';
 import { TopPanel } from '../../components/topPanel/TopPanel';
 import { AnotherIcon, CalendarIcon, ClockIcon, PlusIcon, ShovelIcon } from '../../icons/Icons';
-import blankImg from '../../images/blank-img.jpg';
 import './People.scss';
 import { UpArrow } from '../../components/upArrow/UpArrow';
 
 const tagsContent: TagsBarProps = {
+  filterHandler: (tagsValue: string) => {
+    console.log(tagsValue);
+  },
   Tags: [
     {
       tagTypes: ButtonContentTypes.IconText,
@@ -67,7 +69,7 @@ const MainContent = () => {
         <h1>Люди</h1>
       </div>
       <div className="main-content-area-wrapper__content-wrapper">
-        <TagsBar Tags={tagsContent.Tags} />
+        <FilterTagsBar {...tagsContent} />
         <div>
           <PostArea {...news} />
         </div>

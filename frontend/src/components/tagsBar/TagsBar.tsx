@@ -25,14 +25,33 @@ export type TagProps = {
 
 export type TagsBarProps = {
   Tags: TagProps[];
+  filterHandler: (tagValue: string) => void;
 };
 
-export const TagsBar = (props: TagsBarProps) => {
-  const tags = props.Tags.map((tag, i) => (
-    <div key={i} className="tags-bar-wrapper__tag-container">
-      <Tag {...tag} />
-    </div>
-  ));
+export const FilterTagsBar = (props: TagsBarProps) => {
+  const [activeTagState, setActive] = useState<string>('');
+  const tags = props.Tags.map((tag, i) => {
+    const activeState = activeTagState == tag.text;
+    const activeMod = activeState ? 'tags-bar-wrapper__tag-container_active' : '';
+    return (
+      <div
+        onClick={() => {
+          if (activeState) {
+            setActive('');
+          } else {
+            setActive(tag.text);
+          }
+        }}
+        key={i}
+        className={`tags-bar-wrapper__tag-container ${activeMod}`}
+      >
+        <Tag {...tag} />
+      </div>
+    );
+  });
+  useEffect(() => {
+    props.filterHandler(activeTagState);
+  }, [activeTagState]);
   return <div className="tags-bar-wrapper">{tags}</div>;
 };
 

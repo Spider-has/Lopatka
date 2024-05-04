@@ -1,7 +1,8 @@
 import { RefObject, useEffect, useState } from 'react';
 import './Input.scss';
 import { CLoseIcon, ImageUploaderIcon, OpenCloseListIcon } from '../../icons/Icons';
-import { Editor, ImgNameLen, RichTextEditor, generateImgName } from '../richTextEditor/RichTextEditor';
+import { Editor, RichTextEditor } from '../richTextEditor/RichTextEditor';
+import { ImgNameLen, generateImgName } from '../../utils/utils';
 
 export enum InputTypes {
   Text = 'text',
@@ -37,8 +38,11 @@ export type InputProps = {
   placeholder?: string;
   required: boolean;
   lettersCount?: number;
+  loaded?: boolean;
   setEditor?: (editor: Editor) => void;
   setImage?: (image: ImageData) => void;
+  imageData?: ImageData;
+  EditorData?: Editor;
 };
 
 export const InputField = (props: InputProps) => {
@@ -52,11 +56,20 @@ export const InputField = (props: InputProps) => {
       const [letterCounter, setCount] = useState(0);
       const overflowClass = letterCounter >= letterCount ? 'input-letter-counter_overflow' : '';
       const InpRef = props.dataRef as RefObject<HTMLTextAreaElement>;
+      useEffect(() => {
+        if (props.dataRef?.current && props.loaded) {
+          setCount(props.dataRef.current.value.length);
+          if (props.heightType == InputHeightTypes.Auto) {
+            props.dataRef.current.style.height = ``;
+            props.dataRef.current.style.height = props.dataRef.current.scrollHeight + 'px';
+          }
+        }
+      }, [props.loaded]);
       if (letterCount)
         return (
           <>
             <textarea
-              onInput={() => {
+              onChange={() => {
                 if (props.dataRef)
                   if (props.dataRef.current) {
                     setCount(props.dataRef.current.value.length);
@@ -133,15 +146,12 @@ export const InputField = (props: InputProps) => {
       return <input type={props.type} className="submit-input" />;
     case InputTypes.ImageUploader: {
       const InpRef = props.dataRef as RefObject<HTMLInputElement>;
-      const [imageD, setImageD] = useState<ImageData>({
-        name: '',
-        href: '',
-      });
-      useEffect(() => {
-        if (props.setImage) {
-          props.setImage(imageD);
-        }
-      }, [imageD.href, imageD.name]);
+      const imageD: ImageData = props.imageData
+        ? props.imageData
+        : {
+            name: '',
+            href: '',
+          };
       return (
         <div className="input-image-uploader">
           {imageD.href.length > 0 && (
@@ -150,7 +160,7 @@ export const InputField = (props: InputProps) => {
               <div
                 className="input-image-uploader__delete-image-button"
                 onClick={() => {
-                  setImageD({ href: '', name: '' });
+                  if (props.setImage) props.setImage({ href: '', name: '' });
                 }}
               >
                 <CLoseIcon />
@@ -168,7 +178,8 @@ export const InputField = (props: InputProps) => {
                       reader.onload = event => {
                         if (event.target && event.target.result) {
                           const href = event.target.result as string;
-                          setImageD({ href: href, name: generateImgName(ImgNameLen) });
+                          if (props.setImage)
+                            props.setImage({ href: href, name: generateImgName(ImgNameLen) });
                         }
                       };
 

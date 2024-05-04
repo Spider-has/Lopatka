@@ -27,6 +27,7 @@
   &__content-wrapper {
     display: flex;
     align-items: flex-start;
+    box-sizing: border-box;
     padding: 0 9%;
     gap: 36px;
   }
@@ -53,4 +54,9 @@
   background-color: var(--text-oncolor-default);
   min-height: 100vh;
   position: relative;
+}
+
+.post-area-wrapper {
+  max-width: 1020px;
+  width: 70%;
 }

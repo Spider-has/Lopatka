@@ -1,7 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Tag, TagProps } from '../tagsBar/TagsBar';
-import { serverImageUrl } from './Post';
 import './Post.scss';
+import { convertToEuropeanDateStyle, serverImageUrl } from '../../utils/utils';
+import { parseThemeIntoTag } from './Post';
+import { isUserAuthCorrect } from '../../utils/auth';
+import { Button, ButtonColorTypes, ButtonContentTypes, ButtonTypes } from '../button/Button';
+import { EditIcon } from '../../icons/Icons';
 
 export enum ContentType {
   Text = 'Text',
@@ -14,24 +18,8 @@ export enum TextMod {
   Normal = '',
 }
 
-interface ArticleContent {
-  ContentType: ContentType;
-}
-
-interface TextContent extends ArticleContent {
-  ContentType: ContentType.Text;
-  Value: string;
-  Mod: TextMod;
-}
-
-interface ImageContent extends ArticleContent {
-  ContentType: ContentType.Image;
-  src: string;
-}
-
-export type ArticleContentElement = TextContent | ImageContent;
-
 export type ArticleProps = {
+  id: string;
   Header: string;
   Description: string;
   Date: string;
@@ -42,23 +30,48 @@ export type ArticleProps = {
   tag: TagProps;
 };
 
+export const convertDbDataToArticleProps = (data: ArticleProps): ArticleProps => {
+  return {
+    ...data,
+    Date: convertToEuropeanDateStyle(data.Date),
+    tag: parseThemeIntoTag(data.Theme),
+  };
+};
+
 export const Article = (props: ArticleProps) => {
   const contentRef = useRef<HTMLDivElement>(null);
+  const [isAdmin, setAdmin] = useState(false);
   useEffect(() => {
     if (contentRef.current && props.MainContent) {
       contentRef.current.innerHTML = props.MainContent;
     }
+    isUserAuthCorrect().then(res => setAdmin(res));
   }, [contentRef.current, props.MainContent]);
   return (
     <article className="article">
       <div className="article-wrapper">
-        <div className="article-wrapper__article-info">
-          <div className="article-wrapper__tag-wrapper">
-            <Tag {...props.tag} />
+        <div className="article-wrapper__article-info-wrapper ">
+          <div className="article-wrapper__article-info">
+            <div className="article-wrapper__tag-wrapper">
+              <Tag {...props.tag} />
+            </div>
+            <div>{props.AuthorName}</div>
+            <div className="article-wrapper__publication-time">{props.Date}</div>
           </div>
-
-          <div>{props.AuthorName}</div>
-          <div className="article-wrapper__publication-time">{props.Date}</div>
+          <div>
+            {isAdmin && (
+              <Button
+                type={ButtonTypes.Linked}
+                linkTo={`/editNew/${props.id}`}
+                colors={ButtonColorTypes.RedBorder}
+                content={{
+                  contentType: ButtonContentTypes.IconText,
+                  icon: <EditIcon />,
+                  text: 'Редактировать',
+                }}
+              />
+            )}
+          </div>
         </div>
         <div className="article-wrapper__main-content">
           <div className="article-wrapper__content-wrapper">

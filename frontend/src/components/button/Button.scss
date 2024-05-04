@@ -1,11 +1,10 @@
 .button {
   padding: 14px 30px;
   border-radius: 90px;
-
   display: flex;
   align-items: center;
   gap: 18px;
-
+  border: none;
   background-color: var(--accent-default);
   color: var(--primary-default);
 
@@ -14,7 +13,7 @@
   cursor: pointer;
 
   &_transparent {
-    border-color: var(--primary-default);
+    border: 1px solid var(--primary-default);
     background-color: inherit;
     color: var(--primary-default);
   }
@@ -25,7 +24,11 @@
     background-color: var(--primary-default);
     color: var(--text-oncolor-default);
   }
-
+  &_red-border {
+    font: var(--text-description);
+    border: 1px solid var(--border-accent-brown);
+    background-color: inherit;
+  }
   & div {
     display: flex;
     justify-content: center;

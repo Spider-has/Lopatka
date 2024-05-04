@@ -3,6 +3,7 @@ import { Tag, TagProps, supportedTags, tagModTypes } from '../tagsBar/TagsBar';
 import './Post.scss';
 import { ButtonContentTypes } from '../button/Button';
 import { AnotherIcon, CalendarIcon, ClockIcon, ShovelIcon } from '../../icons/Icons';
+import { convertToEuropeanDateStyle, serverImageUrl } from '../../utils/utils';
 
 type PostProps = {
   id: string;
@@ -14,8 +15,6 @@ type PostProps = {
   Theme: string;
   tag: TagProps;
 };
-
-export const serverImageUrl = 'http://localhost:8000/static/post_images/';
 
 export type PostsAreaProps = {
   posts: PostProps[];
@@ -65,28 +64,55 @@ export const parseThemeIntoTag = (theme: string): TagProps => {
   }
 };
 
+export const convertDbDataToNSinglePostProps = (data: PostProps): PostProps => {
+  return {
+    ...data,
+    Date: convertToEuropeanDateStyle(data.Date),
+    tag: parseThemeIntoTag(data.Theme),
+  };
+};
+
+export const convertDbDataToNormalPostsProps = (data: PostProps[]): PostsAreaProps => {
+  return {
+    posts: [...data.map(post => convertDbDataToNSinglePostProps(post))],
+  };
+};
+
 export const PostArea = (props: PostsAreaProps) => {
   const posts = props.posts.map((post, i) => {
-    const postData = { ...post, tag: parseThemeIntoTag(post.Theme) };
-    return <Post key={i} {...postData} />;
+    return <Post key={i} {...post} />;
   });
   return <div className="post-area">{posts}</div>;
 };
 
 export const articleLink = 'http://localhost:3000/article/';
 
+export const NoPostsArticle = () => {
+  return (
+    <article className="article">
+      <div className="article-wrapper article-wrapper_no-post-content">
+        <div className="article-wrapper__header">
+          <h2>Тут пока ещё нет постов:(</h2>
+        </div>
+        <p className="article-wrapper__description">Но они уже очень-очень скоро появятся!</p>
+      </div>
+    </article>
+  );
+};
+
 export const Post = (props: PostProps) => {
   return (
     <Link to={articleLink + props.id}>
       <article className="article">
         <div className="article-wrapper ">
-          <div className="article-wrapper__article-info">
-            <div className="article-wrapper__tag-wrapper">
-              <Tag {...props.tag} />
+          <div className="article-wrapper__article-info-wrapper ">
+            <div className="article-wrapper__article-info">
+              <div className="article-wrapper__tag-wrapper">
+                <Tag {...props.tag} />
+              </div>
+              <div>{props.AuthorName}</div>
+              <div className="article-wrapper__publication-time">{props.Date}</div>
             </div>
-
-            <div>{props.AuthorName}</div>
-            <div className="article-wrapper__publication-time">{props.Date}</div>
           </div>
           <div className="article-wrapper__main-content">
             <div className="article-wrapper__content-wrapper">
