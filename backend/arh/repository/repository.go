@@ -17,6 +17,8 @@ type New interface {
 	Create(New lopata.News) (int, error)
 	GetAll() ([]lopata.NewPreview, error)
 	GetById(id int) (lopata.News, error)
+	DeleteById(id int) error
+	UpdateById(New lopata.News, id int) (error)
 }
 
 type Repository struct {

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { InputProps } from '../input/Input';
+import { InputProps, ValidationTypes } from '../input/Input';
+import './RichTextEditor.scss';
 import {
   BolderTextIcon,
   CLoseIcon,
@@ -26,7 +27,7 @@ interface EditorElem {
   id: string;
 }
 
-interface TextType extends EditorElem {
+export interface TextType extends EditorElem {
   type: ContentTypes.Text;
   value: string;
   mods: mod[];
@@ -39,7 +40,7 @@ export type mod = {
   size?: number;
 };
 
-interface ImageType extends EditorElem {
+export interface ImageType extends EditorElem {
   type: ContentTypes.Image;
   href: string;
   name: string;
@@ -81,6 +82,9 @@ export const RichTextEditor = (props: InputProps) => {
 
   const [fontSize, setFontSize] = useState<number>(20);
   const sizeRef = useRef<HTMLInputElement>(null);
+  const ValidMod = props.validationTypes == ValidationTypes.NoneValid ? 'input_error' : '';
+  const ValidText =
+    props.validationTypes == ValidationTypes.NoneValid ? 'content-editable-area__image-tip_error' : '';
 
   const [hoverMinusFont, setHoverMinusFont] = useState(false);
   const [hoverFont, setHoverFont] = useState(false);
@@ -164,37 +168,47 @@ export const RichTextEditor = (props: InputProps) => {
           );
         else {
           return (
-            <label key={i} className="content-editable-area__input-image-uploader">
-              <input
-                id={elem.id}
-                onChange={() => {
-                  if (editorRef.current) {
-                    const inp = editorRef.current.querySelector(`#${elem.id}`) as HTMLInputElement;
-                    if (inp && inp.files && inp.files[0]) {
-                      const reader = new FileReader();
+            <div key={i} className="content-editable-area__input-image-uploader-wrapper">
+              <label className="content-editable-area__input-image-uploader">
+                <input
+                  id={elem.id}
+                  onChange={() => {
+                    if (editorRef.current) {
+                      const inp = editorRef.current.querySelector(`#${elem.id}`) as HTMLInputElement;
+                      if (inp && inp.files && inp.files[0]) {
+                        const reader = new FileReader();
 
-                      reader.onload = event => {
-                        if (event.target && event.target.result) {
-                          const href = event.target.result as string;
-                          inp.src = href;
-                          if (props.setEditor) props.setEditor(setHref(editor, href, elem.id));
-                        }
-                      };
+                        reader.onload = event => {
+                          if (event.target && event.target.result) {
+                            const href = event.target.result as string;
+                            inp.src = href;
+                            if (props.setEditor) props.setEditor(setHref(editor, href, elem.id));
+                          }
+                        };
 
-                      reader.readAsDataURL(inp.files[0]);
+                        reader.readAsDataURL(inp.files[0]);
+                      }
                     }
-                  }
+                  }}
+                  type="file"
+                  className="input-image-uploader__input"
+                  accept="image/png, image/jpeg, image/gif"
+                />
+                <ImageUploaderIcon />
+                <div className="content-editable-area__input-image-description">
+                  <span>желательно ширина 720px</span>
+                  <span>png, jpg, gif</span>
+                </div>
+              </label>
+              <div
+                className="content-editable-area__delete-image-button"
+                onClick={() => {
+                  if (props.setEditor) props.setEditor(removeElem(editor, elem.id));
                 }}
-                type="file"
-                className="input-image-uploader__input"
-                accept="image/png, image/jpeg, image/gif"
-              />
-              <ImageUploaderIcon />
-              <div className="content-editable-area__input-image-description">
-                <span>желательно ширина 720px</span>
-                <span>png, jpg, gif</span>
+              >
+                <CLoseIcon />
               </div>
-            </label>
+            </div>
           );
         }
     }
@@ -422,10 +436,12 @@ export const RichTextEditor = (props: InputProps) => {
           <HintMessage text={'Курсив'} bolderText={'Ctrl + I'} show={hoverCursiveButton} />
         </div>
       </div>
-      <div className={`input input_editor ${props.heightType} editor-area`} ref={editorRef}>
+      <div className={`input input_editor ${props.heightType} editor-area ${ValidMod}`} ref={editorRef}>
         <div className="content-editable-area">
           {elems}
-          <span className="content-editable-area__image-tip">Нажмите Tab для вставки фото</span>
+          <span className={`content-editable-area__image-tip ${ValidText}`}>
+            Нажмите Tab для вставки фото
+          </span>
         </div>
       </div>
     </div>
@@ -670,7 +686,7 @@ const editorEditSymbols = (editor: Editor, cursor: Selection, value: string, ele
               mod.from >= 0 &&
               mod.to >= 0
             )
-              if (cursor.from < mod.from && cursor.to < mod.from) {
+              if (cursor.from <= mod.from && cursor.to <= mod.from) {
                 mods.push({ ...mod, from: mod.from + valuediff, to: mod.to + valuediff });
               } else if (cursor.from < mod.from && cursor.to >= mod.from && cursor.to < mod.to) {
                 mods.push({
@@ -683,9 +699,9 @@ const editorEditSymbols = (editor: Editor, cursor: Selection, value: string, ele
                   ...mod,
                   to: mod.to - (mod.to - cursor.from),
                 });
-              } else if (cursor.from >= mod.from && cursor.to < mod.to) {
+              } else if (cursor.from > mod.from && cursor.to <= mod.to) {
                 mods.push({ ...mod, to: mod.to + valuediff });
-              } else if (!(cursor.from <= mod.from && cursor.to > mod.to)) {
+              } else if (!(cursor.from <= mod.from && cursor.to >= mod.to)) {
                 mods.push({ ...mod });
               }
           });
@@ -1023,4 +1039,172 @@ const formatsCompare = (f1: ModsTypes[], f2: ModsTypes[]) => {
 
 export const getOnlyImageContent = (editor: Editor) => {
   return editor.content.filter(el => el.type == ContentTypes.Image);
+};
+
+export const convertIntoEditorFormat = (data: string): Editor => {
+  let dataCopy = data.substring(0, data.length);
+  const editor: Editor = { count: 0, content: [] };
+  console.log(dataCopy);
+  let spanPos = dataCopy.search(/<span.*?>/g);
+  let imgPos = dataCopy.search(/<img.*?>/g);
+  while (spanPos != -1 || imgPos != -1) {
+    console.log(spanPos, imgPos);
+    if ((imgPos != -1 && spanPos != -1 && spanPos < imgPos) || (spanPos != -1 && imgPos == -1)) {
+      dataCopy = dataCopy.replace(/<span.*?>/, '');
+      const endSpanPos = dataCopy.search(/<\/span>/);
+      if (endSpanPos != -1) {
+        editor.content.push(transformSpanIntoEditorType(dataCopy, spanPos, endSpanPos, editor.count));
+        editor.count = editor.count + 1;
+        dataCopy = dataCopy.replace(/<\/span.*?>/, '');
+        dataCopy = dataCopy.slice(endSpanPos, dataCopy.length);
+      } else break;
+    } else if ((imgPos != -1 && spanPos != -1 && imgPos < spanPos) || (spanPos == -1 && imgPos != -1)) {
+      const endImgPos = dataCopy.search(/\/>/) + 2;
+      console.log(imgPos, endImgPos);
+      if (endImgPos - 2 > 0) {
+        editor.content.push(transformImgIntoEditorType(dataCopy, imgPos, endImgPos, editor.count));
+        editor.count = editor.count + 1;
+        dataCopy = dataCopy.replace(/<img.*?>/, '');
+      } else break;
+    } else break;
+    console.log(dataCopy);
+    console.log(editor);
+    spanPos = dataCopy.search(/<span.*?>/g);
+    imgPos = dataCopy.search(/<img.*?>/g);
+  }
+  if (editor.content.length > 0) return { ...editor };
+  else
+    return {
+      count: 1,
+      content: [
+        {
+          type: ContentTypes.Text,
+          value: '',
+          mods: [],
+          id: 'el-0',
+        },
+      ],
+    };
+};
+
+const transformSpanIntoEditorType = (
+  dataCopy: string,
+  spanStart: number,
+  spanEnd: number,
+  count: number,
+): TextType => {
+  let spanContent = dataCopy.slice(spanStart, spanEnd);
+  const mods: mod[] = [];
+  while (ModsInclude(spanContent)) {
+    const minPos = getMinPos(spanContent);
+    let data = { strCopy: '', Start: 0, End: 0 };
+    let fontSize = 0;
+    let formats: ModsTypes[] = [];
+    if (spanContent.search('<b>') == minPos) {
+      data = replaceAndGetModPositions(spanContent, '<b>', '</b>');
+      formats = [ModsTypes.Bold];
+    } else if (spanContent.search('<c>') == minPos) {
+      data = replaceAndGetModPositions(spanContent, '<c>', '</c>');
+      formats = [ModsTypes.Cursive];
+    } else if (spanContent.search('<bc>') == minPos) {
+      data = replaceAndGetModPositions(spanContent, '<bc>', '</bc>');
+      formats = [ModsTypes.Bold, ModsTypes.Cursive];
+    } else if (spanContent.search(/<f.*?>/) == minPos) {
+      fontSize = getFontSize(spanContent);
+      data = replaceAndGetModPositions(spanContent, /<f.*?>/, /<\/f.*?>/);
+      formats = [ModsTypes.TextSize];
+    } else if (spanContent.search(/<cf.*?>/) == minPos) {
+      fontSize = getFontSize(spanContent);
+      data = replaceAndGetModPositions(spanContent, /<cf.*?>/, /<\/cf.*?>/);
+      formats = [ModsTypes.Cursive, ModsTypes.TextSize];
+    } else if (spanContent.search(/<bf.*?>/) == minPos) {
+      fontSize = getFontSize(spanContent);
+      data = replaceAndGetModPositions(spanContent, /<bf.*?>/, /<\/bf.*?>/);
+      formats = [ModsTypes.Bold, ModsTypes.TextSize];
+    } else if (spanContent.search(/<bcf.*?>/) == minPos) {
+      fontSize = getFontSize(spanContent);
+      data = replaceAndGetModPositions(spanContent, /<bcf.*?>/, /<\/bcf.*?>/);
+      formats = [ModsTypes.Bold, ModsTypes.Cursive, ModsTypes.TextSize];
+    }
+    spanContent = data.strCopy;
+    mods.push({
+      from: data.Start,
+      to: data.End,
+      formats: formats,
+      size: fontSize ? fontSize : undefined,
+    });
+  }
+  return {
+    type: ContentTypes.Text,
+    mods: mods,
+    value: spanContent,
+    id: `el-${count}`,
+  };
+};
+
+const transformImgIntoEditorType = (
+  dataCopy: string,
+  spanStart: number,
+  spanEnd: number,
+  count: number,
+): ImageType => {
+  const spanContent = dataCopy.slice(spanStart, spanEnd);
+  const src = spanContent.slice(spanContent.search('http'), spanContent.search(/"\/>/g));
+  const name = src.replace(serverImageUrl, '');
+  return {
+    href: src,
+    type: ContentTypes.Image,
+    name: name,
+    id: `el-${count}`,
+  };
+};
+
+const getFontSize = (str: string) => {
+  return Number(str.slice(str.search(':') + 1, str.search('px')));
+};
+
+const replaceAndGetModPositions = (str: string, openTag: string | RegExp, closeTag: string | RegExp) => {
+  let strCopy = str;
+  const Start = strCopy.search(openTag);
+  strCopy = strCopy.replace(openTag, '');
+  const End = strCopy.search(closeTag);
+  strCopy = strCopy.replace(closeTag, '');
+  return { strCopy, Start, End };
+};
+
+const ModsInclude = (str: string): boolean => {
+  if (
+    str.search('<b>') != -1 ||
+    str.search('<c>') != -1 ||
+    str.search('<bc>') != -1 ||
+    str.search(/<.*?f.*?>/g) != -1
+  )
+    return true;
+  else return false;
+};
+
+const getMinPos = (str: string): number => {
+  let minPos = 1000000;
+  if (str.search('<b>') != -1) {
+    minPos = Math.min(str.search('<b>'), minPos);
+  }
+  if (str.search('<c>') != -1) {
+    minPos = Math.min(str.search('<c>'), minPos);
+  }
+  if (str.search(/<f.*?>/g) != -1) {
+    minPos = Math.min(str.search(/<f.*?>/g), minPos);
+  }
+  if (str.search('<bc>') != -1) {
+    minPos = Math.min(str.search('<bc>'), minPos);
+  }
+  if (str.search(/<bcf.*?>/g) != -1) {
+    minPos = Math.min(str.search(/<bcf.*?>/g), minPos);
+  }
+  if (str.search(/<bf.*?>/g) != -1) {
+    minPos = Math.min(str.search(/<bf.*?>/g), minPos);
+  }
+  if (str.search(/<cf.*?>/g) != -1) {
+    minPos = Math.min(str.search(/<cf.*?>/g), minPos);
+  }
+  return minPos;
 };

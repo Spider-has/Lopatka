@@ -28,6 +28,14 @@ import {
 } from '../../components/button/Button';
 import { convertDateIntoDBStyle } from '../../utils/utils';
 
+type validationState = {
+  header: boolean;
+  description: boolean;
+  image: boolean;
+  theme: boolean;
+  editor: boolean;
+};
+
 const Form = () => {
   const navigate = useNavigate();
   const [editorData, setEditor] = useState<Editor>({
@@ -41,10 +49,21 @@ const Form = () => {
       },
     ],
   });
+  const [theme, setTheme] = useState('');
   const [imageData, setImageData] = useState<ImageData>({
     name: '',
     href: '',
   });
+  const [validation, setValidation] = useState<validationState>({
+    header: true,
+    description: true,
+    image: true,
+    theme: true,
+    editor: true,
+  });
+
+  const errorMod = 'creation-form__input-area_error';
+
   const headerRef = useRef<HTMLTextAreaElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const dateRef = useRef<HTMLTextAreaElement>(null);
@@ -66,7 +85,8 @@ const Form = () => {
               descriptionRef.current &&
               dateRef.current &&
               authorRef.current &&
-              themeRef.current
+              themeRef.current &&
+              ImageRef.current
             ) {
               const ArticleCreationData = {
                 Header: headerRef.current.value,
@@ -80,6 +100,17 @@ const Form = () => {
                 MainContentImageData: getOnlyImageContent(editorData),
               };
               console.log(ArticleCreationData);
+              setValidation({
+                header: ArticleCreationData.Header.length > 0,
+                description: ArticleCreationData.Description.length > 0,
+                image: ArticleCreationData.FirstScreenImageName.length > 0,
+                theme: ArticleCreationData.Theme.length > 0,
+                editor: ArticleCreationData.MainContent.length > 0,
+              });
+              if (ArticleCreationData.Date == '') {
+                const now = new Date();
+                ArticleCreationData.Date = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+              }
               if (
                 ArticleCreationData.Header &&
                 ArticleCreationData.Description &&
@@ -109,13 +140,11 @@ const Form = () => {
                 else {
                   alert('no token');
                 }
-              } else {
-                alert('sosem!');
               }
             }
           }}
         >
-          <InputField type={InputTypes.Submit} validationTypes={ValidationTypes.Normal} required={false} />
+          <InputField type={InputTypes.Submit} validationTypes={ValidationTypes.Valid} required={false} />
         </div>
       </div>
       <div className="creation-form__main-area">
@@ -129,22 +158,24 @@ const Form = () => {
             <h2>Главная информация</h2>
             <div className="creation-form__article-info-area">
               <div className="creation-form__article-info">
-                <label className="creation-form__input-area">
+                <label className={`creation-form__input-area ${validation.header ? '' : errorMod}`}>
                   <p>Заголовок (не более 60 символов)*</p>
                   <InputField
                     type={InputTypes.Text}
-                    validationTypes={ValidationTypes.Normal}
+                    validationTypes={validation.header ? ValidationTypes.Valid : ValidationTypes.NoneValid}
                     dataRef={headerRef}
                     required={true}
                     lettersCount={60}
                     heightType={InputHeightTypes.Auto}
                   />
                 </label>
-                <label className="creation-form__input-area">
+                <label className={`creation-form__input-area ${validation.description ? '' : errorMod}`}>
                   <p>Краткое описание (не более 150 символов)*</p>
                   <InputField
                     type={InputTypes.Text}
-                    validationTypes={ValidationTypes.Normal}
+                    validationTypes={
+                      validation.description ? ValidationTypes.Valid : ValidationTypes.NoneValid
+                    }
                     dataRef={descriptionRef}
                     required={true}
                     lettersCount={150}
@@ -155,7 +186,7 @@ const Form = () => {
                   <p>Автор (по умолчанию автор не указывается)</p>
                   <InputField
                     type={InputTypes.Text}
-                    validationTypes={ValidationTypes.Normal}
+                    validationTypes={ValidationTypes.Valid}
                     dataRef={authorRef}
                     required={true}
                     heightType={InputHeightTypes.Auto}
@@ -164,8 +195,8 @@ const Form = () => {
                 <label className="creation-form__input-area">
                   <p>Дата публикации (не выставите, определится автоматически)</p>
                   <InputField
-                    type={InputTypes.Text}
-                    validationTypes={ValidationTypes.Normal}
+                    type={InputTypes.Date}
+                    validationTypes={ValidationTypes.Valid}
                     dataRef={dateRef}
                     required={true}
                     heightType={InputHeightTypes.Auto}
@@ -173,11 +204,11 @@ const Form = () => {
                 </label>
                 <div className="creation-form__image-wrapper">
                   <h2>Вставка фотографии</h2>
-                  <div className="creation-form__input-area">
+                  <div className={`creation-form__input-area ${validation.image ? '' : errorMod}`}>
                     <p>Первый экран (желательно 1020×500)*</p>
                     <InputField
                       type={InputTypes.ImageUploader}
-                      validationTypes={ValidationTypes.Normal}
+                      validationTypes={validation.image ? ValidationTypes.Valid : ValidationTypes.NoneValid}
                       dataRef={ImageRef}
                       required={false}
                       setImage={(image: ImageData) => {
@@ -189,15 +220,19 @@ const Form = () => {
                 </div>
               </div>
               <div className="creation-form__article-info">
-                <label className="creation-form__input-area">
+                <label className={`creation-form__input-area ${validation.theme ? '' : errorMod}`}>
                   <p>Тема статьи*</p>
                   <InputField
                     type={InputTypes.Datalist}
-                    validationTypes={ValidationTypes.Normal}
+                    validationTypes={validation.theme ? ValidationTypes.Valid : ValidationTypes.NoneValid}
                     dataRef={themeRef}
                     required={true}
                     lettersCount={60}
                     heightType={InputHeightTypes.Auto}
+                    setOption={(option: string) => {
+                      setTheme(option);
+                    }}
+                    optionData={theme}
                   />
                 </label>
               </div>
@@ -210,7 +245,7 @@ const Form = () => {
               <div className="creation-form__article-content">
                 <InputField
                   type={InputTypes.Editor}
-                  validationTypes={ValidationTypes.Normal}
+                  validationTypes={validation.editor ? ValidationTypes.Valid : ValidationTypes.NoneValid}
                   required={true}
                   heightType={InputHeightTypes.Full}
                   setEditor={(editor: Editor) => {

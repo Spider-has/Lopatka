@@ -6,6 +6,7 @@ import { ImgNameLen, generateImgName } from '../../utils/utils';
 
 export enum InputTypes {
   Text = 'text',
+  Date = 'date',
   Password = 'password',
   TextField = 'textField',
   List = 'list',
@@ -16,7 +17,8 @@ export enum InputTypes {
 }
 
 export enum ValidationTypes {
-  Normal = 'Normal',
+  Valid = 'Valid',
+  NoneValid = 'NoneValid',
 }
 
 export enum InputHeightTypes {
@@ -41,6 +43,8 @@ export type InputProps = {
   loaded?: boolean;
   setEditor?: (editor: Editor) => void;
   setImage?: (image: ImageData) => void;
+  setOption?: (option: string) => void;
+  optionData?: string;
   imageData?: ImageData;
   EditorData?: Editor;
 };
@@ -48,10 +52,9 @@ export type InputProps = {
 export const InputField = (props: InputProps) => {
   switch (props.type) {
     case InputTypes.Text: {
-      switch (props.validationTypes) {
-        case ValidationTypes.Normal:
-          break;
-      }
+      const ValidMod = props.validationTypes == ValidationTypes.NoneValid ? 'input_error' : '';
+      const ValidLetterMod =
+        props.validationTypes == ValidationTypes.NoneValid ? 'input-letter-counter_error' : '';
       const letterCount = props.lettersCount ? props.lettersCount : 0;
       const [letterCounter, setCount] = useState(0);
       const overflowClass = letterCounter >= letterCount ? 'input-letter-counter_overflow' : '';
@@ -83,9 +86,9 @@ export const InputField = (props: InputProps) => {
               required={props.required}
               ref={InpRef}
               maxLength={props.lettersCount}
-              className={`input ${overflowClass} ${props.heightType}`}
+              className={`input ${overflowClass} ${props.heightType} ${ValidMod}`}
             ></textarea>
-            <div className="input-letter-counter">
+            <div className={`input-letter-counter ${ValidLetterMod}`}>
               {letterCounter}/{letterCount}
             </div>
           </>
@@ -105,38 +108,66 @@ export const InputField = (props: InputProps) => {
             rows={props.heightType == InputHeightTypes.Auto ? 1 : undefined}
             required={props.required}
             ref={InpRef}
-            className={`input ${props.heightType}`}
+            className={`input ${props.heightType} ${ValidMod}`}
           ></textarea>
         );
     }
-    case InputTypes.Password:
-    case InputTypes.TextField:
-    case InputTypes.List:
+    case InputTypes.Date: {
+      const InpRef = props.dataRef as RefObject<HTMLTextAreaElement>;
+      return (
+        <textarea
+          rows={1}
+          placeholder="дд.мм.гггг"
+          maxLength={10}
+          required={props.required}
+          ref={InpRef}
+          className={`input ${props.heightType}`}
+        ></textarea>
+      );
+    }
     case InputTypes.Datalist: {
       const InpRef = props.dataRef as RefObject<HTMLInputElement>;
-      const [option, setOption] = useState<string>('');
+      const optionD: string = props.optionData ? props.optionData : '';
       const [open, setOpen] = useState(false);
-      const openedClass = open ? 'input-list-element__open-list-icon_opened' : '';
+      const ValidMod =
+        props.validationTypes == ValidationTypes.NoneValid ? 'input-list-element__option-now_error' : '';
       return (
-        <div className="input-list-element">
-          <input ref={InpRef} value={option} readOnly />
-          <div className="input-list-element__option-now ">
-            <span>{option}</span>
-            <div
-              onClick={() => {
-                setOpen(!open);
-              }}
-              className={`input-list-element__open-list-icon ${openedClass}`}
-            >
+        <div className={`input-list-element`}>
+          <input ref={InpRef} value={optionD} readOnly />
+          <div
+            onClick={() => {
+              setOpen(!open);
+            }}
+            className={`input-list-element__option-now ${ValidMod}`}
+          >
+            <span>{optionD}</span>
+            <div className={`input-list-element__open-list-icon`}>
               <OpenCloseListIcon />
             </div>
           </div>
           {open && (
             <div className="input-list-element__list">
-              <div onClick={() => setOption('Экспедиции')}>Экспедиции</div>
-              <div onClick={() => setOption('События')}>События</div>
-              <div onClick={() => setOption('Люди')}>Люди</div>
-              <div onClick={() => setOption('Другое')}>Другое</div>
+              <div
+                onClick={() => {
+                  if (props.setOption) props.setOption('Экспедиции');
+                }}
+              >
+                Экспедиции
+              </div>
+              <div
+                onClick={() => {
+                  if (props.setOption) props.setOption('События');
+                }}
+              >
+                События
+              </div>
+              <div
+                onClick={() => {
+                  if (props.setOption) props.setOption('Другое');
+                }}
+              >
+                Другое
+              </div>
             </div>
           )}
         </div>
@@ -152,8 +183,9 @@ export const InputField = (props: InputProps) => {
             name: '',
             href: '',
           };
+      const ValidMod = props.validationTypes == ValidationTypes.NoneValid ? 'input-image-uploader_error' : '';
       return (
-        <div className="input-image-uploader">
+        <div className={`input-image-uploader ${ValidMod}`}>
           {imageD.href.length > 0 && (
             <div className="input-image-uploader__input-image-wrapper">
               <img className="input-image-uploader__input-image" src={imageD.href} />
@@ -168,7 +200,7 @@ export const InputField = (props: InputProps) => {
             </div>
           )}
           {imageD.href.length == 0 && (
-            <label>
+            <label className="input-image-uploader__upload-wrapper">
               <input
                 onChange={() => {
                   if (InpRef.current) {

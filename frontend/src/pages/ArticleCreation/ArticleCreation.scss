@@ -83,6 +83,10 @@
     gap: 5px;
     position: relative;
 
+    &_error {
+      color: var(--status-critical);
+    }
+
     & p {
       font: var(--text-for-fields);
     }

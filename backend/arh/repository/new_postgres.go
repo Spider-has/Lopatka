@@ -51,3 +51,17 @@ func (r *NewPostgres) GetById(id int) (lopata.News, error) {
 	return new, err
 }
 
+
+func (r *NewPostgres) DeleteById(id int) (error) {
+	query := fmt.Sprintf("DELETE FROM %s WHERE id = $1", newsTable)
+	_,err := r.db.Exec(query, id)
+	return err
+}
+
+
+func (r *NewPostgres) UpdateById(new lopata.News, id int) (error) {
+	createListQuery := fmt.Sprintf("UPDATE %s SET header=$1, description=$2, author_name=$3, theme=$4, creation_date=$5, main_image=$6, content=$7 WHERE id=%d", newsTable, id)
+	_, err := r.db.Exec(createListQuery, new.Header, new.Description, new.AuthorName, new.Theme, new.Date, new.FirstScreenImgName, new.MainContent)
+	return err
+}
+

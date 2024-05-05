@@ -7,7 +7,6 @@ import { TopPanel } from '../../components/topPanel/TopPanel';
 import { AnotherIcon, CalendarIcon, ClockIcon, PlusIcon, ShovelIcon } from '../../icons/Icons';
 import './People.scss';
 import { UpArrow } from '../../components/upArrow/UpArrow';
-
 const tagsContent: TagsBarProps = {
   filterHandler: (tagsValue: string) => {
     console.log(tagsValue);

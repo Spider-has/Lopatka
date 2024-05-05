@@ -18,6 +18,8 @@ type New interface {
 	Create(user lopata.News) (int, error)
 	GetAll() ([]lopata.NewPreview, error)
 	GetById(id int) (lopata.News, error)
+	DeleteById(id int) (error)
+	UpdateById(user lopata.News, id int) (error)
 }
 
 type Service struct {

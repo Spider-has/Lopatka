@@ -16,8 +16,25 @@ import { fetchGetRequest } from '../../utils/fetchRequests/fetchRequest';
 import { isUserAuthCorrect } from '../../utils/auth';
 import { useLocation } from 'react-router-dom';
 
-const filterArrayByTag = (Array: PostsAreaProps, TagValue: string): PostsAreaProps => {
-  return { posts: [...Array.posts.filter(elem => elem.tag.text == TagValue)] };
+const filterArrayByTag = (Data: PostsAreaProps, TagValue: string): PostsAreaProps => {
+  return { posts: [...Data.posts.filter(elem => elem.tag.text == TagValue)] };
+};
+
+const sortByDate = (Data: PostsAreaProps) => {
+  return {
+    posts: Data.posts.toSorted((el1, el2) => {
+      const day1 = Number(el1.Date.slice(0, 2));
+      const day2 = Number(el2.Date.slice(0, 2));
+      const month1 = Number(el1.Date.slice(3, 5));
+      const month2 = Number(el2.Date.slice(3, 5));
+      const year1 = Number(el1.Date.slice(6, 10));
+      const year2 = Number(el2.Date.slice(6, 10));
+      if (year1 < year2) return 1;
+      if (year1 == year2 && month1 < month2) return 1;
+      if (year1 == year2 && month1 == month2 && day1 < day2) return 1;
+      return -1;
+    }),
+  };
 };
 
 const MainContent = () => {
@@ -63,7 +80,7 @@ const MainContent = () => {
   useEffect(() => {
     fetchGetRequest('http://localhost:8000/api/news/public/')
       .then(res => {
-        if (res.data) setData(convertDbDataToNormalPostsProps(res.data));
+        if (res.data) setData(sortByDate(convertDbDataToNormalPostsProps(res.data)));
       })
       .catch(err => {
         console.log(err.message);
@@ -120,13 +137,30 @@ const MainContent = () => {
   );
 };
 
+type PopupData = {
+  content: string;
+  header: string;
+};
+
 export const MainPage = () => {
   const location = useLocation();
-  const [openPopup, setOpen] = useState(false);
+  const [popupData, setPopup] = useState<PopupData>();
   useEffect(() => {
-    console.log(location);
     if (location.pathname == '/news/success-creation') {
-      setOpen(true);
+      setPopup({
+        header: 'Новость опубликована!',
+        content: '💃🕺💃',
+      });
+    } else if (location.pathname == '/news/success-update') {
+      setPopup({
+        header: 'Новость успешно обновлена!',
+        content: '💃🕺💃',
+      });
+    } else if (location.pathname == '/news/success-delete') {
+      setPopup({
+        header: 'Новость удалена!',
+        content: '',
+      });
     }
   }, [location]);
 
@@ -135,18 +169,20 @@ export const MainPage = () => {
       <TopPanel />
       <MainContent />
       <Footer />
-      {openPopup && (
-        <SuccessCreationPopup
+      {popupData != undefined && (
+        <InfoPopup
           setPopupClosed={() => {
-            setOpen(false);
+            setPopup(undefined);
           }}
+          header={popupData.header}
+          content={popupData.content}
         />
       )}
     </div>
   );
 };
 
-const SuccessCreationPopup = (props: { setPopupClosed: () => void }) => {
+const InfoPopup = (props: { setPopupClosed: () => void; header: string; content: string }) => {
   const popupRef = useRef<HTMLDivElement>(null);
   return (
     <>
@@ -168,8 +204,8 @@ const SuccessCreationPopup = (props: { setPopupClosed: () => void }) => {
           </div>
         </div>
         <div className="popup__main-area popup__main-area_creation-type">
-          <div>Новость опубликована!</div>
-          <div className="popup__subtitle-text">💃🕺💃</div>
+          <div>{props.header}</div>
+          <div className="popup__subtitle-text">{props.content}</div>
         </div>
       </div>
     </>
