@@ -1,43 +1,46 @@
-import './ArticleCreation.scss';
-
 import {
+  ErrorMessage,
   ImageData,
   InputField,
   InputHeightTypes,
   InputTypes,
   ValidationTypes,
 } from '../../components/input/Input';
-import { ArrowBackIcon, LogoIcon, SmallCross, logoColorType, logoSizeType } from '../../icons/Icons';
+import { ArrowBackIcon, LogoIcon, logoColorType, logoSizeType } from '../../icons/Icons';
 import { useEffect, useRef, useState } from 'react';
 import {
   ContentTypes,
   Editor,
-  getOnlyImageContent,
+  convertIntoEditorFormat,
   getParsedContentIntoBD,
 } from '../../components/richTextEditor/RichTextEditor';
-import { fetchPostRequestWithVerify } from '../../utils/fetchRequests/fetchRequest';
-import { getJwtToken } from '../../utils/token';
-import { Link, useNavigate } from 'react-router-dom';
-import { isUserAuthCorrect } from '../../utils/auth';
 import {
-  Button,
-  ButtonColorTypes,
-  ButtonContentTypes,
-  ButtonSizeTypes,
-  ButtonTypes,
-} from '../../components/button/Button';
-import { convertDateIntoDBStyle } from '../../utils/utils';
+  fetchDeleteRequest,
+  fetchGetRequest,
+  fetchPutRequestWithVerify,
+} from '../../utils/fetchRequests/fetchRequest';
+import { getJwtToken } from '../../utils/token';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { isUserAuthCorrect } from '../../utils/auth';
+import { Button, ButtonColorTypes, ButtonContentTypes, ButtonTypes } from '../../components/button/Button';
+import { serverImageUrl } from '../../utils/utils';
+import { ArticleProps, convertDbDataToArticleProps } from '../../components/post/Article';
+import { tagModTypes } from '../../components/tagsBar/TagsBar';
+import {
+  DeletePopup,
+  changeElemValid,
+  checkAllValid,
+  defaultValid,
+  getInputData,
+  optionElems,
+  useValidateChanger,
+  validationStates,
+} from './NewCreation';
 
-type validationState = {
-  header: boolean;
-  description: boolean;
-  image: boolean;
-  theme: boolean;
-  editor: boolean;
-};
-
-const Form = () => {
+const Form = (props: ArticleProps) => {
   const navigate = useNavigate();
+
+  const [dataLoad, ondataLoad] = useState(false);
   const [editorData, setEditor] = useState<Editor>({
     count: 1,
     content: [
@@ -49,27 +52,49 @@ const Form = () => {
       },
     ],
   });
+  const parsedEditor = getParsedContentIntoBD(editorData);
   const [theme, setTheme] = useState('');
   const [imageData, setImageData] = useState<ImageData>({
     name: '',
     href: '',
   });
-  const [validation, setValidation] = useState<validationState>({
-    header: true,
-    description: true,
-    image: true,
-    theme: true,
-    editor: true,
-  });
+  const [validation, setValidation] = useState<validationStates>(defaultValid);
 
   const errorMod = 'creation-form__input-area_error';
-
   const headerRef = useRef<HTMLTextAreaElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const dateRef = useRef<HTMLTextAreaElement>(null);
   const authorRef = useRef<HTMLTextAreaElement>(null);
   const ImageRef = useRef<HTMLInputElement>(null);
   const themeRef = useRef<HTMLTextAreaElement>(null);
+
+  useValidateChanger(validation, 4, parsedEditor.length, setValidation);
+  useValidateChanger(validation, 3, theme.length, setValidation);
+
+  useEffect(() => {
+    if (
+      props.id &&
+      headerRef.current &&
+      descriptionRef.current &&
+      dateRef.current &&
+      authorRef.current &&
+      themeRef.current &&
+      ImageRef.current
+    ) {
+      headerRef.current.value = props.Header;
+      descriptionRef.current.value = props.Description;
+      dateRef.current.value = props.Date;
+      authorRef.current.value = props.AuthorName;
+      setTheme(props.Theme);
+      setEditor(convertIntoEditorFormat(props.MainContent));
+      setImageData({
+        name: props.FirstScreenImageName,
+        href: serverImageUrl + props.FirstScreenImageName,
+      });
+      console.log(props);
+      ondataLoad(true);
+    }
+  }, [props]);
 
   return (
     <section className="creation-form">
@@ -85,33 +110,23 @@ const Form = () => {
               descriptionRef.current &&
               dateRef.current &&
               authorRef.current &&
-              themeRef.current &&
-              ImageRef.current
+              themeRef.current
             ) {
-              const ArticleCreationData = {
-                Header: headerRef.current.value,
-                Description: descriptionRef.current.value,
-                Date: convertDateIntoDBStyle(dateRef.current.value),
-                AuthorName: authorRef.current.value,
-                FirstScreenImageName: imageData.name,
-                FirstScreenImageHref: imageData.href,
-                Theme: themeRef.current.value,
-                MainContent: getParsedContentIntoBD(editorData),
-                MainContentImageData: getOnlyImageContent(editorData),
-              };
-              console.log(ArticleCreationData);
-              setValidation({
-                header: ArticleCreationData.Header.length > 0,
-                description: ArticleCreationData.Description.length > 0,
-                image: ArticleCreationData.FirstScreenImageName.length > 0,
-                theme: ArticleCreationData.Theme.length > 0,
-                editor: ArticleCreationData.MainContent.length > 0,
-              });
-              if (ArticleCreationData.Date == '') {
-                const now = new Date();
-                ArticleCreationData.Date = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
-              }
+              const ArticleCreationData = getInputData(
+                headerRef.current.value,
+                descriptionRef.current.value,
+                dateRef.current.value,
+                authorRef.current.value,
+                imageData.name,
+                imageData.href,
+                theme,
+                parsedEditor,
+                editorData,
+                setValidation,
+              );
+              const id = props.id;
               if (
+                id &&
                 ArticleCreationData.Header &&
                 ArticleCreationData.Description &&
                 ArticleCreationData.FirstScreenImageName &&
@@ -121,8 +136,8 @@ const Form = () => {
               ) {
                 const token = getJwtToken();
                 if (token)
-                  fetchPostRequestWithVerify(
-                    'http://localhost:8000/api/news/private/',
+                  fetchPutRequestWithVerify(
+                    `http://localhost:8000/api/news/private/${id}`,
                     token,
                     ArticleCreationData,
                   )
@@ -134,7 +149,7 @@ const Form = () => {
                     })
                     .then(res => {
                       console.log(res);
-                      navigate('/news/success-creation');
+                      navigate('/news/success-update');
                     })
                     .catch(err => console.log(err.message));
                 else {
@@ -155,31 +170,42 @@ const Form = () => {
           className="creation-form__content-wrapper"
         >
           <div className="creation-form__article-info-wrapper">
-            <h2>Главная информация</h2>
+            <div className={!checkAllValid(validation) ? 'creation-form__form-header-wrapper' : ''}>
+              <h2>Главная информация</h2>
+              <div className="creation-form__error-wrapper">
+                <ErrorMessage opened={!checkAllValid(validation)} text={'Проверьте все обязательные поля'} />
+              </div>
+            </div>
             <div className="creation-form__article-info-area">
               <div className="creation-form__article-info">
-                <label className={`creation-form__input-area ${validation.header ? '' : errorMod}`}>
+                <label className={`creation-form__input-area ${validation[0].valid ? '' : errorMod}`}>
                   <p>Заголовок (не более 60 символов)*</p>
                   <InputField
                     type={InputTypes.Text}
-                    validationTypes={validation.header ? ValidationTypes.Valid : ValidationTypes.NoneValid}
+                    validationTypes={validation[0].valid ? ValidationTypes.Valid : ValidationTypes.NoneValid}
                     dataRef={headerRef}
                     required={true}
                     lettersCount={60}
                     heightType={InputHeightTypes.Auto}
+                    setValid={() => {
+                      setValidation(changeElemValid(validation, 0));
+                    }}
+                    loaded={dataLoad}
                   />
                 </label>
-                <label className={`creation-form__input-area ${validation.description ? '' : errorMod}`}>
+                <label className={`creation-form__input-area ${validation[1].valid ? '' : errorMod}`}>
                   <p>Краткое описание (не более 150 символов)*</p>
                   <InputField
                     type={InputTypes.Text}
-                    validationTypes={
-                      validation.description ? ValidationTypes.Valid : ValidationTypes.NoneValid
-                    }
+                    validationTypes={validation[1].valid ? ValidationTypes.Valid : ValidationTypes.NoneValid}
                     dataRef={descriptionRef}
                     required={true}
                     lettersCount={150}
                     heightType={InputHeightTypes.Large}
+                    setValid={() => {
+                      setValidation(changeElemValid(validation, 1));
+                    }}
+                    loaded={dataLoad}
                   />
                 </label>
                 <label className="creation-form__input-area">
@@ -204,33 +230,42 @@ const Form = () => {
                 </label>
                 <div className="creation-form__image-wrapper">
                   <h2>Вставка фотографии</h2>
-                  <div className={`creation-form__input-area ${validation.image ? '' : errorMod}`}>
+                  <div className={`creation-form__input-area ${validation[2].valid ? '' : errorMod}`}>
                     <p>Первый экран (желательно 1020×500)*</p>
                     <InputField
                       type={InputTypes.ImageUploader}
-                      validationTypes={validation.image ? ValidationTypes.Valid : ValidationTypes.NoneValid}
+                      validationTypes={
+                        validation[2].valid ? ValidationTypes.Valid : ValidationTypes.NoneValid
+                      }
                       dataRef={ImageRef}
                       required={false}
                       setImage={(image: ImageData) => {
                         setImageData(image);
                       }}
                       imageData={imageData}
+                      setValid={() => {
+                        setValidation(changeElemValid(validation, 2));
+                      }}
                     />
                   </div>
                 </div>
               </div>
               <div className="creation-form__article-info">
-                <label className={`creation-form__input-area ${validation.theme ? '' : errorMod}`}>
+                <label className={`creation-form__input-area ${validation[3].valid ? '' : errorMod}`}>
                   <p>Тема статьи*</p>
                   <InputField
                     type={InputTypes.Datalist}
-                    validationTypes={validation.theme ? ValidationTypes.Valid : ValidationTypes.NoneValid}
+                    validationTypes={validation[3].valid ? ValidationTypes.Valid : ValidationTypes.NoneValid}
                     dataRef={themeRef}
                     required={true}
                     lettersCount={60}
                     heightType={InputHeightTypes.Auto}
-                    setOption={(option: string) => {
-                      setTheme(option);
+                    OptionListData={{
+                      optionElems: optionElems,
+                      setOption: setTheme,
+                    }}
+                    setValid={() => {
+                      setValidation(changeElemValid(validation, 3));
                     }}
                     optionData={theme}
                   />
@@ -245,13 +280,16 @@ const Form = () => {
               <div className="creation-form__article-content">
                 <InputField
                   type={InputTypes.Editor}
-                  validationTypes={validation.editor ? ValidationTypes.Valid : ValidationTypes.NoneValid}
+                  validationTypes={validation[4].valid ? ValidationTypes.Valid : ValidationTypes.NoneValid}
                   required={true}
                   heightType={InputHeightTypes.Full}
                   setEditor={(editor: Editor) => {
                     setEditor(editor);
                   }}
                   EditorData={editorData}
+                  setValid={() => {
+                    setValidation(changeElemValid(validation, 4));
+                  }}
                 />
               </div>
             </div>
@@ -262,9 +300,32 @@ const Form = () => {
   );
 };
 
-export const ArticleCreation = () => {
+export const NewEdit = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const [articleData, setData] = useState<ArticleProps>({
+    id: '',
+    Header: '',
+    Description: '',
+    Date: '',
+    AuthorName: '',
+    FirstScreenImageName: '',
+    Theme: '',
+    MainContent: '',
+    tag: {
+      tagTypes: ButtonContentTypes.Icon,
+      text: '',
+      tagMod: tagModTypes.NoneMod,
+    },
+  });
   useEffect(() => {
+    if (id) {
+      fetchGetRequest('http://localhost:8000/api/news/public/' + id).then(res => {
+        if (res) {
+          setData(convertDbDataToArticleProps(res));
+        }
+      });
+    }
     isUserAuthCorrect().then(res => {
       if (!res) {
         navigate('/news');
@@ -283,7 +344,7 @@ export const ArticleCreation = () => {
             <LogoIcon size={logoSizeType.Small} color={logoColorType.Dark} />
           </Link>
         </header>
-        <Form />
+        <Form {...articleData} />
         <div>
           <Button
             type={ButtonTypes.Functional}
@@ -301,7 +362,12 @@ export const ArticleCreation = () => {
       {showPopup && (
         <DeletePopup
           deleteHandler={() => {
-            navigate('/news');
+            fetchDeleteRequest(`http://localhost:8000/api/news/private/${id}`).then(res => {
+              if (res) {
+                console.log(res);
+                if (res.status == 'ok') navigate('/news/success-delete');
+              }
+            });
           }}
           setPopupClosed={() => {
             setShowPopup(false);
@@ -309,64 +375,5 @@ export const ArticleCreation = () => {
         />
       )}
     </div>
-  );
-};
-
-export const DeletePopup = (props: { deleteHandler: () => void; setPopupClosed: () => void }) => {
-  const popupRef = useRef<HTMLDivElement>(null);
-  return (
-    <>
-      <div
-        onClick={() => {
-          props.setPopupClosed();
-        }}
-        className="popup-background"
-      ></div>
-      <div className="popup popup_delete-type" ref={popupRef}>
-        <div className="popup__cross-area">
-          <div
-            className="popup__cross"
-            onClick={() => {
-              props.setPopupClosed();
-            }}
-          >
-            <SmallCross />
-          </div>
-        </div>
-        <div className="popup__main-area">
-          <div>Вы уверены, что хотите удалить новость?</div>
-          <div className="popup__buttons-area">
-            <div>
-              <Button
-                type={ButtonTypes.Functional}
-                handler={() => {
-                  props.deleteHandler();
-                }}
-                colors={ButtonColorTypes.Transparent}
-                size={ButtonSizeTypes.LargePadding}
-                content={{
-                  contentType: ButtonContentTypes.Text,
-                  text: 'Да',
-                }}
-              />
-            </div>
-            <div>
-              <Button
-                handler={() => {
-                  props.setPopupClosed();
-                }}
-                type={ButtonTypes.Functional}
-                colors={ButtonColorTypes.Black}
-                size={ButtonSizeTypes.LargePadding}
-                content={{
-                  contentType: ButtonContentTypes.Text,
-                  text: 'Нет',
-                }}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
   );
 };

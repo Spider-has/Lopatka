@@ -38,19 +38,11 @@ export const parseThemeIntoTag = (theme: string): TagProps => {
         tagMod: tagModTypes.SmallGap,
       };
     }
-    case supportedTags.Fresh: {
-      return {
-        tagTypes: ButtonContentTypes.IconText,
-        icon: <ClockIcon />,
-        text: 'Свежее',
-        tagMod: tagModTypes.SmallGap,
-      };
-    }
     case supportedTags.Other: {
       return {
         tagTypes: ButtonContentTypes.IconText,
         icon: <AnotherIcon />,
-        text: 'Прочее',
+        text: 'Другое',
         tagMod: tagModTypes.SmallGap,
       };
     }
@@ -58,7 +50,7 @@ export const parseThemeIntoTag = (theme: string): TagProps => {
       return {
         tagTypes: ButtonContentTypes.IconText,
         icon: <ClockIcon />,
-        text: 'Свежее',
+        text: 'События',
         tagMod: tagModTypes.SmallGap,
       };
   }
@@ -85,7 +77,7 @@ export const PostArea = (props: PostsAreaProps) => {
   return <div className="post-area">{posts}</div>;
 };
 
-export const articleLink = 'http://localhost:3000/article/';
+export const articleLink = 'http://localhost:3000/new/';
 
 export const NoPostsArticle = () => {
   return (

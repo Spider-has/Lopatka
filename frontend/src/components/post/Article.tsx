@@ -62,7 +62,7 @@ export const Article = (props: ArticleProps) => {
             {isAdmin && (
               <Button
                 type={ButtonTypes.Linked}
-                linkTo={`/editNew/${props.id}`}
+                linkTo={`/newEdit/${props.id}`}
                 colors={ButtonColorTypes.RedBorder}
                 content={{
                   contentType: ButtonContentTypes.IconText,

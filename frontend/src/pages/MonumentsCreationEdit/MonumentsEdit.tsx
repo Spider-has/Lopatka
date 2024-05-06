@@ -1,4 +1,5 @@
 import {
+  ErrorMessage,
   ImageData,
   InputField,
   InputHeightTypes,
@@ -8,9 +9,9 @@ import {
 import { ArrowBackIcon, LogoIcon, logoColorType, logoSizeType } from '../../icons/Icons';
 import { useEffect, useRef, useState } from 'react';
 import {
+  ContentTypes,
   Editor,
   convertIntoEditorFormat,
-  getOnlyImageContent,
   getParsedContentIntoBD,
 } from '../../components/richTextEditor/RichTextEditor';
 import {
@@ -22,24 +23,51 @@ import { getJwtToken } from '../../utils/token';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { isUserAuthCorrect } from '../../utils/auth';
 import { Button, ButtonColorTypes, ButtonContentTypes, ButtonTypes } from '../../components/button/Button';
-import { convertDateIntoDBStyle, serverImageUrl } from '../../utils/utils';
+import { serverImageUrl } from '../../utils/utils';
 import { ArticleProps, convertDbDataToArticleProps } from '../../components/post/Article';
 import { tagModTypes } from '../../components/tagsBar/TagsBar';
-import { DeletePopup } from '../ArticleCreation/ArticleCreation';
-
+import {
+  cultureOptionElems,
+  defaultValid,
+  districtOptionElems,
+  eraOptionElems,
+  getMonumentInputData,
+  typeOptionElems,
+  validationStates,
+} from './MonumentsCreation';
+import {
+  DeletePopup,
+  changeElemValid,
+  checkAllValid,
+  useValidateChanger,
+} from '../NewCreationEdit/NewCreation';
 const Form = (props: ArticleProps) => {
   const navigate = useNavigate();
-
-  const [dataLoad, ondataLoad] = useState(false);
-  const [theme, setTheme] = useState('');
   const [editorData, setEditor] = useState<Editor>({
-    count: 0,
-    content: [],
+    count: 1,
+    content: [
+      {
+        type: ContentTypes.Text,
+        value: '',
+        mods: [],
+        id: 'el-0',
+      },
+    ],
   });
+  const parsedEditor = getParsedContentIntoBD(editorData);
+  const [type, setType] = useState('');
+  const [dataLoad, ondataLoad] = useState(false);
+  const [culture, setCulture] = useState('');
+  const [district, setDistrict] = useState('');
+  const [era, setEra] = useState('');
+  const [coords, setCoords] = useState('');
   const [imageData, setImageData] = useState<ImageData>({
     name: '',
     href: '',
   });
+  const [validation, setValidation] = useState<validationStates>(defaultValid);
+
+  const errorMod = 'creation-form__input-area_error';
 
   const headerRef = useRef<HTMLTextAreaElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
@@ -47,6 +75,16 @@ const Form = (props: ArticleProps) => {
   const authorRef = useRef<HTMLTextAreaElement>(null);
   const ImageRef = useRef<HTMLInputElement>(null);
   const themeRef = useRef<HTMLTextAreaElement>(null);
+  const coordinatesRef = useRef<HTMLTextAreaElement>(null);
+
+  useValidateChanger(validation, 3, type.length, setValidation);
+  useValidateChanger(validation, 4, culture.length, setValidation);
+  useValidateChanger(validation, 5, era.length, setValidation);
+  useValidateChanger(validation, 6, district.length, setValidation);
+  useValidateChanger(validation, 7, coords.length, setValidation);
+
+  useValidateChanger(validation, 8, parsedEditor.length, setValidation);
+
   useEffect(() => {
     if (
       props.id &&
@@ -61,7 +99,7 @@ const Form = (props: ArticleProps) => {
       descriptionRef.current.value = props.Description;
       dateRef.current.value = props.Date;
       authorRef.current.value = props.AuthorName;
-      setTheme(props.Theme);
+      //  setTheme(props.Theme);
       setEditor(convertIntoEditorFormat(props.MainContent));
       setImageData({
         name: props.FirstScreenImageName,
@@ -86,38 +124,41 @@ const Form = (props: ArticleProps) => {
               descriptionRef.current &&
               dateRef.current &&
               authorRef.current &&
-              themeRef.current
+              themeRef.current &&
+              coordinatesRef.current
             ) {
-              const ArticleCreationData = {
-                id: props.id,
-                Header: headerRef.current.value,
-                Description: descriptionRef.current.value,
-                Date: convertDateIntoDBStyle(dateRef.current.value),
-                AuthorName: authorRef.current.value,
-                FirstScreenImageName: imageData.name,
-                FirstScreenImageHref: imageData.href,
-                Theme: themeRef.current.value,
-                MainContent: getParsedContentIntoBD(editorData),
-                MainContentImageData: getOnlyImageContent(editorData),
-              };
-              console.log(ArticleCreationData);
-              if (ArticleCreationData.Date == '') {
-                const now = new Date();
-                ArticleCreationData.Date = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
-              }
+              const ArticleCreationData = getMonumentInputData(
+                headerRef.current.value,
+                descriptionRef.current.value,
+                dateRef.current.value,
+                authorRef.current.value,
+                imageData.name,
+                imageData.href,
+                type,
+                culture,
+                era,
+                district,
+                coordinatesRef.current.value,
+                parsedEditor,
+                editorData,
+                setValidation,
+              );
+              const id = props.id;
               if (
-                ArticleCreationData.id &&
                 ArticleCreationData.Header &&
                 ArticleCreationData.Description &&
                 ArticleCreationData.FirstScreenImageName &&
                 ArticleCreationData.FirstScreenImageHref &&
-                ArticleCreationData.Theme &&
+                ArticleCreationData.Type &&
+                ArticleCreationData.Culture &&
+                ArticleCreationData.Era &&
+                ArticleCreationData.District &&
                 ArticleCreationData.MainContent
               ) {
                 const token = getJwtToken();
                 if (token)
                   fetchPutRequestWithVerify(
-                    `http://localhost:8000/api/news/private/${ArticleCreationData.id}`,
+                    `http://localhost:8000/api/news/private/${id}`,
                     token,
                     ArticleCreationData,
                   )
@@ -135,8 +176,6 @@ const Form = (props: ArticleProps) => {
                 else {
                   alert('no token');
                 }
-              } else {
-                alert('sosem!');
               }
             }
           }}
@@ -152,30 +191,41 @@ const Form = (props: ArticleProps) => {
           className="creation-form__content-wrapper"
         >
           <div className="creation-form__article-info-wrapper">
-            <h2>Главная информация</h2>
+            <div className={!checkAllValid(validation) ? 'creation-form__form-header-wrapper' : ''}>
+              <h2>Главная информация</h2>
+              <div className="creation-form__error-wrapper">
+                <ErrorMessage opened={!checkAllValid(validation)} text={'Проверьте все обязательные поля'} />
+              </div>
+            </div>
             <div className="creation-form__article-info-area">
               <div className="creation-form__article-info">
-                <label className="creation-form__input-area">
+                <label className={`creation-form__input-area ${validation[0].valid ? '' : errorMod}`}>
                   <p>Заголовок (не более 60 символов)*</p>
                   <InputField
                     type={InputTypes.Text}
-                    validationTypes={ValidationTypes.Valid}
+                    validationTypes={validation[0].valid ? ValidationTypes.Valid : ValidationTypes.NoneValid}
                     dataRef={headerRef}
                     required={true}
                     lettersCount={60}
                     heightType={InputHeightTypes.Auto}
+                    setValid={() => {
+                      setValidation(changeElemValid(validation, 0));
+                    }}
                     loaded={dataLoad}
                   />
                 </label>
-                <label className="creation-form__input-area">
+                <label className={`creation-form__input-area ${validation[1].valid ? '' : errorMod}`}>
                   <p>Краткое описание (не более 150 символов)*</p>
                   <InputField
                     type={InputTypes.Text}
-                    validationTypes={ValidationTypes.Valid}
+                    validationTypes={validation[1].valid ? ValidationTypes.Valid : ValidationTypes.NoneValid}
                     dataRef={descriptionRef}
                     required={true}
                     lettersCount={150}
                     heightType={InputHeightTypes.Large}
+                    setValid={() => {
+                      setValidation(changeElemValid(validation, 1));
+                    }}
                     loaded={dataLoad}
                   />
                 </label>
@@ -201,35 +251,119 @@ const Form = (props: ArticleProps) => {
                 </label>
                 <div className="creation-form__image-wrapper">
                   <h2>Вставка фотографии</h2>
-                  <div className="creation-form__input-area">
+                  <div className={`creation-form__input-area ${validation[2].valid ? '' : errorMod}`}>
                     <p>Первый экран (желательно 1020×500)*</p>
                     <InputField
                       type={InputTypes.ImageUploader}
-                      validationTypes={ValidationTypes.Valid}
+                      validationTypes={
+                        validation[2].valid ? ValidationTypes.Valid : ValidationTypes.NoneValid
+                      }
                       dataRef={ImageRef}
                       required={false}
                       setImage={(image: ImageData) => {
                         setImageData(image);
                       }}
                       imageData={imageData}
+                      setValid={() => {
+                        setValidation(changeElemValid(validation, 2));
+                      }}
                     />
                   </div>
                 </div>
               </div>
               <div className="creation-form__article-info">
-                <label className="creation-form__input-area">
-                  <p>Тема статьи*</p>
+                <div className="creation-form__article-two-inputs-area">
+                  <div className="creation-form__article-two-inputs-wrapper">
+                    <label className={`creation-form__input-area ${validation[3].valid ? '' : errorMod}`}>
+                      <p>Тип памятника*</p>
+                      <InputField
+                        type={InputTypes.Datalist}
+                        validationTypes={
+                          validation[3].valid ? ValidationTypes.Valid : ValidationTypes.NoneValid
+                        }
+                        dataRef={themeRef}
+                        required={true}
+                        heightType={InputHeightTypes.Auto}
+                        OptionListData={{
+                          optionElems: typeOptionElems,
+                          setOption: setType,
+                        }}
+                        setValid={() => {
+                          setValidation(changeElemValid(validation, 3));
+                        }}
+                        optionData={type}
+                      />
+                    </label>
+                  </div>
+                  <div className="creation-form__article-two-inputs-wrapper">
+                    <label className={`creation-form__input-area ${validation[4].valid ? '' : errorMod}`}>
+                      <p>Культура*</p>
+                      <InputField
+                        type={InputTypes.Datalist}
+                        validationTypes={
+                          validation[4].valid ? ValidationTypes.Valid : ValidationTypes.NoneValid
+                        }
+                        dataRef={themeRef}
+                        required={true}
+                        heightType={InputHeightTypes.Auto}
+                        OptionListData={{
+                          optionElems: cultureOptionElems,
+                          setOption: setCulture,
+                        }}
+                        setValid={() => {
+                          setValidation(changeElemValid(validation, 4));
+                        }}
+                        optionData={culture}
+                      />
+                    </label>
+                  </div>
+                </div>
+                <label className={`creation-form__input-area ${validation[5].valid ? '' : errorMod}`}>
+                  <p>Эпоха*</p>
                   <InputField
                     type={InputTypes.Datalist}
-                    validationTypes={ValidationTypes.Valid}
+                    validationTypes={validation[5].valid ? ValidationTypes.Valid : ValidationTypes.NoneValid}
                     dataRef={themeRef}
                     required={true}
-                    lettersCount={60}
                     heightType={InputHeightTypes.Auto}
-                    setOption={(option: string) => {
-                      setTheme(option);
+                    OptionListData={{
+                      optionElems: eraOptionElems,
+                      setOption: setEra,
                     }}
-                    optionData={theme}
+                    setValid={() => {
+                      setValidation(changeElemValid(validation, 5));
+                    }}
+                    optionData={era}
+                  />
+                </label>
+                <label className={`creation-form__input-area ${validation[6].valid ? '' : errorMod}`}>
+                  <p>Район*</p>
+                  <InputField
+                    type={InputTypes.Datalist}
+                    validationTypes={validation[6].valid ? ValidationTypes.Valid : ValidationTypes.NoneValid}
+                    dataRef={themeRef}
+                    required={true}
+                    heightType={InputHeightTypes.Auto}
+                    OptionListData={{
+                      optionElems: districtOptionElems,
+                      setOption: setDistrict,
+                    }}
+                    setValid={() => {
+                      setValidation(changeElemValid(validation, 6));
+                    }}
+                    optionData={district}
+                  />
+                </label>
+                <label className={`creation-form__input-area ${validation[7].valid ? '' : errorMod}`}>
+                  <p>Координаты памятника*</p>
+                  <InputField
+                    type={InputTypes.Coordinates}
+                    validationTypes={validation[7].valid ? ValidationTypes.Valid : ValidationTypes.NoneValid}
+                    dataRef={coordinatesRef}
+                    required={true}
+                    cords={coords}
+                    setCords={setCoords}
+                    heightType={InputHeightTypes.Auto}
                   />
                 </label>
               </div>
@@ -242,13 +376,16 @@ const Form = (props: ArticleProps) => {
               <div className="creation-form__article-content">
                 <InputField
                   type={InputTypes.Editor}
-                  validationTypes={ValidationTypes.Valid}
+                  validationTypes={validation[4].valid ? ValidationTypes.Valid : ValidationTypes.NoneValid}
                   required={true}
                   heightType={InputHeightTypes.Full}
                   setEditor={(editor: Editor) => {
                     setEditor(editor);
                   }}
                   EditorData={editorData}
+                  setValid={() => {
+                    setValidation(changeElemValid(validation, 4));
+                  }}
                 />
               </div>
             </div>
@@ -259,7 +396,7 @@ const Form = (props: ArticleProps) => {
   );
 };
 
-export const EditNew = () => {
+export const NewEdit = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [articleData, setData] = useState<ArticleProps>({

@@ -26,21 +26,13 @@
   display: flex;
   gap: 12px;
   align-items: center;
+  white-space: pre;
   &_small-gap {
     gap: 8px;
   }
   &_text-small {
     font: var(--text-description);
   }
-}
-
-.monuments-tags-bar {
-  display: flex;
-  flex-direction: column;
-  gap: 36px;
-  padding: 35px 25px 50px 25px;
-  border: 1px solid var(--border-accent-brown);
-  border-radius: 15px;
 }
 
 .tags-list-wrapper {
@@ -55,12 +47,10 @@
     padding: 8px 15px;
     color: var(--primary-default);
     &:hover {
-      background-color: var(--background-hovered-search);
-      color: var(--text-oncolor-default);
+      background-color: var(--background-hovered);
     }
     &_active {
-      background-color: var(--background-hovered-search);
-      color: var(--text-oncolor-default);
+      background-color: var(--background-hovered);
     }
   }
 

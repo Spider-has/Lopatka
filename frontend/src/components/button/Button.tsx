@@ -21,6 +21,7 @@ export enum ButtonColorTypes {
   None = '',
   Black = 'button_black',
   Transparent = 'button_transparent',
+  LightTransparent = 'button_light-transparent',
   RedBorder = 'button_red-border ',
 }
 

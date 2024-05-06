@@ -83,18 +83,6 @@
 
 .editor-area {
   max-height: 558px;
-  &::-webkit-scrollbar {
-    width: 4px;
-    background-color: inherit;
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: var(--text-subdued);
-    border-radius: 50px;
-  }
-  &::-webkit-scrollbar-track {
-    width: 20px;
-    background-color: inherit;
-  }
 }
 
 .content-editor-wrapper {

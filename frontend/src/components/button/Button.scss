@@ -34,4 +34,10 @@
     justify-content: center;
     align-items: center;
   }
+
+  &_light-transparent {
+    border: 1px solid var(--text-oncolor-default);
+    background-color: inherit;
+    color: var(--text-oncolor-default);
+  }
 }

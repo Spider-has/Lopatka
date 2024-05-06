@@ -15,6 +15,7 @@ export const signIn = (userEmail: string, password: string) => {
     .then(response => {
       if (response.token) setJwtToken(response.token);
       getToken(response);
+      return response;
     });
   return response;
 };

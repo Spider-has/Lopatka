@@ -14,13 +14,12 @@ export const UpArrow = (props: ArrowProps) => {
     if (arrowRef.current) {
       window.addEventListener('scroll', () => {
         const scrollY = window.scrollY || document.documentElement.scrollTop;
-
         if (scrollY > 400) {
           arrowRef.current?.classList.add('up-arrow_show');
-          if (document.documentElement.scrollHeight - scrollY - window.screen.availHeight < 200) {
+          if (document.documentElement.scrollHeight - scrollY - window.screen.availHeight < 400) {
             props.downHandler();
           } else {
-            if (document.documentElement.scrollHeight - scrollY - window.screen.availHeight < 400) {
+            if (document.documentElement.scrollHeight - scrollY - window.screen.availHeight < 600) {
               props.upHandler();
             }
           }

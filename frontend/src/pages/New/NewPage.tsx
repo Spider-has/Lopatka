@@ -29,7 +29,7 @@ const ArticleContentBlock = (props: ArticleProps) => {
   );
 };
 
-export const ArticlePage = () => {
+export const NewPage = () => {
   const { id } = useParams();
   const [articleData, setData] = useState<ArticleProps>();
   useEffect(() => {

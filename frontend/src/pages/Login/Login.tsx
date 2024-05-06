@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { isUserAuthCorrect, signIn } from '../../utils/auth';
 import { useNavigate } from 'react-router-dom';
 import { getJwtToken } from '../../utils/token';
+import { ErrorMessage } from '../../components/input/Input';
 
 export const LoginPage = () => {
   const nameRef = useRef<HTMLInputElement>(null);
@@ -24,13 +25,12 @@ export const LoginPage = () => {
         <Icons.LogoIcon size={Icons.logoSizeType.Large} color={Icons.logoColorType.White} />
         <form className="logination__form">
           <h1 className="logination__header">Вход в учётную запись</h1>
-          {visibleError && (
-            <div className="logination__error-message-wrapper">
-              <Icons.ErrorIcon />
-              {!(visibleLoginError || visiblePasswordError) && <span>Логин или пароль неверны</span>}
-              {(visibleLoginError || visiblePasswordError) && <span>Проверьте все поля</span>}
-            </div>
-          )}
+          <ErrorMessage
+            opened={visibleError}
+            text={
+              visibleLoginError || visiblePasswordError ? 'Проверьте все поля' : 'Логин или пароль неверны'
+            }
+          />
           <div className="logination__inputs-area">
             <label className="logination__input-wrapper">
               <input
@@ -74,6 +74,10 @@ export const LoginPage = () => {
                   event.preventDefault();
                   if (passwordRef.current && nameRef.current) {
                     signIn(nameRef.current.value, passwordRef.current.value)
+                      .then(res => {
+                        console.log(res);
+                        if (res && getJwtToken()) navigate('/news');
+                      })
                       .catch(error => {
                         if (nameRef.current) {
                           console.log(1);
@@ -84,9 +88,6 @@ export const LoginPage = () => {
                         }
                         setVisibleError(true);
                         console.log(error);
-                      })
-                      .then(() => {
-                        if (getJwtToken()) navigate('/news');
                       });
                   }
                 }}

@@ -1,98 +1,86 @@
 .login-page {
-    background: no-repeat center/cover url('./backgroundImage/admin-background.jpg');
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  background: no-repeat center/cover url('./backgroundImage/admin-background.jpg');
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .logination {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 55px;
+
+  &__inputs-area {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 55px;
+    gap: 15px;
+    margin-top: 30px;
+  }
 
-    &__inputs-area {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        margin-top: 30px;
-    }
+  &__form {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--white-background-default);
+    padding: 73px 100px 110px 100px;
+    border-radius: 10px;
+  }
 
-    &__form {
-        display: flex;
-        flex-direction: column;
-        background-color: var(--white-background-default);
-        padding: 73px 100px 110px 100px;
-        border-radius: 10px;
-    }
+  &__header {
+    font: var(--text-header-4);
+    color: var(--primary-default);
+    text-align: center;
+    margin-bottom: 30px;
+  }
 
-    &__header {
-        font: var(--text-header-4);
-        color: var(--primary-default);
-        text-align: center;
-        margin-bottom: 30px;
-    }
+  &__input {
+    width: 100%;
+    padding: 16px 15px;
+    font: var(--text-for-fields);
+    color: var(--primary-default);
+    border: 1px solid var(--border-default);
+    background-color: var(--divider-default);
+    border-radius: 10px;
+  }
 
-    &__input {
-        width: 100%;
-        padding: 16px 15px;
-        font: var(--text-for-fields);
-        color: var(--primary-default);
-        border: 1px solid var(--border-default);
-        background-color: var(--divider-default);
-        border-radius: 10px;
-    }
+  &__input_submit-type {
+    color: var(--white-background-default);
+    background-color: var(--primary-default);
+    border-radius: 100px;
+  }
 
-    &__input_submit-type {
-        color: var(--white-background-default);
-        background-color: var(--primary-default);
-        border-radius: 100px;
-    }
+  &__input-wrapper {
+    display: flex;
+    position: relative;
+    width: 400px;
+  }
 
-    &__input-wrapper {
-        display: flex;
-        position: relative;
-        width: 400px;
-    }
+  &__password-icon {
+    position: absolute;
+    right: 14px;
+    top: 12px;
+  }
 
-    &__password-icon {
-        position: absolute;
-        right: 14px;
-        top: 12px;
-    }
+  &__empty-data-error-message {
+    font: var(--text-for-fields);
+    color: var(--status-critical);
+    padding: -7px 0 0;
+    -moz-user-select: -moz-none;
+    -o-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
 
-    &__error-message-wrapper {
-        background-color: var(--background-critical);
-        padding: 10px 12px;
-        font: var(--text-for-fields);
-        color: var(--primary-default);
-        display: flex;
-        gap: 10px;
-        border-left: 1px solid var(--status-critical);
-        border-radius: 5px;
-        align-items: center;
-    }
-
-    &__empty-data-error-message {
-        font: var(--text-for-fields);
-        color: var(--status-critical);
-        padding: -7px 0 0;
-        -moz-user-select: -moz-none;
-        -o-user-select: none;
-        -khtml-user-select: none;
-        -webkit-user-select: none;
-        user-select: none;
-    }
-
-    &__input_data:-webkit-autofill,
-    &__input_data:-webkit-autofill:hover,
-    &__input_data:-webkit-autofill:focus,
-    &__input_data:-webkit-autofill:active {
-        box-shadow: 0 0 0 30px var(--divider-default) inset !important;
-    }
-    &__input_data:invalid {
-        background-color: #fff;
-    }
+  &__input_data:-webkit-autofill,
+  &__input_data:-webkit-autofill:hover,
+  &__input_data:-webkit-autofill:focus,
+  &__input_data:-webkit-autofill:active {
+    box-shadow: 0 0 0 30px var(--divider-default) inset !important;
+  }
+  &__input_data:invalid {
+    background-color: #fff;
+  }
 }

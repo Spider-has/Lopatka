@@ -1,0 +1,42 @@
+.interesting-panel {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1020px;
+  background-color: var(--border-accent-brown);
+  border-radius: 10px;
+  box-sizing: border-box;
+  padding: 35px 50px 24px 38px;
+  align-items: flex-start;
+  &__content {
+    font: var(--text-header-4);
+    color: var(--text-oncolor-default);
+    max-width: 50%;
+  }
+}
+
+.monuments-tags-bar {
+  padding: 35px 9px 0 25px;
+  border: 1px solid var(--border-accent-brown);
+  border-radius: 15px;
+
+  &__wrapper {
+    padding-right: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+
+    overflow-y: scroll;
+    max-height: 720px;
+
+    &::-webkit-scrollbar {
+      width: 5px;
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--background-subdued);
+      border-radius: 4px;
+    }
+  }
+}

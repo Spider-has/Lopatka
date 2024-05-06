@@ -78,6 +78,7 @@
   }
 
   &__input-area {
+    width: 100%;
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -122,6 +123,25 @@
   &__article-content {
     width: 685px;
     height: 100%;
+  }
+
+  &__error-wrapper {
+    max-width: 400px;
+  }
+
+  &__form-header-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  &__article-two-inputs-area {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+  }
+  &__article-two-inputs-wrapper {
+    width: 46%;
   }
 }
 

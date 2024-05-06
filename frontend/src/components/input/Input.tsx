@@ -1,6 +1,6 @@
-import { RefObject, useEffect, useState } from 'react';
+import { RefObject, useEffect, useRef, useState } from 'react';
 import './Input.scss';
-import { CLoseIcon, ImageUploaderIcon, OpenCloseListIcon } from '../../icons/Icons';
+import { CLoseIcon, ErrorIcon, ImageUploaderIcon, OpenCloseListIcon } from '../../icons/Icons';
 import { Editor, RichTextEditor } from '../richTextEditor/RichTextEditor';
 import { ImgNameLen, generateImgName } from '../../utils/utils';
 
@@ -14,6 +14,7 @@ export enum InputTypes {
   Submit = 'submit',
   Editor = 'editor',
   Datalist = 'Datalist',
+  Coordinates = 'Coordinates',
 }
 
 export enum ValidationTypes {
@@ -43,13 +44,29 @@ export type InputProps = {
   loaded?: boolean;
   setEditor?: (editor: Editor) => void;
   setImage?: (image: ImageData) => void;
-  setOption?: (option: string) => void;
+  OptionListData?: OptionListProps;
+  setValid?: () => void;
+  setCords?: (cords: string) => void;
+  cords?: string;
   optionData?: string;
   imageData?: ImageData;
   EditorData?: Editor;
 };
 
 export const InputField = (props: InputProps) => {
+  useEffect(() => {
+    const handler = () => {
+      if (props.setValid) {
+        props.setValid();
+      }
+    };
+    if (props.validationTypes == ValidationTypes.NoneValid) {
+      if (props.dataRef) props.dataRef.current?.addEventListener('input', handler, { once: true });
+    }
+    return () => {
+      if (props.dataRef) props.dataRef.current?.removeEventListener('input', handler);
+    };
+  });
   switch (props.type) {
     case InputTypes.Text: {
       const ValidMod = props.validationTypes == ValidationTypes.NoneValid ? 'input_error' : '';
@@ -113,21 +130,42 @@ export const InputField = (props: InputProps) => {
         );
     }
     case InputTypes.Date: {
-      const InpRef = props.dataRef as RefObject<HTMLTextAreaElement>;
+      const InpRef = props.dataRef as RefObject<HTMLInputElement>;
+      const placeholder = 'дд.мм.гггг';
+      const [value, setValue] = useState('');
       return (
-        <textarea
-          rows={1}
-          placeholder="дд.мм.гггг"
-          maxLength={10}
-          required={props.required}
-          ref={InpRef}
-          className={`input ${props.heightType}`}
-        ></textarea>
+        <div className="input-with-placeholder">
+          <span className="input-with-placeholder__placeholder">
+            <span className="input-with-placeholder__hidden-placeholder">{value}</span>
+            {placeholder.slice(value.length, placeholder.length)}
+          </span>
+          <input
+            onChange={() => {
+              if (InpRef.current) {
+                const newValue = InpRef.current.value;
+                if (newValue.search(/[^0-9.]/g) == -1) setValue(newValue);
+              }
+            }}
+            maxLength={10}
+            required={props.required}
+            ref={InpRef}
+            className={`input ${props.heightType}`}
+            value={value.toUpperCase()}
+          />
+        </div>
       );
     }
     case InputTypes.Datalist: {
       const InpRef = props.dataRef as RefObject<HTMLInputElement>;
       const optionD: string = props.optionData ? props.optionData : '';
+      const optionListData: OptionListProps = props.OptionListData
+        ? props.OptionListData
+        : {
+            optionElems: [],
+            setOption: () => {
+              //
+            },
+          };
       const [open, setOpen] = useState(false);
       const ValidMod =
         props.validationTypes == ValidationTypes.NoneValid ? 'input-list-element__option-now_error' : '';
@@ -145,31 +183,7 @@ export const InputField = (props: InputProps) => {
               <OpenCloseListIcon />
             </div>
           </div>
-          {open && (
-            <div className="input-list-element__list">
-              <div
-                onClick={() => {
-                  if (props.setOption) props.setOption('Экспедиции');
-                }}
-              >
-                Экспедиции
-              </div>
-              <div
-                onClick={() => {
-                  if (props.setOption) props.setOption('События');
-                }}
-              >
-                События
-              </div>
-              <div
-                onClick={() => {
-                  if (props.setOption) props.setOption('Другое');
-                }}
-              >
-                Другое
-              </div>
-            </div>
-          )}
+          <OptionList state={open} data={{ ...optionListData }} />
         </div>
       );
     }
@@ -231,7 +245,111 @@ export const InputField = (props: InputProps) => {
         </div>
       );
     }
+    case InputTypes.Coordinates: {
+      const InpRef = props.dataRef as RefObject<HTMLInputElement>;
+      const ValidMod = props.validationTypes == ValidationTypes.NoneValid ? 'input_error' : '';
+      const ValiPlaceholderMod =
+        props.validationTypes == ValidationTypes.NoneValid ? 'input-with-placeholder__placeholder_error' : '';
+      const placeholder = `XX°XX'XX"N YY°YY'YY"E`;
+      const setCords = props.setCords
+        ? props.setCords
+        : () => {
+            //
+          };
+      const value = props.cords ? props.cords : '';
+      return (
+        <div className="input-with-placeholder">
+          <span className={`input-with-placeholder__placeholder ${ValiPlaceholderMod}`}>
+            <span className="input-with-placeholder__hidden-placeholder">{value}</span>
+            {placeholder.slice(value.length, placeholder.length)}
+          </span>
+          <input
+            onChange={() => {
+              if (InpRef.current) {
+                const newValue = InpRef.current.value;
+                setCords(coordinatesReplacer(newValue, value));
+              }
+            }}
+            maxLength={21}
+            required={props.required}
+            ref={InpRef}
+            className={`input ${props.heightType}  ${ValidMod}`}
+            value={value.toUpperCase()}
+          />
+        </div>
+      );
+    }
     case InputTypes.Editor:
       if (props.setEditor) return <RichTextEditor {...props} />;
   }
+};
+
+const coordinatesReplacer = (newValue: string, oldValue: string) => {
+  if (newValue.search(/[^0-9°'" ]/g) == -1) {
+    if (newValue.length >= 2 && oldValue.length <= 2 && !oldValue.includes('°'))
+      return newValue.slice(0, 2) + '°' + newValue.slice(3, newValue.length);
+    else if (newValue.length >= 5 && oldValue.length <= 5 && !oldValue.includes("'"))
+      return newValue.slice(0, 5) + "'" + newValue.slice(6, newValue.length);
+    else if (newValue.length >= 8 && oldValue.length <= 8 && !oldValue.includes('"'))
+      return newValue.slice(0, 8) + '"' + newValue.slice(9, newValue.length);
+    else if (newValue.length >= 13 && oldValue.length <= 13 && !oldValue.replace('°', '').includes('°'))
+      return newValue.slice(0, 13) + '°' + newValue.slice(14, newValue.length);
+    else if (newValue.length >= 16 && oldValue.length <= 16 && !oldValue.replace("'", '').includes("'"))
+      return newValue.slice(0, 16) + "'" + newValue.slice(16, newValue.length);
+    else if (newValue.length >= 19 && oldValue.length <= 19 && !oldValue.replace('"', '').includes('"'))
+      return newValue.slice(0, 19) + '"' + newValue.slice(20, newValue.length);
+    else return newValue;
+  }
+  return '';
+};
+
+export type optionElem = {
+  text: string;
+};
+
+type OptionListProps = {
+  optionElems: optionElem[];
+  setOption: (opt: string) => void;
+};
+
+const OptionList = (props: { data: OptionListProps; state: boolean }) => {
+  const options = props.data.optionElems.map((el, i) => {
+    return (
+      <div
+        key={i}
+        onClick={() => {
+          if (props.data.setOption) props.data.setOption(el.text);
+        }}
+      >
+        {el.text}
+      </div>
+    );
+  });
+
+  const listRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (props.state) listRef.current?.classList.add('input-list-element__list_opened');
+    else listRef.current?.classList.remove('input-list-element__list_opened');
+  }, [props.state]);
+
+  return (
+    <div ref={listRef} className="input-list-element__list">
+      <div className="input-list-element__list-area">{options}</div>
+    </div>
+  );
+};
+
+export const ErrorMessage = (props: { text: string; opened: boolean }) => {
+  useEffect(() => {
+    if (props.opened) divRef.current?.classList.add('error-message-wrapper_opened');
+    else divRef.current?.classList.remove('error-message-wrapper_opened');
+  }, [props.opened]);
+  const divRef = useRef<HTMLDivElement>(null);
+  return (
+    <div ref={divRef} className="error-message-wrapper">
+      <ErrorIcon />
+      <span>{props.text}</span>
+    </div>
+  );
 };

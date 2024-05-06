@@ -4,16 +4,15 @@ import './TagsBar.scss';
 import { ButtonContentTypes } from '../button/Button';
 
 export enum supportedTags {
-  Fresh = 'Свежее',
   Expedition = 'Экспедиции',
   Events = 'События',
-  Other = 'Прочее',
+  Other = 'Другое',
 }
 
 export enum tagModTypes {
   NoneMod = '',
   SmallGap = 'tag_small-gap',
-  DescriptionText = '_text-small',
+  DescriptionText = 'tag_text-small',
 }
 
 export type TagProps = {
@@ -61,7 +60,11 @@ export type MonumentsTagsBarProps = {
 
 export const MonumentsTagsBar = (props: MonumentsTagsBarProps) => {
   const tagsLists = props.lists.map((tagList, i) => <TagsList key={i} {...tagList} />);
-  return <div className="monuments-tags-bar">{tagsLists}</div>;
+  return (
+    <div className="monuments-tags-bar">
+      <div className="monuments-tags-bar__wrapper">{tagsLists}</div>
+    </div>
+  );
 };
 
 export enum tagListType {

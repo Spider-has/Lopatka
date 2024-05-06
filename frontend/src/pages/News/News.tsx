@@ -10,7 +10,7 @@ import {
 import { FilterTagsBar, TagsBarProps, tagModTypes } from '../../components/tagsBar/TagsBar';
 import { TopPanel } from '../../components/topPanel/TopPanel';
 import { UpArrow } from '../../components/upArrow/UpArrow';
-import { AnotherIcon, CalendarIcon, ClockIcon, PlusIcon, ShovelIcon, SmallCross } from '../../icons/Icons';
+import { AnotherIcon, CalendarIcon, PlusIcon, ShovelIcon, SmallCross } from '../../icons/Icons';
 import './News.scss';
 import { fetchGetRequest } from '../../utils/fetchRequests/fetchRequest';
 import { isUserAuthCorrect } from '../../utils/auth';
@@ -46,12 +46,6 @@ const MainContent = () => {
       }
     },
     Tags: [
-      {
-        tagTypes: ButtonContentTypes.IconText,
-        icon: <ClockIcon />,
-        text: 'Свежее',
-        tagMod: tagModTypes.NoneMod,
-      },
       {
         tagTypes: ButtonContentTypes.IconText,
         icon: <ShovelIcon />,
@@ -110,7 +104,7 @@ const MainContent = () => {
             <div className="main-content-area-wrapper__creation-button">
               <Button
                 type={ButtonTypes.Linked}
-                linkTo="/articleCreation"
+                linkTo="/newCreation"
                 content={{
                   contentType: ButtonContentTypes.IconText,
                   icon: <PlusIcon />,
