@@ -1,5 +1,3 @@
-import './NewCreation.scss';
-
 import {
   ErrorMessage,
   ImageData,
@@ -7,65 +5,41 @@ import {
   InputHeightTypes,
   InputTypes,
   ValidationTypes,
-  optionElem,
 } from '../../components/input/Input';
 import { ArrowBackIcon, LogoIcon, logoColorType, logoSizeType } from '../../icons/Icons';
 import { useEffect, useRef, useState } from 'react';
 import {
   ContentTypes,
   Editor,
-  getOnlyImageContent,
+  convertIntoEditorFormat,
   getParsedContentIntoBD,
 } from '../../components/richTextEditor/RichTextEditor';
-import { fetchPostRequestWithVerify } from '../../utils/fetchRequests/fetchRequest';
+import {
+  fetchDeleteRequest,
+  fetchGetRequest,
+  fetchPutRequestWithVerify,
+} from '../../utils/fetchRequests/fetchRequest';
 import { getJwtToken } from '../../utils/token';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { isUserAuthCorrect } from '../../utils/auth';
 import { Button, ButtonColorTypes, ButtonContentTypes, ButtonTypes } from '../../components/button/Button';
-import { convertDateIntoDBStyle } from '../../utils/utils';
+import { convertToEuropeanDateStyle, serverImageUrl } from '../../utils/utils';
 import { DeleteActiclePopup } from '../../components/popup/Popup';
+import {
+  changeElemValid,
+  checkAllValid,
+  defaultValid,
+  getInputData,
+  useValidateChanger,
+  validationStates,
+} from '../NewCreationEdit/NewCreation';
+import { optionElems } from './PeopleArticleCreation';
 
-type validationState = {
-  valid: boolean;
-};
-export type validationStates = validationState[];
-
-export const checkValidElem = (len: number) => {
-  return len > 0;
-};
-
-export const defaultValid: validationStates = [
-  {
-    valid: true,
-  },
-  {
-    valid: true,
-  },
-  {
-    valid: true,
-  },
-  {
-    valid: true,
-  },
-  {
-    valid: true,
-  },
-];
-
-export const optionElems: optionElem[] = [
-  {
-    text: 'Экспедиции',
-  },
-  {
-    text: 'События',
-  },
-  {
-    text: 'Прочее',
-  },
-];
-
-const Form = () => {
+const Form = (props: NewPost) => {
   const navigate = useNavigate();
+
+  const [dataLoad, ondataLoad] = useState(false);
+
   const [editorData, setEditor] = useState<Editor>({
     count: 1,
     content: [
@@ -77,7 +51,7 @@ const Form = () => {
       },
     ],
   });
-
+  console.log(editorData);
   const parsedEditor = getParsedContentIntoBD(editorData);
   const [theme, setTheme] = useState('');
   const [imageData, setImageData] = useState<ImageData>({
@@ -87,7 +61,6 @@ const Form = () => {
   const [validation, setValidation] = useState<validationStates>(defaultValid);
 
   const errorMod = 'creation-form__input-area_error';
-
   const headerRef = useRef<HTMLTextAreaElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const dateRef = useRef<HTMLTextAreaElement>(null);
@@ -98,11 +71,36 @@ const Form = () => {
   useValidateChanger(validation, 4, parsedEditor.length, setValidation);
   useValidateChanger(validation, 3, theme.length, setValidation);
 
+  useEffect(() => {
+    if (
+      props.id &&
+      headerRef.current &&
+      descriptionRef.current &&
+      dateRef.current &&
+      authorRef.current &&
+      themeRef.current &&
+      ImageRef.current
+    ) {
+      headerRef.current.value = props.Header;
+      descriptionRef.current.value = props.Description;
+      dateRef.current.value = props.Date;
+      authorRef.current.value = props.AuthorName;
+      setTheme(props.Theme);
+      setEditor(convertIntoEditorFormat(props.MainContent));
+      setImageData({
+        name: props.FirstScreenImageName,
+        href: serverImageUrl + props.FirstScreenImageName,
+      });
+      console.log(props);
+      ondataLoad(true);
+    }
+  }, [props]);
+
   return (
     <section className="creation-form">
       <div className="creation-form__header-wrapper">
         <div className="creation-form__header">
-          <h1>Создание новости</h1>
+          <h1>Редактирование статьи про человека</h1>
           <span>Чтобы опубликовать новость, заполните все поля</span>
         </div>
         <div
@@ -126,7 +124,9 @@ const Form = () => {
                 editorData,
                 setValidation,
               );
+              const id = props.id;
               if (
+                id &&
                 ArticleCreationData.Header &&
                 ArticleCreationData.Description &&
                 ArticleCreationData.FirstScreenImageName &&
@@ -136,8 +136,8 @@ const Form = () => {
               ) {
                 const token = getJwtToken();
                 if (token)
-                  fetchPostRequestWithVerify(
-                    'http://localhost:8000/api/news/private/',
+                  fetchPutRequestWithVerify(
+                    `http://localhost:8000/api/peoples/private/${id}`,
                     token,
                     ArticleCreationData,
                   )
@@ -149,7 +149,7 @@ const Form = () => {
                     })
                     .then(res => {
                       console.log(res);
-                      navigate('/news/success-creation');
+                      navigate('/peoples/success-update');
                     })
                     .catch(err => console.log(err.message));
                 else {
@@ -190,6 +190,7 @@ const Form = () => {
                     setValid={() => {
                       setValidation(changeElemValid(validation, 0));
                     }}
+                    loaded={dataLoad}
                   />
                 </label>
                 <label className={`creation-form__input-area ${validation[1].valid ? '' : errorMod}`}>
@@ -204,6 +205,7 @@ const Form = () => {
                     setValid={() => {
                       setValidation(changeElemValid(validation, 1));
                     }}
+                    loaded={dataLoad}
                   />
                 </label>
                 <label className="creation-form__input-area">
@@ -224,6 +226,8 @@ const Form = () => {
                     dataRef={dateRef}
                     required={true}
                     heightType={InputHeightTypes.Auto}
+                    loaded={dataLoad}
+                    newDate={props.Date}
                   />
                 </label>
                 <div className="creation-form__image-wrapper">
@@ -288,6 +292,7 @@ const Form = () => {
                   setValid={() => {
                     setValidation(changeElemValid(validation, 4));
                   }}
+                  loaded={dataLoad}
                 />
               </div>
             </div>
@@ -298,12 +303,48 @@ const Form = () => {
   );
 };
 
-export const NewCreation = () => {
+type NewPost = {
+  id: string;
+  Header: string;
+  Description: string;
+  Date: string;
+  AuthorName: string;
+  FirstScreenImageName: string;
+  Theme: string;
+  MainContent: string;
+};
+
+const convertDbDataToEditorProps = (data: NewPost): NewPost => {
+  return {
+    ...data,
+    Date: convertToEuropeanDateStyle(data.Date),
+  };
+};
+
+export const PeopleArticleEdit = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const [articleData, setData] = useState<NewPost>({
+    id: '',
+    Header: '',
+    Description: '',
+    Date: '',
+    AuthorName: '',
+    FirstScreenImageName: '',
+    Theme: '',
+    MainContent: '',
+  });
   useEffect(() => {
+    if (id) {
+      fetchGetRequest('http://localhost:8000/api/peoples/public/' + id).then(res => {
+        if (res) {
+          setData(convertDbDataToEditorProps(res));
+        }
+      });
+    }
     isUserAuthCorrect().then(res => {
       if (!res) {
-        navigate('/news');
+        navigate('/peoples');
       }
     });
   }, []);
@@ -312,14 +353,14 @@ export const NewCreation = () => {
     <div className="article-creation-page">
       <div className="article-creation-content-wrapper">
         <header className="article-creation-header ">
-          <Link to={'/News'}>
+          <Link to={'/peoples'}>
             <ArrowBackIcon />
           </Link>
           <Link to={'/'}>
             <LogoIcon size={logoSizeType.Small} color={logoColorType.Dark} />
           </Link>
         </header>
-        <Form />
+        <Form {...articleData} />
         <div>
           <Button
             type={ButtonTypes.Functional}
@@ -337,7 +378,12 @@ export const NewCreation = () => {
       {showPopup && (
         <DeleteActiclePopup
           deleteHandler={() => {
-            navigate('/news');
+            fetchDeleteRequest(`http://localhost:8000/api/peoples/private/${id}`).then(res => {
+              if (res) {
+                console.log(res);
+                if (res.status == 'ok') navigate('/peoples/success-delete');
+              }
+            });
           }}
           setPopupClosed={() => {
             setShowPopup(false);
@@ -346,85 +392,4 @@ export const NewCreation = () => {
       )}
     </div>
   );
-};
-
-export const changeElemValid = (state: validationStates, index: number) => {
-  return [
-    ...state.map((el, i) => {
-      if (i == index)
-        return {
-          valid: true,
-        };
-      return el;
-    }),
-  ];
-};
-
-export const checkAllValid = (valid: validationStates): boolean => {
-  let flag = true;
-  valid.forEach(el => {
-    if (!el.valid) {
-      flag = false;
-    }
-  });
-  return flag;
-};
-
-export const useValidateChanger = (
-  validState: validationStates,
-  index: number,
-  validationElemLength: number,
-  setValid: (valid: validationStates) => void,
-) => {
-  useEffect(() => {
-    if (!validState[index].valid && validationElemLength > 0) setValid(changeElemValid(validState, index));
-  }, [validState[index], validationElemLength]);
-};
-
-export const getInputData = (
-  header: string,
-  description: string,
-  date: string,
-  authorName: string,
-  firstScreenImgName: string,
-  firstScreenImgHref: string,
-  Theme: string,
-  MainContent: string,
-  editor: Editor,
-  setValid: (valid: validationStates) => void,
-) => {
-  const ArticleCreationData = {
-    Header: header,
-    Description: description,
-    Date: convertDateIntoDBStyle(date),
-    AuthorName: authorName,
-    FirstScreenImageName: firstScreenImgName,
-    FirstScreenImageHref: firstScreenImgHref,
-    Theme: Theme,
-    MainContent: MainContent,
-    MainContentImageData: getOnlyImageContent(editor),
-  };
-  console.log(ArticleCreationData);
-  setValid([
-    {
-      valid: checkValidElem(ArticleCreationData.Header.length),
-    },
-    {
-      valid: checkValidElem(ArticleCreationData.Description.length),
-    },
-    {
-      valid: checkValidElem(ArticleCreationData.FirstScreenImageName.length),
-    },
-    {
-      valid: checkValidElem(ArticleCreationData.Theme.length),
-    },
-    {
-      valid: checkValidElem(ArticleCreationData.MainContent.length),
-    },
-  ]);
-  if (ArticleCreationData.Date == '') {
-    const now = new Date();
-    ArticleCreationData.Date = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
-  }
-  return ArticleCreationData;
 };

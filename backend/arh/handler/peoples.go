@@ -8,15 +8,15 @@ import (
 	"github.com/spider-has/lopata-docker"
 )
 
-func (h *Handler) createNew(c *gin.Context) {
-	var input lopata.News
+func (h *Handler) createPeopleArticle(c *gin.Context) {
+	var input lopata.Peoples
 
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	id, err := h.services.New.Create(input)
+	id, err := h.services.People.Create(input)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -27,23 +27,23 @@ func (h *Handler) createNew(c *gin.Context) {
 	})
 }
 
-type getAllListsResponse struct {
-	Data []lopata.NewPreview `json:"data"`
+type getAllPeopleListsResponse struct {
+	Data []lopata.Peoplereview `json:"data"`
 }
 
-func (h *Handler) getAllNews(c *gin.Context) {
-	news, err := h.services.New.GetAll()
+func (h *Handler) getAllPeoplesArticles(c *gin.Context) {
+	peoples, err := h.services.People.GetAll()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, getAllListsResponse{
-		Data: news,
+	c.JSON(http.StatusOK, getAllPeopleListsResponse{
+		Data: peoples,
 	})
 }
 
-func (h *Handler) getNewById(c *gin.Context) {
+func (h *Handler) getPeopleArticleById(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
@@ -51,31 +51,32 @@ func (h *Handler) getNewById(c *gin.Context) {
 		return
 	}
 
-	new, err := h.services.New.GetById(id)
+	people, err := h.services.People.GetById(id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, new)
+	c.JSON(http.StatusOK, people)
 }
 
-func (h *Handler) updateNew(c *gin.Context) {
-	NewId, err := strconv.Atoi(c.Param("id"))
-	
+func (h *Handler) updatePeopleArticle(c *gin.Context) {
+	PeopleId, err := strconv.Atoi(c.Param("id"))
+
+
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "Invalid id Param")
 		return
 	}
 
-	var input lopata.News
+	var input lopata.Peoples
 
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	err = h.services.New.UpdateById(input, NewId)
+	err = h.services.People.UpdateById(input, PeopleId)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -86,7 +87,7 @@ func (h *Handler) updateNew(c *gin.Context) {
 	})
 }
 
-func (h *Handler) deleteNew(c *gin.Context) {
+func (h *Handler) deletePeopleArticle(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
@@ -94,7 +95,7 @@ func (h *Handler) deleteNew(c *gin.Context) {
 		return
 	}
 
-	err = h.services.New.DeleteById(id)
+	err = h.services.People.DeleteById(id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

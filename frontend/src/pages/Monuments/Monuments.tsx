@@ -1,7 +1,13 @@
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button, ButtonColorTypes, ButtonContentTypes, ButtonTypes } from '../../components/button/Button';
 import { Footer } from '../../components/footer/Footer';
-import { PostArea, PostsAreaProps } from '../../components/post/Post';
+import {
+  NoPostsArticle,
+  PostArea,
+  PostsAreaProps,
+  convertDbDataToNormalMonumentsProps,
+  postType,
+} from '../../components/post/Post';
 import {
   MonumentsTagsBar,
   MonumentsTagsBarProps,
@@ -10,10 +16,18 @@ import {
 } from '../../components/tagsBar/TagsBar';
 import { TopPanel } from '../../components/topPanel/TopPanel';
 import { UpArrow } from '../../components/upArrow/UpArrow';
-import { ExpeditionMap, LinkedArrow, PlusIcon, ShovelIcon } from '../../icons/Icons';
+import { ExpeditionMap, LinkedArrow, PlusIcon } from '../../icons/Icons';
 import './Monuments.scss';
+import { fetchGetRequest } from '../../utils/fetchRequests/fetchRequest';
+import { isUserAuthCorrect } from '../../utils/auth';
+import { sortByDate } from '../News/News';
+import { useLocation } from 'react-router-dom';
+import { InfoPopup, PopupBackgrouds, popupData } from '../../components/popup/Popup';
 
 const MonumentsTags: MonumentsTagsBarProps = {
+  filterHandler: () => {
+    //
+  },
   lists: [
     {
       listType: tagListType.Row,
@@ -222,54 +236,84 @@ const MonumentsTags: MonumentsTagsBarProps = {
   ],
 };
 
-const news: PostsAreaProps = {
-  posts: [
-    {
-      id: '',
-      Header: 'Экспедиция на острове Амоксары',
-      Description:
-        'С 21 июня по 10 июля 2022 г. отрядом Марийской археологической экспедиции (под руководством д.и.н. Никитиной Т.Б., при участии Акилбаева А.В., Михеев)',
-      Date: '3 часа назад',
-      AuthorName: 'Иван Березин',
-      FirstScreenImageName: '../../images/blank-img.jpg',
-      Theme: 'Раскопки',
-      tag: {
-        tagTypes: ButtonContentTypes.Icon,
-        icon: <ShovelIcon />,
-        text: 'Раскопки',
-        tagMod: tagModTypes.NoneMod,
-      },
-    },
-  ],
+const filterArrayByTagsList = (Data: PostsAreaProps, TagsValue: string[]): PostsAreaProps => {
+  return {
+    posts: [
+      ...Data.posts.filter(elem => {
+        if (elem.type == postType.Monuments) {
+          const monType = TagsValue[0].replaceAll('\n', ' ');
+          const culture = TagsValue[1].replaceAll('\n', ' ');
+          const era = TagsValue[2].replaceAll('\n', ' ');
+          const district = TagsValue[3].replaceAll('\n', ' ');
+          const Type = (monType.length > 0 && elem.Type == monType) || monType.length == 0;
+          const Culture = (culture.length > 0 && elem.Culture == culture) || culture.length == 0;
+          const Era = (era.length > 0 && elem.Era == era) || era.length == 0;
+          const District = (district.length > 0 && elem.District == district) || district.length == 0;
+          return Type && Culture && Era && District;
+        }
+      }),
+    ],
+  };
 };
 
 const MainContent = () => {
   const arrowRef = useRef<HTMLDivElement>(null);
+  const [postData, setData] = useState<PostsAreaProps>({
+    posts: [],
+  });
+  const [filteredPosts, setFilteredPosts] = useState<PostsAreaProps>();
+  const [auth, setAuth] = useState<boolean>(false);
+
+  const Tags: MonumentsTagsBarProps = {
+    ...MonumentsTags,
+    filterHandler: (activeTags: string[]) => {
+      if (activeTags[0] || activeTags[1] || activeTags[2] || activeTags[3])
+        setFilteredPosts(filterArrayByTagsList(postData, activeTags));
+      else setFilteredPosts(undefined);
+    },
+  };
+  useEffect(() => {
+    fetchGetRequest('http://localhost:8000/api/monuments/public/')
+      .then(res => {
+        if (res.data) setData(sortByDate(convertDbDataToNormalMonumentsProps(res.data)));
+        console.log(res);
+      })
+      .catch(err => {
+        console.log(err.message);
+      });
+    isUserAuthCorrect().then(res => setAuth(res));
+  }, []);
+  console.log(filteredPosts, postData);
   return (
     <section className="main-content-area-wrapper">
       <div className="main-content-area-wrapper__header">
         <h1>Памятники</h1>
       </div>
       <div className="main-content-area-wrapper__content-wrapper main-content-area-wrapper__content-wrapper_monuments-wrapper">
-        <MonumentsTagsBar {...MonumentsTags} />
+        <MonumentsTagsBar {...Tags} />
         <div className="main-content-area-wrapper__content-area">
           <div className="main-content-area-wrapper__map-area">
             <ExpeditionMap />
-            <div className="main-content-area-wrapper__map-creation-button">
-              <Button
-                type={ButtonTypes.Linked}
-                content={{
-                  contentType: ButtonContentTypes.IconText,
-                  icon: <PlusIcon />,
-                  text: 'Создать',
-                }}
-                linkTo={'/monumentCreation'}
-              />
-            </div>
+            {auth && (
+              <div className="main-content-area-wrapper__map-creation-button">
+                <Button
+                  type={ButtonTypes.Linked}
+                  content={{
+                    contentType: ButtonContentTypes.IconText,
+                    icon: <PlusIcon />,
+                    text: 'Создать',
+                  }}
+                  linkTo={'/monumentCreation'}
+                />
+              </div>
+            )}
           </div>
           <div className="main-content-area-wrapper__post-area">
             <IntrestingNowPanel text={'Экспедиция на остров Амоксары самые интересные раскопки там.'} />
-            <PostArea {...news} />
+            {filteredPosts != undefined && filteredPosts.posts.length > 0 && <PostArea {...filteredPosts} />}
+            {filteredPosts == undefined && postData.posts.length > 0 && <PostArea {...postData} />}
+            {filteredPosts == undefined && postData.posts.length == 0 && <NoPostsArticle />}
+            {filteredPosts != undefined && filteredPosts.posts.length == 0 && <NoPostsArticle />}
           </div>
         </div>
 
@@ -310,11 +354,42 @@ const IntrestingNowPanel = (props: { text: string }) => {
 };
 
 export const MonumentsPage = () => {
+  const location = useLocation();
+  const [popupData, setPopup] = useState<popupData>();
+  useEffect(() => {
+    if (location.pathname == '/monuments/success-creation') {
+      setPopup({
+        header: 'Памятник добавлен!',
+        content: '💃🕺💃',
+        backgroundType: PopupBackgrouds.Accent,
+      });
+    } else if (location.pathname == '/monuments/success-update') {
+      setPopup({
+        header: 'Памятник успешно обновлен!',
+        content: '💃🕺💃',
+        backgroundType: PopupBackgrouds.Accent,
+      });
+    } else if (location.pathname == '/monuments/success-delete') {
+      setPopup({
+        header: 'Памятник удален!',
+        content: '',
+        backgroundType: PopupBackgrouds.Accent,
+      });
+    }
+  }, [location]);
   return (
     <div className="main-page">
       <TopPanel />
       <MainContent />
       <Footer />
+      {popupData != undefined && (
+        <InfoPopup
+          setClosed={() => {
+            setPopup(undefined);
+          }}
+          data={popupData}
+        />
+      )}
     </div>
   );
 };

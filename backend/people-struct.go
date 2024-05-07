@@ -1,11 +1,6 @@
 package lopata
 
-type Image struct {
-	Href string `json:"href" binding:"required"`
-	Name string `json:"name" binding:"required"`
-}
-
-type NewPreview struct {
+type Peoplereview struct {
 	Id          int    `json:"id" db:"id"`
 	Header      string `json:"Header" db:"header" binding:"required"`
 	Description string `json:"Description" db:"description" binding:"required"`
@@ -15,7 +10,7 @@ type NewPreview struct {
 	Theme      string `json:"Theme" db:"theme" binding:"required"`
 }
 
-type News struct {
+type Peoples struct {
 	Id          int    `json:"id" db:"id"`
 	Header      string `json:"Header" db:"header" binding:"required"`
 	Description string `json:"Description" db:"description" binding:"required"`

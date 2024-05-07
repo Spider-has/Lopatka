@@ -1,0 +1,70 @@
+.popup {
+  position: fixed;
+  top: calc(50vh - 113px);
+  left: calc(50% - 219px);
+  width: 438px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 15px;
+
+  &_primary-background {
+    background-color: var(--text-oncolor-default);
+  }
+
+  &_accent-background {
+    background-color: var(--accent-default);
+  }
+
+  &__subtitle-text {
+    font: var(--text-header-2);
+  }
+
+  &_delete-type {
+    gap: 11px;
+    padding: 20px 0 36px 0;
+    font: var(--text-header-4);
+  }
+
+  &_success-type {
+    padding: 20px 0 57px 0;
+    gap: 21px;
+    font: var(--text-mobile-header-4);
+  }
+
+  &__main-area {
+    display: flex;
+    flex-direction: column;
+    gap: 42px;
+    justify-content: center;
+    align-items: center;
+    max-width: 350px;
+    text-align: center;
+    &_creation-type {
+      gap: 16px;
+    }
+  }
+
+  &__buttons-area {
+    display: flex;
+    gap: 46px;
+  }
+
+  &__cross-area {
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 20px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  &__cross {
+    cursor: pointer;
+  }
+}
+
+.popup-background {
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}

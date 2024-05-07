@@ -35,6 +35,8 @@ func (h *Handler) userIdentity(c *gin.Context){
 	c.Set(userCtx, userId)
 }
 
+//эта функция так же была бы нужна для связывания юзера и поста в бд, но опять же, дедлайн уже через 4 дня))
+
 func getUserId(c *gin.Context) (int, error){
 	id, ok := c.Get(userCtx)
 

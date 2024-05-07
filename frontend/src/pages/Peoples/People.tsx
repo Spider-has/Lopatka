@@ -5,49 +5,23 @@ import {
   NoPostsArticle,
   PostArea,
   PostsAreaProps,
-  convertDbDataToNormalNewsProps,
-  postType,
+  convertDbDataToNormalPeopleProps,
 } from '../../components/post/Post';
 import { FilterTagsBar, TagsBarProps, tagModTypes } from '../../components/tagsBar/TagsBar';
 import { TopPanel } from '../../components/topPanel/TopPanel';
+import { AnotherIcon, Biography, Interview, PlusIcon } from '../../icons/Icons';
+import './People.scss';
 import { UpArrow } from '../../components/upArrow/UpArrow';
-import { AnotherIcon, CalendarIcon, PlusIcon, ShovelIcon } from '../../icons/Icons';
-import './News.scss';
 import { fetchGetRequest } from '../../utils/fetchRequests/fetchRequest';
+import { filterArrayByTag, sortByDate } from '../News/News';
 import { isUserAuthCorrect } from '../../utils/auth';
 import { useLocation } from 'react-router-dom';
 import { InfoPopup, PopupBackgrouds, popupData } from '../../components/popup/Popup';
 
-export const filterArrayByTag = (Data: PostsAreaProps, TagValue: string): PostsAreaProps => {
-  return {
-    posts: [
-      ...Data.posts.filter(elem => {
-        if (elem.type == postType.News || elem.type == postType.Peoples) return elem.tag.text == TagValue;
-      }),
-    ],
-  };
-};
-
-export const sortByDate = (Data: PostsAreaProps) => {
-  return {
-    posts: Data.posts.toSorted((el1, el2) => {
-      const day1 = Number(el1.Date.slice(0, 2));
-      const day2 = Number(el2.Date.slice(0, 2));
-      const month1 = Number(el1.Date.slice(3, 5));
-      const month2 = Number(el2.Date.slice(3, 5));
-      const year1 = Number(el1.Date.slice(6, 10));
-      const year2 = Number(el2.Date.slice(6, 10));
-      if (year1 < year2) return 1;
-      if (year1 == year2 && month1 < month2) return 1;
-      if (year1 == year2 && month1 == month2 && day1 < day2) return 1;
-      return -1;
-    }),
-  };
-};
-
 const MainContent = () => {
   const tagsContent: TagsBarProps = {
     filterHandler: (tagValue: string) => {
+      console.log(tagValue);
       if (postData) {
         if (tagValue) setFilteredPosts(filterArrayByTag(postData, tagValue));
         else setFilteredPosts(undefined);
@@ -56,20 +30,20 @@ const MainContent = () => {
     Tags: [
       {
         tagTypes: ButtonContentTypes.IconText,
-        icon: <ShovelIcon />,
-        text: 'Экспедиции',
+        icon: <Interview />,
+        text: 'Интервью',
         tagMod: tagModTypes.NoneMod,
       },
       {
         tagTypes: ButtonContentTypes.IconText,
-        icon: <CalendarIcon />,
-        text: 'События',
+        icon: <Biography />,
+        text: 'Биография',
         tagMod: tagModTypes.NoneMod,
       },
       {
         tagTypes: ButtonContentTypes.IconText,
         icon: <AnotherIcon />,
-        text: 'Другое',
+        text: 'Прочее',
         tagMod: tagModTypes.NoneMod,
       },
     ],
@@ -80,9 +54,9 @@ const MainContent = () => {
   const [filteredPosts, setFilteredPosts] = useState<PostsAreaProps>();
   const [auth, setAuth] = useState<boolean>(false);
   useEffect(() => {
-    fetchGetRequest('http://localhost:8000/api/news/public/')
+    fetchGetRequest('http://localhost:8000/api/peoples/public/')
       .then(res => {
-        if (res.data) setData(sortByDate(convertDbDataToNormalNewsProps(res.data)));
+        if (res.data) setData(sortByDate(convertDbDataToNormalPeopleProps(res.data)));
       })
       .catch(err => {
         console.log(err.message);
@@ -95,7 +69,7 @@ const MainContent = () => {
     <>
       <section className="main-content-area-wrapper">
         <div className="main-content-area-wrapper__header">
-          <h1>Новости</h1>
+          <h1>Люди</h1>
         </div>
         <div className="main-content-area-wrapper__content-wrapper">
           <div>
@@ -112,7 +86,7 @@ const MainContent = () => {
             <div className="main-content-area-wrapper__creation-button">
               <Button
                 type={ButtonTypes.Linked}
-                linkTo="/newCreation"
+                linkTo="/peopleArticleCreation"
                 content={{
                   contentType: ButtonContentTypes.IconText,
                   icon: <PlusIcon />,
@@ -139,23 +113,23 @@ const MainContent = () => {
   );
 };
 
-export const MainPage = () => {
+export const PeoplePage = () => {
   const location = useLocation();
   const [popupData, setPopup] = useState<popupData>();
   useEffect(() => {
-    if (location.pathname == '/news/success-creation') {
+    if (location.pathname == '/peoples/success-creation') {
       setPopup({
         header: 'Новость опубликована!',
         content: '💃🕺💃',
         backgroundType: PopupBackgrouds.Primary,
       });
-    } else if (location.pathname == '/news/success-update') {
+    } else if (location.pathname == '/peoples/success-update') {
       setPopup({
         header: 'Новость успешно обновлена!',
         content: '💃🕺💃',
         backgroundType: PopupBackgrouds.Primary,
       });
-    } else if (location.pathname == '/news/success-delete') {
+    } else if (location.pathname == '/peoples/success-delete') {
       setPopup({
         header: 'Новость удалена!',
         content: '',

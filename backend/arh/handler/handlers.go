@@ -44,7 +44,36 @@ func (h *Handler) InitRoutes() *gin.Engine {
 				private.PUT("/:id", h.updateNew)
 				private.DELETE("/:id", h.deleteNew)
 			}
-			
+		}
+
+		monuments := api.Group("/monuments")
+		{
+			public := monuments.Group("/public")
+			{
+				public.GET("/", h.getAllMonuments)
+				public.GET("/:id", h.getMonumentById)
+			}
+			private := monuments.Group("/private", h.userIdentity)
+			{
+				private.POST("/", h.createMonument)
+				private.PUT("/:id", h.updateMonument)
+				private.DELETE("/:id", h.deleteMonument)
+			}
+		}
+
+		interview := api.Group("/peoples")
+		{
+			public := interview.Group("/public")
+			{
+				public.GET("/", h.getAllPeoplesArticles)
+				public.GET("/:id", h.getPeopleArticleById)
+			}
+			private := interview.Group("/private", h.userIdentity)
+			{
+				private.POST("/", h.createPeopleArticle)
+				private.PUT("/:id", h.updatePeopleArticle)
+				private.DELETE("/:id", h.deletePeopleArticle)
+			}
 		}
 	}
 

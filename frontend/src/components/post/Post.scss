@@ -4,6 +4,13 @@
   gap: 33px;
   width: 100%;
 
+  &__header-area {
+    max-width: 300px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
   &__article-info {
     display: flex;
     gap: 30px;
@@ -18,6 +25,12 @@
     align-items: center;
   }
 
+  &__header-tags-wrapper {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+  }
+
   &_no-post-content {
     box-sizing: border-box;
     padding: 40px;
@@ -29,9 +42,15 @@
     color: var(--border-accent);
   }
 
-  &__header h2 {
-    font: var(--text-header-4);
-    overflow-wrap: break-word;
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    & h2 {
+      font: var(--text-header-4);
+      overflow-wrap: break-word;
+    }
   }
 
   &__description {
@@ -61,8 +80,11 @@
     display: flex;
     flex-direction: column;
     padding-left: 75px;
-    padding-right: 75px;
+    padding-right: 50px;
     gap: 31px;
+    &_small-gap {
+      gap: 22px;
+    }
   }
 
   &__tag-wrapper {
@@ -98,6 +120,7 @@
     margin-bottom: 125px;
     width: 75%;
     white-space: pre-wrap;
+    overflow-wrap: break-word;
 
     font: var(--text-body-text);
 

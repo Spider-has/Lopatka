@@ -19,11 +19,21 @@
 
   &_large {
     height: 108px;
+    overflow-y: scroll;
+    &::-webkit-scrollbar {
+      width: 5px;
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--text-subdued);
+      border-radius: 4px;
+    }
   }
 
   &_editor {
     overflow-y: auto;
-    padding: 24px 50px 16px 24px;
+    padding: 24px 14px 16px 24px;
   }
 
   &_error {

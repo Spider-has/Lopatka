@@ -1,5 +1,3 @@
-import './NewCreation.scss';
-
 import {
   ErrorMessage,
   ImageData,
@@ -11,19 +9,19 @@ import {
 } from '../../components/input/Input';
 import { ArrowBackIcon, LogoIcon, logoColorType, logoSizeType } from '../../icons/Icons';
 import { useEffect, useRef, useState } from 'react';
-import {
-  ContentTypes,
-  Editor,
-  getOnlyImageContent,
-  getParsedContentIntoBD,
-} from '../../components/richTextEditor/RichTextEditor';
+import { ContentTypes, Editor, getParsedContentIntoBD } from '../../components/richTextEditor/RichTextEditor';
 import { fetchPostRequestWithVerify } from '../../utils/fetchRequests/fetchRequest';
 import { getJwtToken } from '../../utils/token';
 import { Link, useNavigate } from 'react-router-dom';
 import { isUserAuthCorrect } from '../../utils/auth';
 import { Button, ButtonColorTypes, ButtonContentTypes, ButtonTypes } from '../../components/button/Button';
-import { convertDateIntoDBStyle } from '../../utils/utils';
 import { DeleteActiclePopup } from '../../components/popup/Popup';
+import {
+  changeElemValid,
+  checkAllValid,
+  getInputData,
+  useValidateChanger,
+} from '../NewCreationEdit/NewCreation';
 
 type validationState = {
   valid: boolean;
@@ -54,10 +52,10 @@ export const defaultValid: validationStates = [
 
 export const optionElems: optionElem[] = [
   {
-    text: 'Экспедиции',
+    text: 'Интервью',
   },
   {
-    text: 'События',
+    text: 'Биография',
   },
   {
     text: 'Прочее',
@@ -77,7 +75,6 @@ const Form = () => {
       },
     ],
   });
-
   const parsedEditor = getParsedContentIntoBD(editorData);
   const [theme, setTheme] = useState('');
   const [imageData, setImageData] = useState<ImageData>({
@@ -97,12 +94,11 @@ const Form = () => {
 
   useValidateChanger(validation, 4, parsedEditor.length, setValidation);
   useValidateChanger(validation, 3, theme.length, setValidation);
-
   return (
     <section className="creation-form">
       <div className="creation-form__header-wrapper">
         <div className="creation-form__header">
-          <h1>Создание новости</h1>
+          <h1>Создание статьи про человека</h1>
           <span>Чтобы опубликовать новость, заполните все поля</span>
         </div>
         <div
@@ -137,7 +133,7 @@ const Form = () => {
                 const token = getJwtToken();
                 if (token)
                   fetchPostRequestWithVerify(
-                    'http://localhost:8000/api/news/private/',
+                    'http://localhost:8000/api/peoples/private/',
                     token,
                     ArticleCreationData,
                   )
@@ -149,7 +145,7 @@ const Form = () => {
                     })
                     .then(res => {
                       console.log(res);
-                      navigate('/news/success-creation');
+                      navigate('/peoples/success-creation');
                     })
                     .catch(err => console.log(err.message));
                 else {
@@ -298,12 +294,12 @@ const Form = () => {
   );
 };
 
-export const NewCreation = () => {
+export const PeopleArticleCreation = () => {
   const navigate = useNavigate();
   useEffect(() => {
     isUserAuthCorrect().then(res => {
       if (!res) {
-        navigate('/news');
+        navigate('/peoples');
       }
     });
   }, []);
@@ -312,7 +308,7 @@ export const NewCreation = () => {
     <div className="article-creation-page">
       <div className="article-creation-content-wrapper">
         <header className="article-creation-header ">
-          <Link to={'/News'}>
+          <Link to={'/peoples'}>
             <ArrowBackIcon />
           </Link>
           <Link to={'/'}>
@@ -337,7 +333,7 @@ export const NewCreation = () => {
       {showPopup && (
         <DeleteActiclePopup
           deleteHandler={() => {
-            navigate('/news');
+            navigate('/peoples');
           }}
           setPopupClosed={() => {
             setShowPopup(false);
@@ -346,85 +342,4 @@ export const NewCreation = () => {
       )}
     </div>
   );
-};
-
-export const changeElemValid = (state: validationStates, index: number) => {
-  return [
-    ...state.map((el, i) => {
-      if (i == index)
-        return {
-          valid: true,
-        };
-      return el;
-    }),
-  ];
-};
-
-export const checkAllValid = (valid: validationStates): boolean => {
-  let flag = true;
-  valid.forEach(el => {
-    if (!el.valid) {
-      flag = false;
-    }
-  });
-  return flag;
-};
-
-export const useValidateChanger = (
-  validState: validationStates,
-  index: number,
-  validationElemLength: number,
-  setValid: (valid: validationStates) => void,
-) => {
-  useEffect(() => {
-    if (!validState[index].valid && validationElemLength > 0) setValid(changeElemValid(validState, index));
-  }, [validState[index], validationElemLength]);
-};
-
-export const getInputData = (
-  header: string,
-  description: string,
-  date: string,
-  authorName: string,
-  firstScreenImgName: string,
-  firstScreenImgHref: string,
-  Theme: string,
-  MainContent: string,
-  editor: Editor,
-  setValid: (valid: validationStates) => void,
-) => {
-  const ArticleCreationData = {
-    Header: header,
-    Description: description,
-    Date: convertDateIntoDBStyle(date),
-    AuthorName: authorName,
-    FirstScreenImageName: firstScreenImgName,
-    FirstScreenImageHref: firstScreenImgHref,
-    Theme: Theme,
-    MainContent: MainContent,
-    MainContentImageData: getOnlyImageContent(editor),
-  };
-  console.log(ArticleCreationData);
-  setValid([
-    {
-      valid: checkValidElem(ArticleCreationData.Header.length),
-    },
-    {
-      valid: checkValidElem(ArticleCreationData.Description.length),
-    },
-    {
-      valid: checkValidElem(ArticleCreationData.FirstScreenImageName.length),
-    },
-    {
-      valid: checkValidElem(ArticleCreationData.Theme.length),
-    },
-    {
-      valid: checkValidElem(ArticleCreationData.MainContent.length),
-    },
-  ]);
-  if (ArticleCreationData.Date == '') {
-    const now = new Date();
-    ArticleCreationData.Date = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
-  }
-  return ArticleCreationData;
 };

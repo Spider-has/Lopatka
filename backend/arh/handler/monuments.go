@@ -8,15 +8,15 @@ import (
 	"github.com/spider-has/lopata-docker"
 )
 
-func (h *Handler) createNew(c *gin.Context) {
-	var input lopata.News
+func (h *Handler) createMonument(c *gin.Context) {
+	var input lopata.Monuments
 
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	id, err := h.services.New.Create(input)
+	id, err := h.services.Monument.Create(input)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -27,23 +27,23 @@ func (h *Handler) createNew(c *gin.Context) {
 	})
 }
 
-type getAllListsResponse struct {
-	Data []lopata.NewPreview `json:"data"`
+type getAllMonumentListsResponse struct {
+	Data []lopata.MonumentPreview `json:"data"`
 }
 
-func (h *Handler) getAllNews(c *gin.Context) {
-	news, err := h.services.New.GetAll()
+func (h *Handler) getAllMonuments(c *gin.Context) {
+	monument, err := h.services.Monument.GetAll()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, getAllListsResponse{
-		Data: news,
+	c.JSON(http.StatusOK, getAllMonumentListsResponse{
+		Data: monument,
 	})
 }
 
-func (h *Handler) getNewById(c *gin.Context) {
+func (h *Handler) getMonumentById(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
@@ -51,31 +51,32 @@ func (h *Handler) getNewById(c *gin.Context) {
 		return
 	}
 
-	new, err := h.services.New.GetById(id)
+	monument, err := h.services.Monument.GetById(id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusOK, new)
+	c.JSON(http.StatusOK, monument)
 }
 
-func (h *Handler) updateNew(c *gin.Context) {
-	NewId, err := strconv.Atoi(c.Param("id"))
-	
+func (h *Handler) updateMonument(c *gin.Context) {
+	MonumentId, err := strconv.Atoi(c.Param("id"))
+
+
 	if err != nil {
 		newErrorResponse(c, http.StatusBadRequest, "Invalid id Param")
 		return
 	}
 
-	var input lopata.News
+	var input lopata.Monuments
 
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	err = h.services.New.UpdateById(input, NewId)
+	err = h.services.Monument.UpdateById(input, MonumentId)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -86,7 +87,8 @@ func (h *Handler) updateNew(c *gin.Context) {
 	})
 }
 
-func (h *Handler) deleteNew(c *gin.Context) {
+
+func (h *Handler) deleteMonument(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
@@ -94,7 +96,7 @@ func (h *Handler) deleteNew(c *gin.Context) {
 		return
 	}
 
-	err = h.services.New.DeleteById(id)
+	err = h.services.Monument.DeleteById(id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

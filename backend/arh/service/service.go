@@ -22,15 +22,35 @@ type New interface {
 	UpdateById(user lopata.News, id int) (error)
 }
 
+type Monument interface {
+	Create(user lopata.Monuments) (int, error)
+	GetAll() ([]lopata.MonumentPreview, error)
+	GetById(id int) (lopata.Monuments, error)
+	DeleteById(id int) (error)
+	UpdateById(user lopata.Monuments, id int) (error)
+}
+
+type People interface {
+	Create(user lopata.Peoples) (int, error)
+	GetAll() ([]lopata.Peoplereview, error)
+	GetById(id int) (lopata.Peoples, error)
+	DeleteById(id int) (error)
+	UpdateById(user lopata.Peoples, id int) (error)
+}
+
 type Service struct {
 	Authorization
 	NewsList
 	New
+	Monument
+	People
 }
 
 func NewService(repos *repository.Repository) *Service {
 	return &Service{
 		Authorization: NewAuthService(repos.Authorization),
 		New: NewEditorService(repos.New),
+		Monument: NewMonumentService(repos.Monument),
+		People: NewPeopleService(repos.People),
 	}
 }

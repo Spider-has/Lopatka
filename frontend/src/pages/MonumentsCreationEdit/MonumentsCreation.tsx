@@ -21,13 +21,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { isUserAuthCorrect } from '../../utils/auth';
 import { Button, ButtonColorTypes, ButtonContentTypes, ButtonTypes } from '../../components/button/Button';
 import {
-  DeletePopup,
   changeElemValid,
   checkAllValid,
   checkValidElem,
   useValidateChanger,
 } from '../NewCreationEdit/NewCreation';
 import { convertDateIntoDBStyle } from '../../utils/utils';
+import { DeleteActiclePopup } from '../../components/popup/Popup';
 
 type validationState = {
   valid: boolean;
@@ -231,8 +231,8 @@ const Form = () => {
     <section className="creation-form">
       <div className="creation-form__header-wrapper">
         <div className="creation-form__header">
-          <h1>Создание новости</h1>
-          <span>Чтобы опубликовать новость, заполните все поля</span>
+          <h1>Создание памятника</h1>
+          <span>Чтобы опубликовать памятник, заполните все поля</span>
         </div>
         <div
           onClick={() => {
@@ -269,12 +269,13 @@ const Form = () => {
                 ArticleCreationData.Culture &&
                 ArticleCreationData.Era &&
                 ArticleCreationData.District &&
+                ArticleCreationData.Coordinates &&
                 ArticleCreationData.MainContent
               ) {
                 const token = getJwtToken();
                 if (token)
                   fetchPostRequestWithVerify(
-                    'http://localhost:8000/api/news/private/',
+                    'http://localhost:8000/api/monuments/private/',
                     token,
                     ArticleCreationData,
                   )
@@ -286,7 +287,7 @@ const Form = () => {
                     })
                     .then(res => {
                       console.log(res);
-                      navigate('/news/success-creation');
+                      navigate('/monuments/success-creation');
                     })
                     .catch(err => console.log(err.message));
                 else {
@@ -337,7 +338,7 @@ const Form = () => {
                     dataRef={descriptionRef}
                     required={true}
                     lettersCount={300}
-                    heightType={InputHeightTypes.Auto}
+                    heightType={InputHeightTypes.Large}
                     setValid={() => {
                       setValidation(changeElemValid(validation, 1));
                     }}
@@ -524,7 +525,7 @@ export const MonumentCreation = () => {
     <div className="article-creation-page">
       <div className="article-creation-content-wrapper">
         <header className="article-creation-header ">
-          <Link to={'/News'}>
+          <Link to={'/Monuments'}>
             <ArrowBackIcon />
           </Link>
           <Link to={'/'}>
@@ -547,7 +548,7 @@ export const MonumentCreation = () => {
         </div>
       </div>
       {showPopup && (
-        <DeletePopup
+        <DeleteActiclePopup
           deleteHandler={() => {
             navigate('/news');
           }}

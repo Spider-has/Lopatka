@@ -27,8 +27,13 @@
   gap: 12px;
   align-items: center;
   white-space: pre;
-  &_small-gap {
+
+  &_small-article-gap {
+    font: var(--text-for-tags);
     gap: 8px;
+  }
+  &_article-text {
+    font: var(--text-for-tags);
   }
   &_text-small {
     font: var(--text-description);

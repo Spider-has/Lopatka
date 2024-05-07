@@ -23,9 +23,7 @@ import { getJwtToken } from '../../utils/token';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { isUserAuthCorrect } from '../../utils/auth';
 import { Button, ButtonColorTypes, ButtonContentTypes, ButtonTypes } from '../../components/button/Button';
-import { serverImageUrl } from '../../utils/utils';
-import { ArticleProps, convertDbDataToArticleProps } from '../../components/post/Article';
-import { tagModTypes } from '../../components/tagsBar/TagsBar';
+import { convertToEuropeanDateStyle, serverImageUrl } from '../../utils/utils';
 import {
   cultureOptionElems,
   defaultValid,
@@ -35,13 +33,9 @@ import {
   typeOptionElems,
   validationStates,
 } from './MonumentsCreation';
-import {
-  DeletePopup,
-  changeElemValid,
-  checkAllValid,
-  useValidateChanger,
-} from '../NewCreationEdit/NewCreation';
-const Form = (props: ArticleProps) => {
+import { changeElemValid, checkAllValid, useValidateChanger } from '../NewCreationEdit/NewCreation';
+import { DeleteActiclePopup } from '../../components/popup/Popup';
+const Form = (props: MonumentPost) => {
   const navigate = useNavigate();
   const [editorData, setEditor] = useState<Editor>({
     count: 1,
@@ -99,7 +93,12 @@ const Form = (props: ArticleProps) => {
       descriptionRef.current.value = props.Description;
       dateRef.current.value = props.Date;
       authorRef.current.value = props.AuthorName;
-      //  setTheme(props.Theme);
+      setType(props.Type);
+      setCulture(props.Culture);
+      setEra(props.Era);
+      setDistrict(props.District);
+      setCoords(props.Coordinates);
+
       setEditor(convertIntoEditorFormat(props.MainContent));
       setImageData({
         name: props.FirstScreenImageName,
@@ -114,8 +113,8 @@ const Form = (props: ArticleProps) => {
     <section className="creation-form">
       <div className="creation-form__header-wrapper">
         <div className="creation-form__header">
-          <h1>Создание новости</h1>
-          <span>Чтобы опубликовать новость, заполните все поля</span>
+          <h1>Редактирование памятника</h1>
+          <span>Чтобы опубликовать памятник, заполните все поля</span>
         </div>
         <div
           onClick={() => {
@@ -153,12 +152,13 @@ const Form = (props: ArticleProps) => {
                 ArticleCreationData.Culture &&
                 ArticleCreationData.Era &&
                 ArticleCreationData.District &&
+                ArticleCreationData.Coordinates &&
                 ArticleCreationData.MainContent
               ) {
                 const token = getJwtToken();
                 if (token)
                   fetchPutRequestWithVerify(
-                    `http://localhost:8000/api/news/private/${id}`,
+                    `http://localhost:8000/api/monuments/private/${id}`,
                     token,
                     ArticleCreationData,
                   )
@@ -170,7 +170,7 @@ const Form = (props: ArticleProps) => {
                     })
                     .then(res => {
                       console.log(res);
-                      navigate('/news/success-update');
+                      navigate('/monuments/success-update');
                     })
                     .catch(err => console.log(err.message));
                 else {
@@ -247,6 +247,8 @@ const Form = (props: ArticleProps) => {
                     dataRef={dateRef}
                     required={true}
                     heightType={InputHeightTypes.Auto}
+                    loaded={dataLoad}
+                    newDate={props.Date}
                   />
                 </label>
                 <div className="creation-form__image-wrapper">
@@ -382,6 +384,7 @@ const Form = (props: ArticleProps) => {
                   setEditor={(editor: Editor) => {
                     setEditor(editor);
                   }}
+                  loaded={dataLoad}
                   EditorData={editorData}
                   setValid={() => {
                     setValidation(changeElemValid(validation, 4));
@@ -396,29 +399,51 @@ const Form = (props: ArticleProps) => {
   );
 };
 
-export const NewEdit = () => {
+type MonumentPost = {
+  id: string;
+  Header: string;
+  Description: string;
+  Date: string;
+  AuthorName: string;
+  FirstScreenImageName: string;
+  Type: string;
+  Culture: string;
+  District: string;
+  Era: string;
+  Coordinates: string;
+  MainContent: string;
+};
+
+const convertDbDataToEditorProps = (data: MonumentPost): MonumentPost => {
+  return {
+    ...data,
+    Date: convertToEuropeanDateStyle(data.Date),
+  };
+};
+
+export const MonumentEdit = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [articleData, setData] = useState<ArticleProps>({
+  const [articleData, setData] = useState<MonumentPost>({
     id: '',
     Header: '',
     Description: '',
     Date: '',
     AuthorName: '',
     FirstScreenImageName: '',
-    Theme: '',
+    Type: '',
+    Culture: '',
+    District: '',
+    Era: '',
+    Coordinates: '',
     MainContent: '',
-    tag: {
-      tagTypes: ButtonContentTypes.Icon,
-      text: '',
-      tagMod: tagModTypes.NoneMod,
-    },
   });
   useEffect(() => {
+    console.log(id, 1);
     if (id) {
-      fetchGetRequest('http://localhost:8000/api/news/public/' + id).then(res => {
+      fetchGetRequest('http://localhost:8000/api/monuments/public/' + id).then(res => {
         if (res) {
-          setData(convertDbDataToArticleProps(res));
+          setData(convertDbDataToEditorProps(res));
         }
       });
     }
@@ -433,7 +458,7 @@ export const NewEdit = () => {
     <div className="article-creation-page">
       <div className="article-creation-content-wrapper">
         <header className="article-creation-header ">
-          <Link to={'/News'}>
+          <Link to={'/Monuments'}>
             <ArrowBackIcon />
           </Link>
           <Link to={'/'}>
@@ -456,12 +481,12 @@ export const NewEdit = () => {
         </div>
       </div>
       {showPopup && (
-        <DeletePopup
+        <DeleteActiclePopup
           deleteHandler={() => {
-            fetchDeleteRequest(`http://localhost:8000/api/news/private/${id}`).then(res => {
+            fetchDeleteRequest(`http://localhost:8000/api/monuments/private/${id}`).then(res => {
               if (res) {
                 console.log(res);
-                if (res.status == 'ok') navigate('/news/success-delete');
+                if (res.status == 'ok') navigate('/monuments/success-delete');
               }
             });
           }}

@@ -51,6 +51,7 @@ export type InputProps = {
   optionData?: string;
   imageData?: ImageData;
   EditorData?: Editor;
+  newDate?: string;
 };
 
 export const InputField = (props: InputProps) => {
@@ -133,6 +134,12 @@ export const InputField = (props: InputProps) => {
       const InpRef = props.dataRef as RefObject<HTMLInputElement>;
       const placeholder = 'дд.мм.гггг';
       const [value, setValue] = useState('');
+      useEffect(() => {
+        if (props.loaded) {
+          const date = props.newDate ? props.newDate : '';
+          if (date.search(/[^0-9.]/g) == -1) setValue(date);
+        }
+      }, [props.loaded]);
       return (
         <div className="input-with-placeholder">
           <span className="input-with-placeholder__placeholder">
@@ -188,7 +195,7 @@ export const InputField = (props: InputProps) => {
       );
     }
     case InputTypes.Submit:
-      return <input type={props.type} className="submit-input" />;
+      return <input type={props.type} className="submit-input" value={'Опубликовать'} />;
     case InputTypes.ImageUploader: {
       const InpRef = props.dataRef as RefObject<HTMLInputElement>;
       const imageD: ImageData = props.imageData

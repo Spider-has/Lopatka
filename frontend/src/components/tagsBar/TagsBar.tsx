@@ -3,16 +3,23 @@ import { OpenCloseListIcon } from '../../icons/Icons';
 import './TagsBar.scss';
 import { ButtonContentTypes } from '../button/Button';
 
-export enum supportedTags {
+export enum supportedNewsTags {
   Expedition = 'Экспедиции',
   Events = 'События',
-  Other = 'Другое',
+  Other = 'Прочее',
+}
+
+export enum supportedPeoplesTags {
+  Interview = 'Интервью',
+  Biography = 'Биография',
+  Other = 'Прочее',
 }
 
 export enum tagModTypes {
   NoneMod = '',
-  SmallGap = 'tag_small-gap',
+  SmallGap = 'tag_small-article-gap',
   DescriptionText = 'tag_text-small',
+  ArticleText = 'tag_article-text',
 }
 
 export type TagProps = {
@@ -55,11 +62,26 @@ export const FilterTagsBar = (props: TagsBarProps) => {
 };
 
 export type MonumentsTagsBarProps = {
-  lists: TagsListProps[];
+  filterHandler: (activeTags: string[]) => void;
+  lists: tagsListData[];
 };
 
 export const MonumentsTagsBar = (props: MonumentsTagsBarProps) => {
-  const tagsLists = props.lists.map((tagList, i) => <TagsList key={i} {...tagList} />);
+  const [activeTags, setActiveTags] = useState<string[]>(['', '', '', '']);
+  console.log(activeTags);
+  const tagsLists = props.lists.map((tagList, i) => (
+    <TagsList
+      key={i}
+      data={tagList}
+      setActive={(tagName: string) => {
+        setActiveTags(changeActiveTags(activeTags, i, tagName));
+      }}
+      activeTag={activeTags[i]}
+    />
+  ));
+  useEffect(() => {
+    props.filterHandler(activeTags);
+  }, [activeTags]);
   return (
     <div className="monuments-tags-bar">
       <div className="monuments-tags-bar__wrapper">{tagsLists}</div>
@@ -67,27 +89,53 @@ export const MonumentsTagsBar = (props: MonumentsTagsBarProps) => {
   );
 };
 
+const changeActiveTags = (activeTags: string[], index: number, value: string) => {
+  return [
+    ...activeTags.map((el, i) => {
+      if (i == index) return value;
+      return el;
+    }),
+  ];
+};
+
 export enum tagListType {
   Row = 'tags-list-wrapper__tags_row',
   Column = 'tags-list-wrapper__tags_column',
 }
 
-type TagsListProps = {
+type tagsListData = {
   listType: tagListType;
   listHeader: string;
   tags: TagProps[];
 };
 
+type TagsListProps = {
+  setActive: (tagName: string) => void;
+  activeTag: string;
+  data: tagsListData;
+};
+
 const TagsList = (props: TagsListProps) => {
-  const tags = props.tags.map((tag, i) => (
-    <div key={i} className="tags-list-wrapper__tag-area">
-      <Tag {...tag} />
-    </div>
-  ));
+  const tags = props.data.tags.map((tag, i) => {
+    const activeMod = props.activeTag == tag.text ? 'tags-list-wrapper__tag-area_active' : '';
+    return (
+      <div
+        onClick={() => {
+          if (props.activeTag !== tag.text) props.setActive(tag.text);
+          else props.setActive('');
+        }}
+        key={i}
+        className={`tags-list-wrapper__tag-area ${activeMod}`}
+      >
+        <Tag {...tag} />
+      </div>
+    );
+  });
 
   const [isOpen, setIsOpen] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
   const listButtonRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     if (listRef.current && listButtonRef.current)
       if (isOpen) {
@@ -102,7 +150,7 @@ const TagsList = (props: TagsListProps) => {
   return (
     <div className="tags-list-wrapper">
       <div className="tags-list-wrapper__list-header">
-        <span>{props.listHeader}</span>
+        <span>{props.data.listHeader}</span>
         <div
           className="tags-list-wrapper__list-icon"
           ref={listButtonRef}
@@ -113,7 +161,7 @@ const TagsList = (props: TagsListProps) => {
           <OpenCloseListIcon />
         </div>
       </div>
-      <div ref={listRef} className={`tags-list-wrapper__tags ${props.listType}`}>
+      <div ref={listRef} className={`tags-list-wrapper__tags ${props.data.listType}`}>
         {tags}
       </div>
     </div>

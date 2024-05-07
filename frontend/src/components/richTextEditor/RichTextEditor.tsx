@@ -61,25 +61,23 @@ type Selection = {
 
 export const RichTextEditor = (props: InputProps) => {
   const editorRef = useRef<HTMLDivElement>(null);
-  const editor: Editor = props.EditorData
-    ? props.EditorData
-    : {
-        count: 1,
-        content: [
-          {
-            type: ContentTypes.Text,
-            value: '',
-            mods: [],
-            id: 'el-0',
-          },
-        ],
-      };
+  const [editorData, setEditor] = useState<Editor>({
+    count: 1,
+    content: [
+      {
+        type: ContentTypes.Text,
+        value: '',
+        mods: [],
+        id: 'el-0',
+      },
+    ],
+  });
+
   const [cursor, setCursor] = useState<Selection>({
     from: -1,
     to: -1,
     elemid: 'el--1',
   });
-
   const [fontSize, setFontSize] = useState<number>(20);
   const sizeRef = useRef<HTMLInputElement>(null);
   const ValidMod = props.validationTypes == ValidationTypes.NoneValid ? 'input_error' : '';
@@ -92,7 +90,11 @@ export const RichTextEditor = (props: InputProps) => {
   const [hoverBolderButton, setHoverBolderButton] = useState(false);
   const [hoverCursiveButton, setHoverCursiveButton] = useState(false);
 
-  const elems = editor.content.map((elem, i) => {
+  useEffect(() => {
+    if (props.loaded && props.EditorData) setEditor(props.EditorData);
+  }, [props.loaded]);
+
+  const elems = editorData.content.map((elem, i) => {
     switch (elem.type) {
       case ContentTypes.Text: {
         return (
@@ -103,7 +105,7 @@ export const RichTextEditor = (props: InputProps) => {
                   const element = editorRef.current.querySelector(`#${elem.id}`) as HTMLElement;
                   if (element) {
                     if (element.textContent === '' && elem.id !== 'el-0') {
-                      if (props.setEditor) props.setEditor(removeElem(editor, elem.id));
+                      setEditor(removeElem(editorData, elem.id));
                     }
                   }
                 }
@@ -115,7 +117,8 @@ export const RichTextEditor = (props: InputProps) => {
 
                 if (element) {
                   const value = replacer(element.innerHTML);
-                  if (props.setEditor) props.setEditor(editorEditSymbols(editor, cursor, value, elem.id));
+
+                  setEditor(editorEditSymbols(editorData, cursor, value, elem.id));
                   const countbefore = (elem.value.match(/\n/g) || []).length;
                   const countnow = (value.match(/\n/g) || []).length;
                   if (window.getSelection) {
@@ -159,7 +162,7 @@ export const RichTextEditor = (props: InputProps) => {
               <div
                 className="content-editable-area__delete-image-button"
                 onClick={() => {
-                  if (props.setEditor) props.setEditor(removeElem(editor, elem.id));
+                  setEditor(removeElem(editorData, elem.id));
                 }}
               >
                 <CLoseIcon />
@@ -182,7 +185,8 @@ export const RichTextEditor = (props: InputProps) => {
                           if (event.target && event.target.result) {
                             const href = event.target.result as string;
                             inp.src = href;
-                            if (props.setEditor) props.setEditor(setHref(editor, href, elem.id));
+
+                            setEditor(setHref(editorData, href, elem.id));
                           }
                         };
 
@@ -203,7 +207,7 @@ export const RichTextEditor = (props: InputProps) => {
               <div
                 className="content-editable-area__delete-image-button"
                 onClick={() => {
-                  if (props.setEditor) props.setEditor(removeElem(editor, elem.id));
+                  setEditor(removeElem(editorData, elem.id));
                 }}
               >
                 <CLoseIcon />
@@ -215,9 +219,10 @@ export const RichTextEditor = (props: InputProps) => {
   });
 
   useEffect(() => {
+    if (props.setEditor) props.setEditor(editorData);
     if (cursor.elemid) {
       if (editorRef.current) {
-        editor.content.forEach(el => {
+        editorData.content.forEach(el => {
           const elem = editorRef.current?.querySelector(`#${el.id}`);
           if (el.type == ContentTypes.Text) {
             const text = innertextTransform(el);
@@ -259,7 +264,7 @@ export const RichTextEditor = (props: InputProps) => {
         }
       }
     }
-  }, [editor]);
+  }, [editorData]);
 
   useEffect(() => {
     document.onselectionchange = () => {
@@ -295,36 +300,39 @@ export const RichTextEditor = (props: InputProps) => {
   useEffect(() => {
     const keysBind = (event: KeyboardEvent) => {
       if (event.ctrlKey && (event.key === 'b' || event.key === 'B' || event.key === 'и')) {
-        if (props.setEditor) props.setEditor(setModificatedContent(editor, cursor, ModsTypes.Bold));
+        event.preventDefault();
+        setEditor(setModificatedContent(editorData, cursor, ModsTypes.Bold));
         document.removeEventListener('keydown', keysBind);
       } else if (event.ctrlKey && (event.key === 'i' || event.key === 'I' || event.key === 'ш')) {
-        if (props.setEditor) props.setEditor(setModificatedContent(editor, cursor, ModsTypes.Cursive));
+        event.preventDefault();
+        setEditor(setModificatedContent(editorData, cursor, ModsTypes.Cursive));
         document.removeEventListener('keydown', keysBind);
       } else if (
         event.ctrlKey &&
         event.shiftKey &&
         (event.key === ',' || event.key === '<' || event.key === 'Б')
       ) {
-        if (props.setEditor)
-          props.setEditor(setModificatedContent(editor, cursor, ModsTypes.TextSize, fontSize - 1));
+        event.preventDefault();
+        setEditor(setModificatedContent(editorData, cursor, ModsTypes.TextSize, fontSize - 1));
         document.removeEventListener('keydown', keysBind);
       } else if (
         event.ctrlKey &&
         event.shiftKey &&
         (event.key === '.' || event.key === '>' || event.key === 'Ю')
       ) {
-        if (props.setEditor)
-          props.setEditor(setModificatedContent(editor, cursor, ModsTypes.TextSize, fontSize + 1));
+        event.preventDefault();
+        setEditor(setModificatedContent(editorData, cursor, ModsTypes.TextSize, fontSize + 1));
         document.removeEventListener('keydown', keysBind);
       } else if (event.key == 'Tab') {
-        if (props.setEditor) props.setEditor(addImageInEditor(editor));
+        event.preventDefault();
+        setEditor(addImageInEditor(editorData));
       }
     };
     document.addEventListener('keydown', keysBind);
     return () => {
       document.removeEventListener('keydown', keysBind);
     };
-  }, [editor, cursor, fontSize]);
+  }, [editorData, cursor, fontSize]);
 
   return (
     <div className="content-editor-wrapper">
@@ -333,8 +341,7 @@ export const RichTextEditor = (props: InputProps) => {
           <div
             onClick={() => {
               if (cursor.to - cursor.from > 0) {
-                if (props.setEditor)
-                  props.setEditor(setModificatedContent(editor, cursor, ModsTypes.TextSize, fontSize - 1));
+                setEditor(setModificatedContent(editorData, cursor, ModsTypes.TextSize, fontSize - 1));
               }
               setFontSize(fontSize - 1);
             }}
@@ -372,8 +379,7 @@ export const RichTextEditor = (props: InputProps) => {
                 }
               }}
               onBlur={() => {
-                if (props.setEditor)
-                  props.setEditor(setModificatedContent(editor, cursor, ModsTypes.TextSize, fontSize + 1));
+                setEditor(setModificatedContent(editorData, cursor, ModsTypes.TextSize, fontSize + 1));
               }}
               type="number"
               placeholder="15"
@@ -390,8 +396,7 @@ export const RichTextEditor = (props: InputProps) => {
             }}
             onClick={() => {
               if (cursor.to - cursor.from > 0) {
-                if (props.setEditor)
-                  props.setEditor(setModificatedContent(editor, cursor, ModsTypes.TextSize, fontSize + 1));
+                setEditor(setModificatedContent(editorData, cursor, ModsTypes.TextSize, fontSize + 1));
               }
               setFontSize(fontSize + 1);
             }}
@@ -408,7 +413,7 @@ export const RichTextEditor = (props: InputProps) => {
         <div
           className="content-editor-wrapper__button"
           onClick={() => {
-            if (props.setEditor) props.setEditor(setModificatedContent(editor, cursor, ModsTypes.Bold));
+            setEditor(setModificatedContent(editorData, cursor, ModsTypes.Bold));
           }}
           onMouseOver={() => {
             setHoverBolderButton(true);
@@ -423,7 +428,7 @@ export const RichTextEditor = (props: InputProps) => {
         <div
           className="content-editor-wrapper__button"
           onClick={() => {
-            if (props.setEditor) props.setEditor(setModificatedContent(editor, cursor, ModsTypes.Cursive));
+            setEditor(setModificatedContent(editorData, cursor, ModsTypes.Cursive));
           }}
           onMouseOver={() => {
             setHoverCursiveButton(true);
@@ -437,11 +442,13 @@ export const RichTextEditor = (props: InputProps) => {
         </div>
       </div>
       <div className={`input input_editor ${props.heightType} editor-area ${ValidMod}`} ref={editorRef}>
-        <div className="content-editable-area">
-          {elems}
-          <span className={`content-editable-area__image-tip ${ValidText}`}>
-            Нажмите Tab для вставки фото
-          </span>
+        <div className="editor-area__wrapper">
+          <div className="content-editable-area">
+            {elems}
+            <span className={`content-editable-area__image-tip ${ValidText}`}>
+              Нажмите Tab для вставки фото
+            </span>
+          </div>
         </div>
       </div>
     </div>
@@ -733,6 +740,7 @@ const setModificatedContent = (
         };
         let mods = checkElemForModText(el.mods, newMod);
         mods = getCheckedMods(mods);
+
         return {
           ...el,
           mods: mods,
@@ -1044,11 +1052,9 @@ export const getOnlyImageContent = (editor: Editor) => {
 export const convertIntoEditorFormat = (data: string): Editor => {
   let dataCopy = data.substring(0, data.length);
   const editor: Editor = { count: 0, content: [] };
-  console.log(dataCopy);
   let spanPos = dataCopy.search(/<span.*?>/g);
   let imgPos = dataCopy.search(/<img.*?>/g);
   while (spanPos != -1 || imgPos != -1) {
-    console.log(spanPos, imgPos);
     if ((imgPos != -1 && spanPos != -1 && spanPos < imgPos) || (spanPos != -1 && imgPos == -1)) {
       dataCopy = dataCopy.replace(/<span.*?>/, '');
       const endSpanPos = dataCopy.search(/<\/span>/);
@@ -1060,15 +1066,12 @@ export const convertIntoEditorFormat = (data: string): Editor => {
       } else break;
     } else if ((imgPos != -1 && spanPos != -1 && imgPos < spanPos) || (spanPos == -1 && imgPos != -1)) {
       const endImgPos = dataCopy.search(/\/>/) + 2;
-      console.log(imgPos, endImgPos);
       if (endImgPos - 2 > 0) {
         editor.content.push(transformImgIntoEditorType(dataCopy, imgPos, endImgPos, editor.count));
         editor.count = editor.count + 1;
         dataCopy = dataCopy.replace(/<img.*?>/, '');
       } else break;
     } else break;
-    console.log(dataCopy);
-    console.log(editor);
     spanPos = dataCopy.search(/<span.*?>/g);
     imgPos = dataCopy.search(/<img.*?>/g);
   }

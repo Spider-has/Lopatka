@@ -82,7 +82,20 @@
 }
 
 .editor-area {
-  max-height: 558px;
+  &__wrapper {
+    max-height: 558px;
+    overflow-y: scroll;
+    padding-right: 36px;
+    &::-webkit-scrollbar {
+      width: 5px;
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--text-subdued);
+      border-radius: 4px;
+    }
+  }
 }
 
 .content-editor-wrapper {

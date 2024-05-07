@@ -13,12 +13,12 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS new_item (
     id SERIAL PRIMARY KEY unique,
     header VARCHAR(255) NOT NULL,
-    content TEXT NOT NULL,
+    description  VARCHAR(255) NOT NULL,
     author_name VARCHAR(255) NOT NULL,
     creation_date DATE NOT NULL,
-    description  VARCHAR(255) NOT NULL,
     main_image  VARCHAR(255) NOT NULL,
-    theme  VARCHAR(255) NOT NULL
+    theme  VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS news_lists (
@@ -30,15 +30,27 @@ CREATE TABLE IF NOT EXISTS news_lists (
 CREATE TABLE IF NOT EXISTS monument_item (
     id SERIAL PRIMARY KEY,
     header VARCHAR(255) NOT NULL,
-    content TEXT NOT NULL,
+    description  VARCHAR(255) NOT NULL,
     author_name VARCHAR(255) NOT NULL,
     creation_date DATE NOT NULL,
-    description  VARCHAR(255) NOT NULL,
     main_image  VARCHAR(255) NOT NULL,
-    time_interval  VARCHAR(255) NOT NULL,
+    monument_type VARCHAR(255) NOT NULL,
+    culture_type VARCHAR(255) NOT NULL,
     era VARCHAR(255) NOT NULL,
-    area VARCHAR(255) NOT NULL,
-    coords VARCHAR(255) NOT NULL
+    district VARCHAR(255) NOT NULL,
+    coords VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS people_item (
+    id SERIAL PRIMARY KEY,
+    header VARCHAR(255) NOT NULL,
+    description  VARCHAR(255) NOT NULL,
+    author_name VARCHAR(255) NOT NULL,
+    creation_date DATE NOT NULL,
+    main_image  VARCHAR(255) NOT NULL,
+    theme VARCHAR(255) NOT NULL,
+    content TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS monuments_lists (
@@ -59,6 +71,7 @@ DROP TABLE IF EXISTS monuments_lists;
 
 DROP TABLE IF EXISTS new_item;
 DROP TABLE IF EXISTS monument_item;
+DROP TABLE IF EXISTS people_item;
 
 DROP TABLE IF EXISTS users;
 -- +goose StatementEnd

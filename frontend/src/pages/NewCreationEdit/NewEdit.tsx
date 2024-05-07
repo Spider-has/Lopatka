@@ -23,11 +23,8 @@ import { getJwtToken } from '../../utils/token';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { isUserAuthCorrect } from '../../utils/auth';
 import { Button, ButtonColorTypes, ButtonContentTypes, ButtonTypes } from '../../components/button/Button';
-import { serverImageUrl } from '../../utils/utils';
-import { ArticleProps, convertDbDataToArticleProps } from '../../components/post/Article';
-import { tagModTypes } from '../../components/tagsBar/TagsBar';
+import { convertToEuropeanDateStyle, serverImageUrl } from '../../utils/utils';
 import {
-  DeletePopup,
   changeElemValid,
   checkAllValid,
   defaultValid,
@@ -36,8 +33,9 @@ import {
   useValidateChanger,
   validationStates,
 } from './NewCreation';
+import { DeleteActiclePopup } from '../../components/popup/Popup';
 
-const Form = (props: ArticleProps) => {
+const Form = (props: NewPost) => {
   const navigate = useNavigate();
 
   const [dataLoad, ondataLoad] = useState(false);
@@ -68,7 +66,7 @@ const Form = (props: ArticleProps) => {
   const ImageRef = useRef<HTMLInputElement>(null);
   const themeRef = useRef<HTMLTextAreaElement>(null);
 
-  useValidateChanger(validation, 4, parsedEditor.length, setValidation);
+  //useValidateChanger(validation, 4, parsedEditor.length, setValidation);
   useValidateChanger(validation, 3, theme.length, setValidation);
 
   useEffect(() => {
@@ -100,7 +98,7 @@ const Form = (props: ArticleProps) => {
     <section className="creation-form">
       <div className="creation-form__header-wrapper">
         <div className="creation-form__header">
-          <h1>Создание новости</h1>
+          <h1>Редактирование новости</h1>
           <span>Чтобы опубликовать новость, заполните все поля</span>
         </div>
         <div
@@ -226,6 +224,8 @@ const Form = (props: ArticleProps) => {
                     dataRef={dateRef}
                     required={true}
                     heightType={InputHeightTypes.Auto}
+                    loaded={dataLoad}
+                    newDate={props.Date}
                   />
                 </label>
                 <div className="creation-form__image-wrapper">
@@ -287,6 +287,7 @@ const Form = (props: ArticleProps) => {
                     setEditor(editor);
                   }}
                   EditorData={editorData}
+                  loaded={dataLoad}
                   setValid={() => {
                     setValidation(changeElemValid(validation, 4));
                   }}
@@ -300,10 +301,28 @@ const Form = (props: ArticleProps) => {
   );
 };
 
+type NewPost = {
+  id: string;
+  Header: string;
+  Description: string;
+  Date: string;
+  AuthorName: string;
+  FirstScreenImageName: string;
+  Theme: string;
+  MainContent: string;
+};
+
+const convertDbDataToEditorProps = (data: NewPost): NewPost => {
+  return {
+    ...data,
+    Date: convertToEuropeanDateStyle(data.Date),
+  };
+};
+
 export const NewEdit = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [articleData, setData] = useState<ArticleProps>({
+  const [articleData, setData] = useState<NewPost>({
     id: '',
     Header: '',
     Description: '',
@@ -312,17 +331,12 @@ export const NewEdit = () => {
     FirstScreenImageName: '',
     Theme: '',
     MainContent: '',
-    tag: {
-      tagTypes: ButtonContentTypes.Icon,
-      text: '',
-      tagMod: tagModTypes.NoneMod,
-    },
   });
   useEffect(() => {
     if (id) {
       fetchGetRequest('http://localhost:8000/api/news/public/' + id).then(res => {
         if (res) {
-          setData(convertDbDataToArticleProps(res));
+          setData(convertDbDataToEditorProps(res));
         }
       });
     }
@@ -360,7 +374,7 @@ export const NewEdit = () => {
         </div>
       </div>
       {showPopup && (
-        <DeletePopup
+        <DeleteActiclePopup
           deleteHandler={() => {
             fetchDeleteRequest(`http://localhost:8000/api/news/private/${id}`).then(res => {
               if (res) {

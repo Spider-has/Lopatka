@@ -21,15 +21,35 @@ type New interface {
 	UpdateById(New lopata.News, id int) (error)
 }
 
+type Monument interface {
+	Create(user lopata.Monuments) (int, error)
+	GetAll() ([]lopata.MonumentPreview, error)
+	GetById(id int) (lopata.Monuments, error)
+	DeleteById(id int) (error)
+	UpdateById(user lopata.Monuments, id int) (error)
+}
+
+type People interface {
+	Create(New lopata.Peoples) (int, error)
+	GetAll() ([]lopata.Peoplereview, error)
+	GetById(id int) (lopata.Peoples, error)
+	DeleteById(id int) error
+	UpdateById(New lopata.Peoples, id int) (error)
+}
+
 type Repository struct {
 	Authorization
 	NewsList
 	New
+	Monument
+	People
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
 	return &Repository{
 		Authorization: NewAuthPostgres(db),
 		New: NewNewPostgres(db),
+		Monument: NewMonumentPostgres(db),
+		People: NewPeoplePostgres(db),
 	}
 }

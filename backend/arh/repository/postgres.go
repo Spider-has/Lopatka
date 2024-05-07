@@ -11,6 +11,7 @@ const (
 	usersTable          = "users"
 	newsTable           = "new_item"
 	monumentsTable      = "monument_item"
+	peoplesTable      = "people_item"
 	usersNewsTable      = "news_lists"
 	usersMonumentsTable = "monuments_lists"
 )

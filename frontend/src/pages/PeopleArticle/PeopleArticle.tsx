@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Footer } from '../../components/footer/Footer';
-import { Article, ArticleProps, convertDbDataToNewProps } from '../../components/post/Article';
+import { Article, ArticleProps, convertDbDataToPeopleProps } from '../../components/post/Article';
 import { TopPanel } from '../../components/topPanel/TopPanel';
 import { UpArrow } from '../../components/upArrow/UpArrow';
 import { useParams } from 'react-router-dom';
@@ -29,14 +29,14 @@ const ArticleContentBlock = (props: ArticleProps) => {
   );
 };
 
-export const NewPage = () => {
+export const PeopleArticlePage = () => {
   const { id } = useParams();
   const [articleData, setData] = useState<ArticleProps>();
   useEffect(() => {
     if (id) {
-      fetchGetRequest('http://localhost:8000/api/news/public/' + id).then(res => {
+      fetchGetRequest('http://localhost:8000/api/peoples/public/' + id).then(res => {
         if (res) {
-          setData(convertDbDataToNewProps(res));
+          setData(convertDbDataToPeopleProps(res));
         }
       });
     }
