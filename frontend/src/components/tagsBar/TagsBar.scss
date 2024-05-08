@@ -7,15 +7,18 @@
   padding: 26px 13px 50px 13px;
   border: 1px solid var(--border-accent-brown);
   border-radius: 15px;
+
   &__tag-container {
     padding: 9px 0 9px 12px;
     width: 203px;
     transition: all 0.3s ease;
     border-radius: 15px;
     cursor: pointer;
+
     &:hover {
       background-color: var(--background-hovered);
     }
+
     &_active {
       background-color: var(--background-hovered);
     }
@@ -32,9 +35,11 @@
     font: var(--text-for-tags);
     gap: 8px;
   }
+
   &_article-text {
     font: var(--text-for-tags);
   }
+
   &_text-small {
     font: var(--text-description);
   }
@@ -51,9 +56,11 @@
     transition: all 0.1s linear;
     padding: 8px 15px;
     color: var(--primary-default);
+
     &:hover {
       background-color: var(--background-hovered);
     }
+
     &_active {
       background-color: var(--background-hovered);
     }
@@ -98,6 +105,7 @@
       column-gap: 12px;
       row-gap: 10px;
     }
+
     &_column {
       flex-direction: column;
       gap: 10px;

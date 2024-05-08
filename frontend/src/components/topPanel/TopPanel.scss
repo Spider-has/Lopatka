@@ -31,6 +31,7 @@
   width: 39.1%;
   min-width: 320px;
   max-width: 704px;
+
   & input {
     padding: 26px 0 26px 40px;
     border: 1px solid var(--text-oncolor-default);
@@ -41,13 +42,16 @@
     background-color: inherit;
     font: var(--text-body-text);
     color: var(--text-oncolor-default);
+
     &::placeholder {
       color: var(--text-oncolor-default);
     }
+
     &[type='search']::-webkit-search-cancel-button {
       display: none;
     }
   }
+
   &__icon {
     position: absolute;
     z-index: 1;
@@ -83,6 +87,7 @@
     box-sizing: border-box;
     width: 200px;
     border-radius: 15px;
+
     &:hover {
       font: var(--text-menu-hovered);
       border: 1px solid var(--text-oncolor-default);
@@ -105,6 +110,7 @@
   gap: 15px;
   z-index: 2;
   cursor: pointer;
+
   &__line {
     width: 100%;
     border: 1.6px solid var(--text-oncolor-default);
@@ -115,9 +121,11 @@
   &__line_line1-transform {
     transform: translate(0, 16px) rotate(45deg);
   }
+
   &__line_line2-transform {
     transform: rotate(-45deg);
   }
+
   &__line_line3-transform {
     transform: scale(0);
   }

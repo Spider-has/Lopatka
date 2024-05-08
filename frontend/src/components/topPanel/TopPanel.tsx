@@ -35,9 +35,6 @@ const BurgerPopover = (props: burgerPopoverProps) => {
         Люди
       </Link>
       <Link className="burger-popover__link" to={''}>
-        Лента времени
-      </Link>
-      <Link className="burger-popover__link" to={''}>
         Раскопки
       </Link>
     </div>

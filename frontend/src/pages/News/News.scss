@@ -10,6 +10,7 @@
   &__header {
     display: flex;
     justify-content: center;
+
     h1 {
       color: var(--primary-default);
       font:
@@ -32,13 +33,16 @@
     width: 100%;
     max-width: 1600px;
     justify-content: space-between;
+
     &_monuments-wrapper {
       max-width: 1800px;
     }
   }
+
   &__creation-button {
     margin-left: 44px;
   }
+
 
   &__map-creation-button {
     position: absolute;
@@ -50,22 +54,27 @@
     position: fixed;
     bottom: 50px;
     right: 10%;
+    z-index: 10;
 
     &_down-mod {
       position: absolute;
       bottom: 0;
       right: 10%;
+      z-index: 10;
     }
   }
+
   &__content-area {
     display: flex;
     flex-direction: column;
   }
+
   &__map-area {
     display: block;
     padding-left: 17px;
     position: relative;
   }
+
   &__post-area {
     display: flex;
     flex-direction: column;

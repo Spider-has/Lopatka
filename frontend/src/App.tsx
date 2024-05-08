@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { LoginPage } from './pages/Login/Login';
-import { MainPage } from './pages/News/News';
+import { NewsPage } from './pages/News/News';
 import { MonumentsPage } from './pages/Monuments/Monuments';
 import { PeoplePage } from './pages/Peoples/People';
 import { NewPage } from './pages/New/NewPage';
@@ -13,6 +13,7 @@ import { MonumentEdit } from './pages/MonumentsCreationEdit/MonumentsEdit';
 import { PeopleArticleCreation } from './pages/PeopleArticleEdit/PeopleArticleCreation';
 import { PeopleArticleEdit } from './pages/PeopleArticleEdit/PeopleArticleEdit';
 import { PeopleArticlePage } from './pages/PeopleArticle/PeopleArticle';
+import { ExcavationsPage } from './pages/Excavations/Excavations';
 
 function App() {
   return (
@@ -20,7 +21,7 @@ function App() {
       <Routes>
         <Route path="/login" index element={<LoginPage />} />
 
-        <Route path="/news/*" index element={<MainPage />} />
+        <Route path="/news/*" index element={<NewsPage />} />
         <Route path="/new/:id" index element={<NewPage />} />
         <Route path="/newedit/:id" index element={<NewEdit />} />
         <Route path="/newCreation" index element={<NewCreation />} />
@@ -34,6 +35,7 @@ function App() {
         <Route path="/people/:id" index element={<PeopleArticlePage />} />
         <Route path="/peopleArticleCreation" index element={<PeopleArticleCreation />} />
         <Route path="/peopleArticleEdit/:id" index element={<PeopleArticleEdit />} />
+        <Route path="/excavations" index element={<ExcavationsPage />} />
       </Routes>
     </BrowserRouter>
   );

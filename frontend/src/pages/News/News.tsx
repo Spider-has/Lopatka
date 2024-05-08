@@ -139,7 +139,7 @@ const MainContent = () => {
   );
 };
 
-export const MainPage = () => {
+export const NewsPage = () => {
   const location = useLocation();
   const [popupData, setPopup] = useState<popupData>();
   useEffect(() => {

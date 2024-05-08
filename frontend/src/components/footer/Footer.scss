@@ -1,9 +1,17 @@
-footer {
-    margin-top: 165px;
+.footer {
     display: flex;
     width: 100%;
     justify-content: center;
     padding-bottom: 75px;
+    padding-top: 75px;
+    background-color: var(--background-default);
+
+    color: var(--primary-default);
+}
+
+.footer_light {
+    background-color: var(--background-subdued);
+    color: var(--text-oncolor-default);
 }
 
 .footer-wrapper {
@@ -14,15 +22,17 @@ footer {
     flex-wrap: wrap;
     row-gap: 50px;
     font: var(--text-body-text);
-    color: var(--primary-default);
+
     &__info-area {
         display: flex;
         flex-direction: column;
         gap: 18px;
+
         &_small-gap {
             gap: 8px;
         }
     }
+
     &__row-info-elements {
         display: flex;
         gap: 15px;

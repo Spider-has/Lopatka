@@ -4,6 +4,7 @@ import './Button.scss';
 export enum ButtonTypes {
   Functional = 'Functional',
   Linked = 'Linked',
+  DownLoad = 'DownLoad'
 }
 
 export enum ButtonContentTypes {
@@ -20,6 +21,8 @@ export enum ButtonSizeTypes {
 export enum ButtonColorTypes {
   None = '',
   Black = 'button_black',
+  Yellow = 'button_yellow',
+  BlackInvert = 'button_black-invert',
   Transparent = 'button_transparent',
   LightTransparent = 'button_light-transparent',
   RedBorder = 'button_red-border ',

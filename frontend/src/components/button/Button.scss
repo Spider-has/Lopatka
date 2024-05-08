@@ -17,18 +17,26 @@
     background-color: inherit;
     color: var(--primary-default);
   }
+
+  &_yellow {
+    font: var(--text-body-bold-text)
+  }
+
   &_large_padding {
     padding: 7.5px 42px;
   }
+
   &_black {
     background-color: var(--primary-default);
     color: var(--text-oncolor-default);
   }
+
   &_red-border {
     font: var(--text-description);
     border: 1px solid var(--border-accent-brown);
     background-color: inherit;
   }
+
   & div {
     display: flex;
     justify-content: center;

@@ -326,8 +326,7 @@ const MainContent = () => {
             upHandler={() => {
               if (arrowRef.current)
                 arrowRef.current.classList.remove('main-content-area-wrapper__up-arrow_down-mod');
-            }}
-          />
+            }} />
         </div>
       </div>
     </section>
