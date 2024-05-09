@@ -8,21 +8,27 @@
     color: var(--primary-default);
     overflow-wrap: break-word;
     white-space: pre-wrap;
+
     & b {
       font: var(--text-body-bold-text);
     }
+
     & bf {
       font: var(--text-body-bold-text);
     }
+
     & c {
       font: var(--text-body-italic-text);
     }
+
     & cf {
       font: var(--text-body-italic-text);
     }
+
     & bc {
       font: var(--text-body-italic-bold-text);
     }
+
     & bcf {
       font: var(--text-body-italic-bold-text);
     }
@@ -31,10 +37,12 @@
   &__image-tip {
     font: var(--text-body-creating-article);
     color: var(--text-subdued);
+
     &_error {
       color: var(--status-critical);
     }
   }
+
   &__input-image-uploader-wrapper {
     display: block;
     position: relative;
@@ -57,6 +65,7 @@
     height: 125px;
     box-sizing: border-box;
   }
+
   &__input-image-description {
     display: flex;
     flex-direction: column;
@@ -64,14 +73,17 @@
     justify-content: center;
     align-items: center;
   }
+
   &__input-image-wrapper {
     position: relative;
     width: 100%;
   }
+
   &__input-image {
     display: block;
     width: 100%;
   }
+
   &__delete-image-button {
     cursor: pointer;
     position: absolute;
@@ -86,6 +98,7 @@
     max-height: 558px;
     overflow-y: scroll;
     padding-right: 36px;
+
     &::-webkit-scrollbar {
       width: 5px;
       border-radius: 4px;
@@ -103,15 +116,18 @@
   flex-direction: column;
   gap: 6px;
   height: 100%;
+
   &__buttons-area {
     display: flex;
     gap: 6px;
     align-items: center;
     z-index: 2;
   }
+
   &__font-size-button {
     display: flex;
     align-items: center;
+
     & input {
       padding: 4px 10px;
       color: var(--primary-default);
@@ -122,6 +138,7 @@
       max-width: 45px;
       text-align: center;
       box-sizing: border-box;
+
       &::-webkit-outer-spin-button,
       &::-webkit-inner-spin-button {
         appearance: none;
@@ -130,6 +147,7 @@
       }
     }
   }
+
   &__button {
     padding: 6px 8px;
     border: 1px solid var(--border-default);
@@ -140,11 +158,13 @@
     align-items: center;
     transition: all 0.3s ease-in;
     position: relative;
+
     &:hover {
       border-color: var(--accent-button);
       background-color: var(--accent-button);
     }
   }
+
   &__font-size-input-container {
     position: relative;
   }
@@ -154,10 +174,12 @@
     padding: 5px 5px;
     box-sizing: border-box;
     user-select: none;
+
     & path {
       fill: #140400;
       transition: all 0.3s ease;
     }
+
     &:hover path {
       fill: var(--accent-default);
     }
@@ -176,13 +198,16 @@
 
   transition: 0s;
   background-color: var(--accent-default);
+
   &__text {
     font: var(--text-for-fields);
     color: var(--primary-default);
+
     &_bolder {
       font: var(--text-4-button);
     }
   }
+
   &_opened {
     transition: all 0.2s ease-in;
     transform: scale(1, 1);

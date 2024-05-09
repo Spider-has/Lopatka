@@ -43,7 +43,6 @@
     margin-left: 44px;
   }
 
-
   &__map-creation-button {
     position: absolute;
     right: 110px;
@@ -89,6 +88,17 @@
   background-color: var(--text-oncolor-default);
   min-height: 100vh;
   position: relative;
+
+  &__top-panel-wrapper {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    padding: 25px 0;
+    position: sticky;
+    top: 0px;
+    z-index: 2;
+    background-color: var(--background-subdued);
+  }
 }
 
 .post-area-wrapper {

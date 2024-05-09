@@ -135,10 +135,23 @@ export const RichTextEditor = (props: InputProps) => {
                         ) {
                           const rang = getCursorPosInNode(element).end;
                           if (countbefore == countnow)
-                            setCursor({ from: rang, to: rang, elemid: element.id });
+                            setCursor({
+                              from: rang,
+                              to: rang,
+                              elemid: element.id,
+                            });
                           else if (countnow > countbefore)
-                            setCursor({ from: cursor.from + 1, to: cursor.from + 1, elemid: element.id });
-                          else setCursor({ from: rang, to: rang, elemid: element.id });
+                            setCursor({
+                              from: cursor.from + 1,
+                              to: cursor.from + 1,
+                              elemid: element.id,
+                            });
+                          else
+                            setCursor({
+                              from: rang,
+                              to: rang,
+                              elemid: element.id,
+                            });
                         }
                       }
                   }
@@ -770,12 +783,22 @@ const getCheckedMods = (mods: mod[]) => {
           break;
         } else if (mod.from <= modNow.from && mod.to <= modNow.to && mod.to > modNow.from) {
           modscopy.splice(j, 1);
-          modscopy.splice(i, 1, { formats: mod.formats, from: mod.from, to: modNow.to, size: size });
+          modscopy.splice(i, 1, {
+            formats: mod.formats,
+            from: mod.from,
+            to: modNow.to,
+            size: size,
+          });
           i = 0;
           break;
         } else if (mod.from >= modNow.from && mod.to >= modNow.to && modNow.to > mod.from) {
           modscopy.splice(j, 1);
-          modscopy.splice(i, 1, { formats: mod.formats, from: modNow.from, to: mod.to, size: size });
+          modscopy.splice(i, 1, {
+            formats: mod.formats,
+            from: modNow.from,
+            to: mod.to,
+            size: size,
+          });
           i = 0;
           break;
         }
@@ -815,7 +838,12 @@ const getCheckedMods = (mods: mod[]) => {
           const n = i > j ? j : i;
           modscopy.splice(k, 1);
           const mergeFormats = FormatMerger(mod.formats, modNow.formats);
-          modscopy.splice(n, 1, { formats: mergeFormats, from: mod.from, to: mod.to, size: modSize });
+          modscopy.splice(n, 1, {
+            formats: mergeFormats,
+            from: mod.from,
+            to: mod.to,
+            size: modSize,
+          });
           i = 0;
           break;
         } else if (mod.from == modNow.from && mod.to < modNow.to) {
@@ -864,9 +892,24 @@ const checkElemForModText = (mods: mod[], newMod: mod) => {
               modscopy.splice(
                 i,
                 1,
-                { formats: modNow.formats, from: modNow.from, to: newMod.from, size: modNow.size },
-                { formats: newMod.formats, from: newMod.from, to: newMod.to, size: newMod.size },
-                { formats: modNow.formats, from: newMod.to, to: modNow.to, size: modNow.size },
+                {
+                  formats: modNow.formats,
+                  from: modNow.from,
+                  to: newMod.from,
+                  size: modNow.size,
+                },
+                {
+                  formats: newMod.formats,
+                  from: newMod.from,
+                  to: newMod.to,
+                  size: newMod.size,
+                },
+                {
+                  formats: modNow.formats,
+                  from: newMod.to,
+                  to: modNow.to,
+                  size: modNow.size,
+                },
               );
             } else if (modNow.from == newMod.from && modNow.to != newMod.to) {
               modscopy.splice(
@@ -923,7 +966,11 @@ const checkElemForModText = (mods: mod[], newMod: mod) => {
           } else if (modNow.from == newMod.from && modNow.to != newMod.to) {
             modscopy.splice(i, 1, { formats: modNow.formats, from: modNow.to, to: newMod.to });
           } else if (modNow.from != newMod.from && modNow.to == newMod.to) {
-            modscopy.splice(i, 1, { formats: modNow.formats, from: modNow.from, to: newMod.from });
+            modscopy.splice(i, 1, {
+              formats: modNow.formats,
+              from: modNow.from,
+              to: newMod.from,
+            });
           } else {
             modscopy.splice(i, 1);
           }
@@ -937,7 +984,12 @@ const checkElemForModText = (mods: mod[], newMod: mod) => {
             modscopy.splice(
               i,
               1,
-              { formats: newMod.formats, from: newMod.from, to: modNow.from, size: newMod.size },
+              {
+                formats: newMod.formats,
+                from: newMod.from,
+                to: modNow.from,
+                size: newMod.size,
+              },
               { formats: mergedFormats, from: modNow.from, to: modNow.to, size: newMod.size },
               { formats: newMod.formats, from: modNow.to, to: newMod.to, size: newMod.size },
             );
@@ -954,7 +1006,12 @@ const checkElemForModText = (mods: mod[], newMod: mod) => {
             modscopy.splice(
               i,
               1,
-              { formats: newMod.formats, from: newMod.from, to: modNow.from, size: newMod.size },
+              {
+                formats: newMod.formats,
+                from: newMod.from,
+                to: modNow.from,
+                size: newMod.size,
+              },
               { formats: mergedFormats, from: modNow.from, to: newMod.to, size: newMod.size },
             );
           } else if (modNow.from == newMod.from && modNow.to == newMod.to) {
@@ -976,7 +1033,12 @@ const checkElemForModText = (mods: mod[], newMod: mod) => {
             modscopy.splice(
               i,
               1,
-              { formats: modNow.formats, from: modNow.from, to: newMod.from, size: modNow.size },
+              {
+                formats: modNow.formats,
+                from: modNow.from,
+                to: newMod.from,
+                size: modNow.size,
+              },
               { formats: newFormats, from: newMod.from, to: newMod.to, size: modNow.size },
               { formats: modNow.formats, from: newMod.to, to: modNow.to, size: modNow.size },
             );
@@ -991,7 +1053,12 @@ const checkElemForModText = (mods: mod[], newMod: mod) => {
             modscopy.splice(
               i,
               1,
-              { formats: modNow.formats, from: modNow.from, to: newMod.from, size: modNow.size },
+              {
+                formats: modNow.formats,
+                from: modNow.from,
+                to: newMod.from,
+                size: modNow.size,
+              },
               { formats: newFormats, from: newMod.from, to: newMod.to, size: modNow.size },
             );
           } else {

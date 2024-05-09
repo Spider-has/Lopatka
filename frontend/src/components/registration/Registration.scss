@@ -1,170 +1,134 @@
 .registration {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  gap: 0;
+  background-color: var(--background-subdued);
+}
+
+.registration-wrapper {
+  display: flex;
+  margin: 130px 0;
+  width: 78%;
+  max-width: 1505px;
+  flex-direction: column;
+  align-items: start;
+  position: relative;
+  gap: 0;
+  color: var(--background-default);
+
+  &__title {
     display: flex;
+    flex-direction: row;
+    gap: 19px;
+    align-items: flex-end;
+    & h1 {
+      font: var(--text-header-1);
+    }
+  }
+}
+
+.steps-wrapper {
+  display: flex;
+  align-items: start;
+  flex-direction: column;
+  gap: 90px;
+  width: 100%;
+  &__step-info-area {
+    display: flex;
+    align-items: start;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 450px;
+  }
+  &__step-header {
+    font: var(--text-header-2);
+  }
+
+  &__step-text {
+    font: var(--text-body-text);
+  }
+
+  &__step {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
     width: 100%;
+    gap: 203px;
+  }
+  &__step-content {
+    display: flex;
+    gap: 55px;
+  }
+}
+
+.big-number {
+  font: var(--text-big-digit);
+  min-width: 70px;
+  line-height: 0.6;
+}
+
+.form-area {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  background-color: var(--background-default);
+
+  &__output {
+    font: var(--text-1-for-big-button);
+    padding: 25px 199px 25px 199px;
+    background-color: var(--accent-default);
+    color: var(--text-default);
+    border: 0;
+    border-radius: 100px;
+    width: 600px;
+  }
+
+  &__input {
+    font: var(--text-description);
+    padding: 24.5px 22.5px 22.5px 22.5px;
+    background-color: var(--white-background-default);
+    border: 0;
+    border-radius: 10px;
+    width: 555px;
+  }
+  &__title {
+    font: var(--text-header-1);
+    color: var(--text-default);
+  }
+
+  &__main-content {
+    padding-top: 50px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    position: relative;
+    gap: 58px;
+  }
+
+  &__form {
+    padding-top: 160px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  &__wrapper {
+    display: flex;
     flex-direction: column;
     align-items: center;
     position: relative;
     gap: 0;
-    background-color: var(--background-subdued);
-}
-
-.text-below {
-    margin-top: 23px;
-}
-
-.registration-wrapper {
-    display: flex;
-    margin: 130px 0;
-    width: 78%;
-    flex-direction: column;
-    align-items: start;
-    position: relative;
-    gap: 0;
-    color: var(--background-default);
-
-    &__title {
-        font: var(--text-header-1);
-        display: flex;
-        flex-direction: row;
-        gap: 19px;
-        justify-content: end;
-    }
-}
-
-.steps-wrapper {
-    display: flex;
-    align-items: start;
-    flex-direction: column;
-    gap: 90px;
-    width: 100%;
-
-    &__step {
-        display: flex;
-        align-items: center;
-        flex-direction: row;
-        height: 445px;
-        width: 100%;
-        gap: 50px;
-
-        &__photo1 {
-            background-image: url(../../images/reg1.png);
-            background-size: contain;
-            background-repeat: no-repeat;
-            width: 29vw;
-            height: 23vw;
-        }
-
-        &__photo2 {
-            background-image: url(../../images/reg2.png);
-            background-size: contain;
-            background-repeat: no-repeat;
-            width: 33vw;
-            height: 20.5vw;
-        }
-
-        &__photo3 {
-            background-image: url(../../images/reg3.png);
-            background-size: contain;
-            background-repeat: no-repeat;
-            width: 29vw;
-            height: 20vw;
-        }
-
-        &__info {
-            display: flex;
-            align-items: start;
-            flex-direction: column;
-            gap: 20px;
-            width: 34%;
-            margin-right: 13%;
-
-            &__header {
-                font: var(--text-header-2)
-            }
-
-            &__text {
-                font: var(--text-body-text)
-            }
-        }
-    }
-}
-
-.big-number {
-    font: var(--text-big-digit);
-    width: 70px;
-}
-
-.form-area {
-    display: flex;
-    width: 100%;
-    flex-direction: column;
-    justify-content: center;
-    position: relative;
-    background-color: var(--background-default);
-    margin-bottom: -1px;
-
-    &__wrapper {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        position: relative;
-        gap: 0;
-        padding: 7vw 25vw 7vw 17vw;
-
-        &__title {
-            font: var(--text-header-1);
-            color: var(--text-default)
-        }
-
-        &__main {
-            padding-top: 50px;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            position: relative;
-            gap: 58px;
-
-            &__form {
-                padding: 241px 0 127px 58px;
-                display: flex;
-                align-items: end;
-                justify-content: center;
-                flex-direction: column;
-                gap: 20px;
-            }
-
-            &__image {
-
-                background-image: url(../../images/skeletonReg.png);
-                background-size: contain;
-                background-repeat: no-repeat;
-                width: 24vw;
-                height: 33vw;
-            }
-
-            &__input {
-                font: var(--text-description);
-                padding: 24.5px 22.5px 22.5px 22.5px;
-                background-color: var(--white-background-default);
-                border: 0;
-                border-radius: 10px;
-                width: 555px;
-            }
-
-            &__output {
-                font: var(--text-1-for-big-button);
-                padding: 25px 199px 25px 199px;
-                background-color: var(--accent-default);
-                color: var(--text-default);
-                border: 0;
-                border-radius: 100px;
-                width: 600px;
-            }
-        }
-    }
+    padding: 130px 25% 130px 17%;
+  }
 }
 
 .link {
-    text-decoration: underline;
-    color: var(--text-oncolor-default)
+  text-decoration: underline;
+  color: var(--text-oncolor-default);
 }

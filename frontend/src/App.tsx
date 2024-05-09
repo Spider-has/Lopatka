@@ -14,28 +14,32 @@ import { PeopleArticleCreation } from './pages/PeopleArticleEdit/PeopleArticleCr
 import { PeopleArticleEdit } from './pages/PeopleArticleEdit/PeopleArticleEdit';
 import { PeopleArticlePage } from './pages/PeopleArticle/PeopleArticle';
 import { ExcavationsPage } from './pages/Excavations/Excavations';
+import { MainPage } from './pages/MainPage/MainPage';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" index element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage />} />
 
-        <Route path="/news/*" index element={<NewsPage />} />
-        <Route path="/new/:id" index element={<NewPage />} />
-        <Route path="/newedit/:id" index element={<NewEdit />} />
-        <Route path="/newCreation" index element={<NewCreation />} />
+        <Route path="/news/*" element={<NewsPage />} />
+        <Route path="/new/:id" element={<NewPage />} />
+        <Route path="/newedit/:id" element={<NewEdit />} />
+        <Route path="/newCreation" element={<NewCreation />} />
 
-        <Route path="/monuments/*" index element={<MonumentsPage />} />
-        <Route path="/monument/:id" index element={<MonumentPage />} />
-        <Route path="/monumentCreation" index element={<MonumentCreation />} />
-        <Route path="/monumentEdit/:id" index element={<MonumentEdit />} />
+        <Route path="/monuments/*" element={<MonumentsPage />} />
+        <Route path="/monument/:id" element={<MonumentPage />} />
+        <Route path="/monumentCreation" element={<MonumentCreation />} />
+        <Route path="/monumentEdit/:id" element={<MonumentEdit />} />
 
-        <Route path="/peoples/*" index element={<PeoplePage />} />
-        <Route path="/people/:id" index element={<PeopleArticlePage />} />
-        <Route path="/peopleArticleCreation" index element={<PeopleArticleCreation />} />
-        <Route path="/peopleArticleEdit/:id" index element={<PeopleArticleEdit />} />
-        <Route path="/excavations" index element={<ExcavationsPage />} />
+        <Route path="/peoples/*" element={<PeoplePage />} />
+        <Route path="/people/:id" element={<PeopleArticlePage />} />
+        <Route path="/peopleArticleCreation" element={<PeopleArticleCreation />} />
+        <Route path="/peopleArticleEdit/:id" element={<PeopleArticleEdit />} />
+
+        <Route path="/excavations" element={<ExcavationsPage />} />
+
+        <Route path="/main" element={<MainPage />} />
       </Routes>
     </BrowserRouter>
   );

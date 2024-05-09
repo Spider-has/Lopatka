@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Footer } from '../../components/footer/Footer';
 import { Article, ArticleProps, convertDbDataToNewProps } from '../../components/post/Article';
-import { TopPanel } from '../../components/topPanel/TopPanel';
+import { TopPanel, topPanelColortype } from '../../components/topPanel/TopPanel';
 import { UpArrow } from '../../components/upArrow/UpArrow';
 import { useParams } from 'react-router-dom';
 import { fetchGetRequest } from '../../utils/fetchRequests/fetchRequest';
@@ -44,7 +44,9 @@ export const NewPage = () => {
 
   return (
     <div className="main-page">
-      <TopPanel />
+      <div className="main-page__top-panel-wrapper">
+        <TopPanel colorType={topPanelColortype.dark} withSearch={true} />
+      </div>
       {articleData != undefined && <ArticleContentBlock {...articleData} />}
       <Footer />
     </div>

@@ -4,7 +4,7 @@ import './Button.scss';
 export enum ButtonTypes {
   Functional = 'Functional',
   Linked = 'Linked',
-  DownLoad = 'DownLoad'
+  DownLoad = 'DownLoad',
 }
 
 export enum ButtonContentTypes {
@@ -16,6 +16,7 @@ export enum ButtonContentTypes {
 
 export enum ButtonSizeTypes {
   LargePadding = 'button_large_padding',
+  Big = 'button_BIG',
 }
 
 export enum ButtonColorTypes {

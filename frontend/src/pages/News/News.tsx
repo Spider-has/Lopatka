@@ -9,7 +9,7 @@ import {
   postType,
 } from '../../components/post/Post';
 import { FilterTagsBar, TagsBarProps, tagModTypes } from '../../components/tagsBar/TagsBar';
-import { TopPanel } from '../../components/topPanel/TopPanel';
+import { TopPanel, topPanelColortype } from '../../components/topPanel/TopPanel';
 import { UpArrow } from '../../components/upArrow/UpArrow';
 import { AnotherIcon, CalendarIcon, PlusIcon, ShovelIcon } from '../../icons/Icons';
 import './News.scss';
@@ -166,7 +166,9 @@ export const NewsPage = () => {
 
   return (
     <div className="main-page">
-      <TopPanel />
+      <div className="main-page__top-panel-wrapper">
+        <TopPanel colorType={topPanelColortype.dark} withSearch={true} />
+      </div>
       <MainContent />
       <Footer />
       {popupData != undefined && (

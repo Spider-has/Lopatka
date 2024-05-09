@@ -1,7 +1,7 @@
 import './TopPanel.scss';
-import * as Icons from '../../icons/Icons';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { LogoIcon, Lupa, SearchIcon, YellowLogo, logoColorType, logoSizeType } from '../../icons/Icons';
 
 type burgerPopoverProps = {
   burgerState: boolean;
@@ -78,12 +78,12 @@ const BurgerIcon = (props: burgerIconProps) => {
   );
 };
 
-export const TopPanel = () => {
+export const BurgerTopPanel = () => {
   const [burgerState, setBurgerState] = useState(false);
   return (
-    <header className="top-panel">
-      <div className="top-panel__navigation-bar-wrapper">
-        <div className="top-panel__burger-icon">
+    <header className="burger-top-panel">
+      <div className="burger-top-panel__navigation-bar-wrapper">
+        <div className="burger-top-panel__burger-icon">
           <BurgerIcon
             handler={() => {
               if (burgerState) setBurgerState(false);
@@ -93,16 +93,72 @@ export const TopPanel = () => {
           />
           <BurgerPopover burgerState={burgerState} />
         </div>
-        <div className="top-panel__logo">
-          <Icons.LogoIcon size={Icons.logoSizeType.Small} color={Icons.logoColorType.Light} />
+        <div className="burger-top-panel__logo">
+          <LogoIcon size={logoSizeType.Small} color={logoColorType.Light} />
         </div>
       </div>
       <label className="search-input-wrapper">
         <input type="search" placeholder="Поиск по названию..." />
         <div className="search-input-wrapper__icon">
-          <Icons.SearchIcon />
+          <SearchIcon />
         </div>
       </label>
     </header>
+  );
+};
+
+export enum topPanelColortype {
+  light = 'top-panel_light',
+  dark = 'top-panel_dark',
+}
+
+type TopPanelProps = {
+  colorType: topPanelColortype;
+  withSearch: boolean;
+};
+
+export const TopPanel = (props: TopPanelProps) => {
+  const borderMod = useMemo(() => {
+    if (props.colorType == topPanelColortype.light) return 'top-panel__border_dark';
+    else return 'top-panel__border_light';
+  }, [props.colorType]);
+  const textMod = useMemo(() => {
+    if (props.colorType == topPanelColortype.light) return 'top-panel__link_light';
+    else return 'top-panel__link_dark';
+  }, [props.colorType]);
+  return (
+    <div className={`top-panel ${props.colorType}`}>
+      <div className={`top-panel__border ${borderMod}`}></div>
+      <div className="top-panel__logo">
+        {props.colorType == topPanelColortype.dark && (
+          <LogoIcon size={logoSizeType.Small} color={logoColorType.Light} />
+        )}
+        {props.colorType == topPanelColortype.light && <YellowLogo />}
+      </div>
+      <div className="top-panel__links-search-wrapper">
+        <div className="top-panel__links">
+          <Link className={`top-panel__link ${textMod}`} to={'/main'}>
+            Главная
+          </Link>
+          <Link className={`top-panel__link ${textMod}`} to={'/news'}>
+            Новости
+          </Link>
+          <Link className={`top-panel__link ${textMod}`} to={'/monuments'}>
+            Памятники
+          </Link>
+          <Link className={`top-panel__link ${textMod}`} to={'/peoples'}>
+            Люди
+          </Link>
+          <Link className={`top-panel__link ${textMod}`} to={'/excavations'}>
+            Раскопки
+          </Link>
+        </div>
+        {props.withSearch && (
+          <div className="top-panel__lupa">
+            <SearchIcon />
+          </div>
+        )}
+      </div>
+    </div>
   );
 };

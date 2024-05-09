@@ -235,9 +235,8 @@ export const Post = (props: PostProps) => {
           </div>
           <div className="article-wrapper__main-content">
             <div
-              className={`article-wrapper__content-wrapper ${
-                props.type == postType.Monuments ? 'article-wrapper__content-wrapper_small-gap' : ''
-              }`}
+              className={`article-wrapper__content-wrapper ${props.type == postType.Monuments ? 'article-wrapper__content-wrapper_small-gap' : ''
+                }`}
             >
               <div className={`article-wrapper__header`}>
                 <h2>{props.Header}</h2>

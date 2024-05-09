@@ -14,7 +14,7 @@ import {
   tagListType,
   tagModTypes,
 } from '../../components/tagsBar/TagsBar';
-import { TopPanel } from '../../components/topPanel/TopPanel';
+import { TopPanel, topPanelColortype } from '../../components/topPanel/TopPanel';
 import { UpArrow } from '../../components/upArrow/UpArrow';
 import { ExpeditionMap, LinkedArrow, PlusIcon } from '../../icons/Icons';
 import './Monuments.scss';
@@ -326,7 +326,8 @@ const MainContent = () => {
             upHandler={() => {
               if (arrowRef.current)
                 arrowRef.current.classList.remove('main-content-area-wrapper__up-arrow_down-mod');
-            }} />
+            }}
+          />
         </div>
       </div>
     </section>
@@ -378,7 +379,9 @@ export const MonumentsPage = () => {
   }, [location]);
   return (
     <div className="main-page">
-      <TopPanel />
+      <div className="main-page__top-panel-wrapper">
+        <TopPanel colorType={topPanelColortype.dark} withSearch={true} />
+      </div>
       <MainContent />
       <Footer />
       {popupData != undefined && (

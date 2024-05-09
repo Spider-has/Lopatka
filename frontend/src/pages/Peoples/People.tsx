@@ -8,7 +8,7 @@ import {
   convertDbDataToNormalPeopleProps,
 } from '../../components/post/Post';
 import { FilterTagsBar, TagsBarProps, tagModTypes } from '../../components/tagsBar/TagsBar';
-import { TopPanel } from '../../components/topPanel/TopPanel';
+import { TopPanel, topPanelColortype } from '../../components/topPanel/TopPanel';
 import { AnotherIcon, Biography, Interview, PlusIcon } from '../../icons/Icons';
 import './People.scss';
 import { UpArrow } from '../../components/upArrow/UpArrow';
@@ -140,7 +140,9 @@ export const PeoplePage = () => {
 
   return (
     <div className="main-page">
-      <TopPanel />
+      <div className="main-page__top-panel-wrapper">
+        <TopPanel colorType={topPanelColortype.dark} withSearch={true} />
+      </div>
       <MainContent />
       <Footer />
       {popupData != undefined && (

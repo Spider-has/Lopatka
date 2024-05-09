@@ -7,21 +7,21 @@
   gap: 50px;
   color: var(--text-default);
 
-
   &__info {
     display: flex;
     align-items: start;
     flex-direction: column;
+
     gap: 20px;
     width: 26%;
     z-index: 3;
 
     &__header {
-      font: var(--text-header-2)
+      font: var(--text-header-2);
     }
 
     &__text {
-      font: var(--text-body-text)
+      font: var(--text-body-text);
     }
   }
 
@@ -57,9 +57,4 @@
     width: 47%;
     margin-top: -2%;
   }
-}
-
-.big-number {
-  font: var(--text-big-digit);
-  width: 70px;
 }

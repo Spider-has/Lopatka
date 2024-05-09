@@ -19,11 +19,16 @@
   }
 
   &_yellow {
-    font: var(--text-body-bold-text)
+    font: var(--text-body-bold-text);
   }
 
   &_large_padding {
     padding: 7.5px 42px;
+  }
+
+  &_BIG {
+    padding: 25px 50px;
+    font: var(--text-1-for-big-button);
   }
 
   &_black {
