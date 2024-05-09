@@ -8,6 +8,19 @@
   border: 1px solid var(--border-accent-brown);
   border-radius: 15px;
 
+  &_mobile {
+    gap: 32px;
+    font: var(--text-mobile-text-body);
+    color: var(--text-oncolor-default);
+    & path {
+      fill: none;
+      stroke: var(--text-oncolor-default);
+    }
+    & circle {
+      stroke: var(--text-oncolor-default);
+    }
+  }
+
   &__tag-container {
     padding: 9px 0 9px 12px;
     width: 203px;
@@ -115,6 +128,19 @@
       height: auto;
       opacity: 1;
       transform: translate(0, 0) scale(1, 1);
+    }
+  }
+}
+
+@media (max-width: 700px) {
+  .tag {
+    &_small-article-gap {
+      gap: 4px;
+      font: var(--text-mobile-tags);
+      & svg {
+        width: 20px;
+        height: 20px;
+      }
     }
   }
 }

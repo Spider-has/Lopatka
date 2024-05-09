@@ -6,7 +6,13 @@
   gap: 31px;
   position: relative;
   align-items: center;
+  &__tag-bar-wrapper {
+    display: block;
+  }
 
+  &__filter-bar-button {
+    display: none;
+  }
   &__header {
     display: flex;
     justify-content: center;
@@ -37,6 +43,10 @@
     &_monuments-wrapper {
       max-width: 1800px;
     }
+    &_without-create {
+      justify-content: flex-start;
+      gap: 40px;
+    }
   }
 
   &__creation-button {
@@ -66,12 +76,18 @@
   &__content-area {
     display: flex;
     flex-direction: column;
+    width: 100%;
   }
 
   &__map-area {
     display: block;
     padding-left: 17px;
     position: relative;
+    width: 95%;
+    & svg {
+      width: 100%;
+      height: 100%;
+    }
   }
 
   &__post-area {
@@ -104,4 +120,60 @@
 .post-area-wrapper {
   max-width: 1020px;
   width: 70%;
+}
+
+@media (max-width: 1500px) {
+  .main-content-area-wrapper {
+    padding: 0 20px;
+    box-sizing: border-box;
+    &__creation-button {
+      display: none;
+    }
+    &__map-area {
+      display: none;
+    }
+  }
+}
+
+@media (max-width: 1000px) {
+  .main-content-area-wrapper {
+    margin-top: 24px;
+
+    gap: 4px;
+
+    align-items: flex-start;
+    &__creation-button {
+      display: none;
+    }
+    &__content-wrapper {
+      flex-direction: column;
+      gap: 13px;
+      &_without-create {
+        align-items: flex-start;
+      }
+    }
+  }
+  .post-area-wrapper {
+    width: 100%;
+  }
+}
+
+@media (max-width: 700px) {
+  .main-content-area-wrapper {
+    &__header h1 {
+      font-size: 60px;
+    }
+    &__tag-bar-wrapper {
+      display: none;
+    }
+    &__filter-bar-button {
+      display: block;
+    }
+  }
+  .main-page__top-panel-wrapper {
+    padding: 0;
+  }
+  .post-area {
+    gap: 16px;
+  }
 }

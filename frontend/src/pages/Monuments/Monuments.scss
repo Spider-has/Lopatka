@@ -40,3 +40,19 @@
     }
   }
 }
+
+@media (max-width: 1500px) {
+  .interesting-panel {
+    display: none;
+  }
+  .main-content-area-wrapper__content-wrapper_monuments-wrapper {
+    justify-content: flex-start;
+    gap: 40px;
+  }
+}
+
+@media (max-width: 1300px) {
+  .main-content-area-wrapper__content-wrapper_monuments-wrapper {
+    flex-direction: column;
+  }
+}

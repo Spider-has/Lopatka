@@ -9,8 +9,8 @@ import { fetchGetRequest } from '../../utils/fetchRequests/fetchRequest';
 const ArticleContentBlock = (props: ArticleProps) => {
   const arrowRef = useRef<HTMLDivElement>(null);
   return (
-    <div className="main-content-area-wrapper">
-      <div className="main-content-area-wrapper__single-content-wrapper ">
+    <div className="article-content-wrapper">
+      <div className="article-content-wrapper__single-content-wrapper ">
         <Article {...props} />
       </div>
       <div ref={arrowRef} className="main-content-area-wrapper__up-arrow">

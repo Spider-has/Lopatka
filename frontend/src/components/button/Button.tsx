@@ -17,6 +17,7 @@ export enum ButtonContentTypes {
 export enum ButtonSizeTypes {
   LargePadding = 'button_large_padding',
   Big = 'button_BIG',
+  Mobile = 'button_mobile',
 }
 
 export enum ButtonColorTypes {

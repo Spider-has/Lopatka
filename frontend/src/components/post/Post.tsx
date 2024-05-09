@@ -207,7 +207,6 @@ export const NoPostsArticle = () => {
 };
 
 export const Post = (props: PostProps) => {
-  console.log(props);
   const linkType = useMemo(() => {
     switch (props.type) {
       case postType.News:
@@ -220,8 +219,8 @@ export const Post = (props: PostProps) => {
   }, [props.type]);
   return (
     <Link to={linkType + props.id}>
-      <article className="article">
-        <div className="article-wrapper ">
+      <article className="post">
+        <div className="article-wrapper">
           <div className="article-wrapper__article-info-wrapper ">
             <div className="article-wrapper__article-info">
               {(props.type == postType.News || props.type == postType.Peoples) && (
@@ -235,8 +234,9 @@ export const Post = (props: PostProps) => {
           </div>
           <div className="article-wrapper__main-content">
             <div
-              className={`article-wrapper__content-wrapper ${props.type == postType.Monuments ? 'article-wrapper__content-wrapper_small-gap' : ''
-                }`}
+              className={`article-wrapper__content-wrapper ${
+                props.type == postType.Monuments ? 'article-wrapper__content-wrapper_small-gap' : ''
+              }`}
             >
               <div className={`article-wrapper__header`}>
                 <h2>{props.Header}</h2>

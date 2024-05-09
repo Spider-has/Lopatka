@@ -1,28 +1,18 @@
 import './TopPanel.scss';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { LogoIcon, Lupa, SearchIcon, YellowLogo, logoColorType, logoSizeType } from '../../icons/Icons';
+import { LogoIcon, SearchIcon, YellowLogo, logoColorType, logoSizeType } from '../../icons/Icons';
 
 type burgerPopoverProps = {
-  burgerState: boolean;
+  content?: JSX.Element;
+  isOpen?: boolean;
+  setClose?: () => void;
 };
 
-const BurgerPopover = (props: burgerPopoverProps) => {
-  const burgerState = props.burgerState;
-  const popoverRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (popoverRef.current) {
-      if (burgerState) {
-        popoverRef.current.classList.add('burger-popover_opened');
-      } else {
-        popoverRef.current.classList.remove('burger-popover_opened');
-      }
-    }
-  }, [burgerState]);
+const DefaultNavigationBurger = () => {
   return (
-    <div ref={popoverRef} className="burger-popover">
-      <Link className="burger-popover__link" to={''}>
+    <>
+      <Link className="burger-popover__link" to={'/main'}>
         Главная
       </Link>
       <Link className="burger-popover__link" to={'/news'}>
@@ -34,10 +24,74 @@ const BurgerPopover = (props: burgerPopoverProps) => {
       <Link className="burger-popover__link" to={'/peoples'}>
         Люди
       </Link>
-      <Link className="burger-popover__link" to={''}>
+      <Link className="burger-popover__link" to={'/excavations'}>
         Раскопки
       </Link>
-    </div>
+    </>
+  );
+};
+
+const BurgerPopover = (props: burgerPopoverProps) => {
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const backgroundRef = useRef<HTMLDivElement>(null);
+  const [burgerOpen, setBurgerOpen] = useState<boolean>(false);
+  useEffect(() => {
+    console.log(1);
+    if (popoverRef.current && backgroundRef.current) {
+      if (burgerOpen) {
+        popoverRef.current.classList.add('burger-popover_opened');
+        backgroundRef.current.classList.add('burger-background_opened');
+      } else {
+        popoverRef.current.classList.remove('burger-popover_opened');
+        backgroundRef.current.classList.remove('burger-background_opened');
+      }
+    }
+  }, [burgerOpen]);
+  useEffect(() => {
+    console.log(props.isOpen);
+    if (props.isOpen && !burgerOpen) setBurgerOpen(true);
+  }, [props.isOpen]);
+  return (
+    <>
+      <div className="burger-menu">
+        <div className="burger-menu__open-button">
+          <div className="burger-top-panel__burger-icon">
+            <BurgerIcon
+              handler={() => {
+                if (burgerOpen) {
+                  setBurgerOpen(false);
+                  if (props.setClose)
+                    setTimeout(() => {
+                      if (props.setClose) props.setClose();
+                    }, 300);
+                } else setBurgerOpen(true);
+              }}
+              burgerState={burgerOpen}
+            />
+          </div>
+          <div className="burger-top-panel__logo">
+            <Link to={'/main'}>
+              <LogoIcon size={logoSizeType.Small} color={logoColorType.Light} />
+            </Link>
+          </div>
+        </div>
+        <div ref={popoverRef} className="burger-popover">
+          {props.content != undefined && props.content}
+          {props.content == undefined && <DefaultNavigationBurger />}
+        </div>
+      </div>
+      <div
+        onClick={() => {
+          setBurgerOpen(false);
+          if (props.setClose)
+            setTimeout(() => {
+              if (props.setClose) props.setClose();
+            }, 300);
+        }}
+        ref={backgroundRef}
+        className="burger-background"
+      ></div>
+    </>
   );
 };
 
@@ -78,32 +132,18 @@ const BurgerIcon = (props: burgerIconProps) => {
   );
 };
 
-export const BurgerTopPanel = () => {
-  const [burgerState, setBurgerState] = useState(false);
+export const BurgerTopPanel = (props: burgerPopoverProps) => {
   return (
-    <header className="burger-top-panel">
+    <div className="burger-top-panel">
       <div className="burger-top-panel__navigation-bar-wrapper">
-        <div className="burger-top-panel__burger-icon">
-          <BurgerIcon
-            handler={() => {
-              if (burgerState) setBurgerState(false);
-              else setBurgerState(true);
-            }}
-            burgerState={burgerState}
-          />
-          <BurgerPopover burgerState={burgerState} />
-        </div>
-        <div className="burger-top-panel__logo">
-          <LogoIcon size={logoSizeType.Small} color={logoColorType.Light} />
-        </div>
+        <BurgerPopover {...props} />
       </div>
-      <label className="search-input-wrapper">
-        <input type="search" placeholder="Поиск по названию..." />
-        <div className="search-input-wrapper__icon">
+      <div className="burger-top-panel__search-wrapper">
+        <div className="burger-top-panel__lupa">
           <SearchIcon />
         </div>
-      </label>
-    </header>
+      </div>
+    </div>
   );
 };
 
@@ -115,6 +155,7 @@ export enum topPanelColortype {
 type TopPanelProps = {
   colorType: topPanelColortype;
   withSearch: boolean;
+  burgerProps?: burgerPopoverProps;
 };
 
 export const TopPanel = (props: TopPanelProps) => {
@@ -127,38 +168,43 @@ export const TopPanel = (props: TopPanelProps) => {
     else return 'top-panel__link_dark';
   }, [props.colorType]);
   return (
-    <div className={`top-panel ${props.colorType}`}>
-      <div className={`top-panel__border ${borderMod}`}></div>
-      <div className="top-panel__logo">
-        {props.colorType == topPanelColortype.dark && (
-          <LogoIcon size={logoSizeType.Small} color={logoColorType.Light} />
-        )}
-        {props.colorType == topPanelColortype.light && <YellowLogo />}
-      </div>
-      <div className="top-panel__links-search-wrapper">
-        <div className="top-panel__links">
-          <Link className={`top-panel__link ${textMod}`} to={'/main'}>
-            Главная
-          </Link>
-          <Link className={`top-panel__link ${textMod}`} to={'/news'}>
-            Новости
-          </Link>
-          <Link className={`top-panel__link ${textMod}`} to={'/monuments'}>
-            Памятники
-          </Link>
-          <Link className={`top-panel__link ${textMod}`} to={'/peoples'}>
-            Люди
-          </Link>
-          <Link className={`top-panel__link ${textMod}`} to={'/excavations'}>
-            Раскопки
+    <>
+      <div className={`top-panel ${props.colorType}`}>
+        <div className={`top-panel__border ${borderMod}`}></div>
+        <div className="top-panel__logo">
+          <Link to={'/main'}>
+            {props.colorType == topPanelColortype.dark && (
+              <LogoIcon size={logoSizeType.Small} color={logoColorType.Light} />
+            )}
+            {props.colorType == topPanelColortype.light && <YellowLogo />}
           </Link>
         </div>
-        {props.withSearch && (
-          <div className="top-panel__lupa">
-            <SearchIcon />
+        <div className="top-panel__links-search-wrapper">
+          <div className="top-panel__links">
+            <Link className={`top-panel__link ${textMod}`} to={'/main'}>
+              Главная
+            </Link>
+            <Link className={`top-panel__link ${textMod}`} to={'/news'}>
+              Новости
+            </Link>
+            <Link className={`top-panel__link ${textMod}`} to={'/monuments'}>
+              Памятники
+            </Link>
+            <Link className={`top-panel__link ${textMod}`} to={'/peoples'}>
+              Люди
+            </Link>
+            <Link className={`top-panel__link ${textMod}`} to={'/excavations'}>
+              Раскопки
+            </Link>
           </div>
-        )}
+          {props.withSearch && (
+            <div className="top-panel__lupa">
+              <SearchIcon />
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+      <BurgerTopPanel {...props.burgerProps} />
+    </>
   );
 };

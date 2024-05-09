@@ -28,6 +28,7 @@ import { sortByDate } from '../News/News';
 import { PostsAreaProps, convertDbDataToNormalNewsProps } from '../../components/post/Post';
 import { Registration } from '../../components/registration/Registration';
 import { Footer } from '../../components/footer/Footer';
+import { UpArrow } from '../../components/upArrow/UpArrow';
 
 const HeaderInfo = () => {
   return (
@@ -307,15 +308,30 @@ const ImageSwiper = () => {
 };
 
 export const MainPage = () => {
+  const arrowRef = useRef<HTMLDivElement>(null);
   return (
     <div className="main-wrapper">
-      <TopPanel colorType={topPanelColortype.light} withSearch={false} />
-      <HeaderInfo />
-      <FirstParagraph />
-      <LastEvents />
-      <ExcavationsPlaces />
-      <Registration />
-      <ImageSwiper />
+      <div className="main-wrapper__content">
+        <TopPanel colorType={topPanelColortype.light} withSearch={false} />
+        <HeaderInfo />
+        <FirstParagraph />
+        <LastEvents />
+        <ExcavationsPlaces />
+        <Registration />
+        <ImageSwiper />
+        <div ref={arrowRef} className="main-content-area-wrapper__up-arrow">
+          <UpArrow
+            downHandler={() => {
+              if (arrowRef.current)
+                arrowRef.current.classList.add('main-content-area-wrapper__up-arrow_down-mod');
+            }}
+            upHandler={() => {
+              if (arrowRef.current)
+                arrowRef.current.classList.remove('main-content-area-wrapper__up-arrow_down-mod');
+            }}
+          />
+        </div>
+      </div>
       <Footer isLight={true} />
     </div>
   );

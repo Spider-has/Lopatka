@@ -1,44 +1,64 @@
 .footer {
-    display: flex;
-    width: 100%;
-    justify-content: center;
-    padding-bottom: 75px;
-    padding-top: 75px;
-    background-color: var(--background-default);
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  padding-bottom: 75px;
+  padding-top: 75px;
+  background-color: var(--background-default);
 
-    color: var(--primary-default);
+  color: var(--primary-default);
 }
 
 .footer_light {
-    background-color: var(--background-subdued);
-    color: var(--text-oncolor-default);
+  background-color: var(--background-subdued);
+  color: var(--text-oncolor-default);
 }
 
 .footer-wrapper {
+  display: flex;
+  justify-content: space-between;
+  width: 79%;
+  max-width: 1550px;
+  flex-wrap: wrap;
+  row-gap: 50px;
+  font: var(--text-body-text);
+
+  &__info-area {
     display: flex;
-    justify-content: space-between;
-    width: 79%;
-    max-width: 1550px;
-    flex-wrap: wrap;
-    row-gap: 50px;
-    font: var(--text-body-text);
+    flex-direction: column;
+    gap: 18px;
 
-    &__info-area {
-        display: flex;
-        flex-direction: column;
-        gap: 18px;
-
-        &_small-gap {
-            gap: 8px;
-        }
+    &_small-gap {
+      gap: 8px;
     }
+  }
 
+  &__row-info-elements {
+    display: flex;
+    gap: 15px;
+  }
+
+  &__phone-text {
+    font: var(--text-for-phone);
+  }
+  &__question-text {
+    display: block;
+  }
+}
+
+@media (max-width: 700px) {
+  .footer-wrapper {
+    width: 100%;
+    padding: 0 20px;
+    box-sizing: border-box;
     &__row-info-elements {
-        display: flex;
-        gap: 15px;
+      display: none;
     }
-
     &__phone-text {
-        font: var(--text-for-phone);
+      display: none;
     }
+    &__question-text {
+      display: none;
+    }
+  }
 }

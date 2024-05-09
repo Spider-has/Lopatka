@@ -284,12 +284,24 @@ const MainContent = () => {
     isUserAuthCorrect().then(res => setAuth(res));
   }, []);
   console.log(filteredPosts, postData);
+  const [openFilterBurger, setOpenFilterBurger] = useState<boolean>(false);
+  const burgerProps = openFilterBurger
+    ? {
+        isOpen: true,
+        content: <></>,
+        setClose: () => {
+          setOpenFilterBurger(false);
+        },
+      }
+    : undefined;
   return (
     <section className="main-content-area-wrapper">
       <div className="main-content-area-wrapper__header">
         <h1>Памятники</h1>
       </div>
-      <div className="main-content-area-wrapper__content-wrapper main-content-area-wrapper__content-wrapper_monuments-wrapper">
+      <div
+        className={`main-content-area-wrapper__content-wrapper main-content-area-wrapper__content-wrapper_monuments-wrapper`}
+      >
         <MonumentsTagsBar {...Tags} />
         <div className="main-content-area-wrapper__content-area">
           <div className="main-content-area-wrapper__map-area">

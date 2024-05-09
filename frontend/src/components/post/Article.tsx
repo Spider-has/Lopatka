@@ -107,17 +107,17 @@ export const Article = (props: ArticleProps) => {
   return (
     <article className="article">
       <div className="article-wrapper">
-        <div className="article-wrapper__article-info-wrapper ">
+        <div className="article__article-info-wrapper ">
           <div className="article-wrapper__article-info">
             {(props.type == postType.News || props.type == postType.Peoples) && (
               <div className="article-wrapper__tag-wrapper">
                 <Tag {...props.tag} />
               </div>
             )}
-            <div className="article-wrapper__header-area">{props.AuthorName}</div>
+            <div className="article__header-area">{props.AuthorName}</div>
             <div className="article-wrapper__publication-time">{props.Date}</div>
           </div>
-          <div>
+          <div className="article-wrapper__edit-button">
             {isAdmin && (
               <Button
                 type={ButtonTypes.Linked}
@@ -134,7 +134,7 @@ export const Article = (props: ArticleProps) => {
         </div>
         <div className="article-wrapper__main-content">
           <div
-            className={`article-wrapper__content-wrapper ${
+            className={`article__content-wrapper ${
               props.type == postType.Monuments ? 'article-wrapper__content-wrapper_small-gap' : ''
             }`}
           >

@@ -22,6 +22,11 @@ export enum tagModTypes {
   ArticleText = 'tag_article-text',
 }
 
+export enum tagBarStyles {
+  mobile = 'tags-bar-wrapper_mobile',
+  desktop = 'desktop',
+}
+
 export type TagProps = {
   tagTypes: ButtonContentTypes;
   icon?: JSX.Element;
@@ -31,6 +36,7 @@ export type TagProps = {
 
 export type TagsBarProps = {
   Tags: TagProps[];
+  styleType: tagBarStyles;
   filterHandler: (tagValue: string) => void;
 };
 
@@ -58,7 +64,7 @@ export const FilterTagsBar = (props: TagsBarProps) => {
   useEffect(() => {
     props.filterHandler(activeTagState);
   }, [activeTagState]);
-  return <div className="tags-bar-wrapper">{tags}</div>;
+  return <div className={`tags-bar-wrapper ${props.styleType}`}>{tags}</div>;
 };
 
 export type MonumentsTagsBarProps = {

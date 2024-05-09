@@ -1,5 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { Button, ButtonContentTypes, ButtonTypes } from '../../components/button/Button';
+import {
+  Button,
+  ButtonColorTypes,
+  ButtonContentTypes,
+  ButtonSizeTypes,
+  ButtonTypes,
+} from '../../components/button/Button';
 import { Footer } from '../../components/footer/Footer';
 import {
   NoPostsArticle,
@@ -8,10 +14,10 @@ import {
   convertDbDataToNormalNewsProps,
   postType,
 } from '../../components/post/Post';
-import { FilterTagsBar, TagsBarProps, tagModTypes } from '../../components/tagsBar/TagsBar';
+import { FilterTagsBar, TagsBarProps, tagBarStyles, tagModTypes } from '../../components/tagsBar/TagsBar';
 import { TopPanel, topPanelColortype } from '../../components/topPanel/TopPanel';
 import { UpArrow } from '../../components/upArrow/UpArrow';
-import { AnotherIcon, CalendarIcon, PlusIcon, ShovelIcon } from '../../icons/Icons';
+import { AnotherIcon, CalendarIcon, Filter, PlusIcon, ShovelIcon } from '../../icons/Icons';
 import './News.scss';
 import { fetchGetRequest } from '../../utils/fetchRequests/fetchRequest';
 import { isUserAuthCorrect } from '../../utils/auth';
@@ -45,6 +51,11 @@ export const sortByDate = (Data: PostsAreaProps) => {
   };
 };
 
+export type openBurgerType = {
+  isOpen: boolean;
+  content: JSX.Element;
+};
+
 const MainContent = () => {
   const tagsContent: TagsBarProps = {
     filterHandler: (tagValue: string) => {
@@ -53,6 +64,7 @@ const MainContent = () => {
         else setFilteredPosts(undefined);
       }
     },
+    styleType: tagBarStyles.desktop,
     Tags: [
       {
         tagTypes: ButtonContentTypes.IconText,
@@ -69,7 +81,7 @@ const MainContent = () => {
       {
         tagTypes: ButtonContentTypes.IconText,
         icon: <AnotherIcon />,
-        text: 'Другое',
+        text: 'Прочее',
         tagMod: tagModTypes.NoneMod,
       },
     ],
@@ -89,17 +101,54 @@ const MainContent = () => {
       });
     isUserAuthCorrect().then(res => setAuth(res));
   }, []);
-
+  const authMod = auth ? '' : 'main-content-area-wrapper__content-wrapper_without-create';
   const arrowRef = useRef<HTMLDivElement>(null);
+  const [openFilterBurger, setOpenFilterBurger] = useState<boolean>(false);
+  const burgerProps = openFilterBurger
+    ? {
+        isOpen: true,
+        content: (
+          <FilterTagsBar
+            filterHandler={tagsContent.filterHandler}
+            Tags={tagsContent.Tags}
+            styleType={tagBarStyles.mobile}
+          />
+        ),
+        setClose: () => {
+          setOpenFilterBurger(false);
+        },
+      }
+    : undefined;
   return (
     <>
+      <div className="main-page__top-panel-wrapper">
+        <TopPanel colorType={topPanelColortype.dark} withSearch={true} burgerProps={burgerProps} />
+      </div>
       <section className="main-content-area-wrapper">
         <div className="main-content-area-wrapper__header">
           <h1>Новости</h1>
         </div>
-        <div className="main-content-area-wrapper__content-wrapper">
+        <div className={`main-content-area-wrapper__content-wrapper ${authMod}`}>
           <div>
-            <FilterTagsBar {...tagsContent} />
+            <div className="main-content-area-wrapper__filter-bar-button">
+              <Button
+                type={ButtonTypes.Functional}
+                content={{
+                  contentType: ButtonContentTypes.IconText,
+                  icon: <Filter />,
+                  text: 'Фильтры',
+                }}
+                colors={ButtonColorTypes.RedBorder}
+                size={ButtonSizeTypes.Mobile}
+                handler={() => {
+                  setOpenFilterBurger(true);
+                }}
+              />
+            </div>
+
+            <div className="main-content-area-wrapper__tag-bar-wrapper">
+              <FilterTagsBar {...tagsContent} />
+            </div>
           </div>
 
           <div className="post-area-wrapper">
@@ -109,7 +158,7 @@ const MainContent = () => {
             {filteredPosts != undefined && filteredPosts.posts.length == 0 && <NoPostsArticle />}
           </div>
           {auth && (
-            <div className="main-content-area-wrapper__creation-button">
+            <div className={`main-content-area-wrapper__creation-button`}>
               <Button
                 type={ButtonTypes.Linked}
                 linkTo="/newCreation"
@@ -166,9 +215,6 @@ export const NewsPage = () => {
 
   return (
     <div className="main-page">
-      <div className="main-page__top-panel-wrapper">
-        <TopPanel colorType={topPanelColortype.dark} withSearch={true} />
-      </div>
       <MainContent />
       <Footer />
       {popupData != undefined && (

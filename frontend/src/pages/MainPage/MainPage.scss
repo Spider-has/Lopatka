@@ -6,6 +6,13 @@
   width: 100%;
   background-color: var(--text-oncolor-default);
   padding-top: 96px;
+  &__content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
 }
 
 .main-header {
