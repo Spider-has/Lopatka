@@ -16,7 +16,14 @@ import volunteeringImg1 from '../../images/volunteeringImg1.png';
 import volunteeringImg2 from '../../images/volunteeringImg2.png';
 import volunteeringImg3 from '../../images/volunteeringImg3.png';
 import { TopPanel, topPanelColortype } from '../../components/topPanel/TopPanel';
-
+const handleExpeditionButtonClick = (id: string) => {
+  const e = document.getElementById(id);
+  console.log(e)
+  if (e) {
+    e.scrollIntoView({ block: "start", behavior: "smooth" });
+    console.log('ll')
+  }
+}
 export const ExcavationsPage = () => {
   const arrowRef = useRef<HTMLDivElement>(null);
   return (
@@ -24,24 +31,6 @@ export const ExcavationsPage = () => {
       <section className="excanations-wrapper">
         <div className="excanations-wrapper__top-panel-wrapper">
           <TopPanel colorType={topPanelColortype.light} withSearch={false} />
-        </div>
-        <div className="buttons-wrapper">
-          <Button
-            colors={ButtonColorTypes.Yellow}
-            type={ButtonTypes.Linked}
-            content={{
-              contentType: ButtonContentTypes.Text,
-              text: 'Записаться на раскопки',
-            }}
-          />
-          <Button
-            colors={ButtonColorTypes.Transparent}
-            type={ButtonTypes.Linked}
-            content={{
-              contentType: ButtonContentTypes.Text,
-              text: 'Скачать документы',
-            }}
-          />
         </div>
         <div className="title-wrapper">
           <h1 className="title-wrapper__title">Привет! На этой страничке ты сможешь:</h1>
@@ -51,6 +40,19 @@ export const ExcavationsPage = () => {
             <li className="title-wrapper__subtitle">записаться на раскопки</li>
             <li className="title-wrapper__subtitle">узнать чем занимаются археологи после полевого сезона</li>
           </ul>
+          
+        <div className="buttons-wrapper">
+            <Button
+            colors={ButtonColorTypes.Yellow}
+            
+            handler={() => { handleExpeditionButtonClick("registration");}}
+            type={ButtonTypes.Functional}
+            content={{
+              contentType: ButtonContentTypes.Text,
+              text: 'Записаться на раскопки',
+            }}
+          />
+        </div>
         </div>
         <div className="archeology-wrapper">
           <p className="archeology-wrapper__text">
@@ -150,6 +152,7 @@ export const ExcavationsPage = () => {
             </div>
           </div>
         </div>
+        <div id="registration"></div>
         <Registration />
 
         <div className="questions-wrapper">
