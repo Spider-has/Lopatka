@@ -1,0 +1,40 @@
+.expedition-map {
+  position: relative;
+  overflow: hidden;
+  & svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  &__point {
+    position: absolute;
+    width: 48px;
+    height: 48px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    & svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    &:hover {
+      & path {
+        transition: all 0.3s ease;
+        fill: var(--background-hovered-search);
+      }
+    }
+
+    &_active {
+      transform: scale(1.5, 1.5);
+      & path {
+        fill: var(--accent-default);
+      }
+      &:hover {
+        & path {
+          transition: none;
+          fill: var(--accent-default);
+        }
+      }
+    }
+  }
+}

@@ -16,13 +16,14 @@ import {
 } from '../../components/tagsBar/TagsBar';
 import { TopPanel, topPanelColortype } from '../../components/topPanel/TopPanel';
 import { UpArrow } from '../../components/upArrow/UpArrow';
-import { ExpeditionMap, LinkedArrow, PlusIcon } from '../../icons/Icons';
+import { LinkedArrow, PlusIcon } from '../../icons/Icons';
 import './Monuments.scss';
 import { fetchGetRequest } from '../../utils/fetchRequests/fetchRequest';
 import { isUserAuthCorrect } from '../../utils/auth';
 import { sortByDate } from '../News/News';
 import { useLocation } from 'react-router-dom';
 import { InfoPopup, PopupBackgrouds, popupData } from '../../components/popup/Popup';
+import { ExpMap, PointProps } from '../../components/map/Map';
 
 const MonumentsTags: MonumentsTagsBarProps = {
   filterHandler: () => {
@@ -256,6 +257,32 @@ const filterArrayByTagsList = (Data: PostsAreaProps, TagsValue: string[]): Posts
   };
 };
 
+const convertDataToNormalMapFormat = (data: PostsAreaProps): PointProps[] => {
+  return [
+    ...data.posts.map(el => {
+      if (el.type == postType.Monuments)
+        return {
+          id: el.id,
+          isSelected: false,
+          cordN:
+            Number(el.Coordinates.slice(0, 2)) +
+            Number(el.Coordinates.slice(3, 5)) / 60 +
+            Number(el.Coordinates.slice(6, 8)) / 3600,
+          cordE:
+            Number(el.Coordinates.slice(11, 13)) +
+            Number(el.Coordinates.slice(14, 16)) / 60 +
+            Number(el.Coordinates.slice(17, 19)) / 3600,
+        };
+      return {
+        id: '',
+        isSelected: false,
+        cordN: 0,
+        cordE: 0,
+      };
+    }),
+  ];
+};
+
 const MainContent = () => {
   const arrowRef = useRef<HTMLDivElement>(null);
   const [postData, setData] = useState<PostsAreaProps>({
@@ -263,7 +290,7 @@ const MainContent = () => {
   });
   const [filteredPosts, setFilteredPosts] = useState<PostsAreaProps>();
   const [auth, setAuth] = useState<boolean>(false);
-
+  const [mapPointId, setMapPointId] = useState('');
   const Tags: MonumentsTagsBarProps = {
     ...MonumentsTags,
     filterHandler: (activeTags: string[]) => {
@@ -276,7 +303,6 @@ const MainContent = () => {
     fetchGetRequest('http://localhost:8000/api/monuments/public/')
       .then(res => {
         if (res.data) setData(sortByDate(convertDbDataToNormalMonumentsProps(res.data)));
-        console.log(res);
       })
       .catch(err => {
         console.log(err.message);
@@ -284,16 +310,16 @@ const MainContent = () => {
     isUserAuthCorrect().then(res => setAuth(res));
   }, []);
   console.log(filteredPosts, postData);
-  const [openFilterBurger, setOpenFilterBurger] = useState<boolean>(false);
-  const burgerProps = openFilterBurger
-    ? {
-        isOpen: true,
-        content: <></>,
-        setClose: () => {
-          setOpenFilterBurger(false);
-        },
-      }
-    : undefined;
+  // const [openFilterBurger, setOpenFilterBurger] = useState<boolean>(false);
+  // const burgerProps = openFilterBurger
+  //   ? {
+  //       isOpen: true,
+  //       content: <></>,
+  //       setClose: () => {
+  //         setOpenFilterBurger(false);
+  //       },
+  //     }
+  //   : undefined;
   return (
     <section className="main-content-area-wrapper">
       <div className="main-content-area-wrapper__header">
@@ -305,7 +331,11 @@ const MainContent = () => {
         <MonumentsTagsBar {...Tags} />
         <div className="main-content-area-wrapper__content-area">
           <div className="main-content-area-wrapper__map-area">
-            <ExpeditionMap />
+            <ExpMap
+              points={convertDataToNormalMapFormat(postData)}
+              selectedId={mapPointId}
+              setSelected={setMapPointId}
+            />
             {auth && (
               <div className="main-content-area-wrapper__map-creation-button">
                 <Button

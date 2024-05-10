@@ -74,7 +74,6 @@ export type MonumentsTagsBarProps = {
 
 export const MonumentsTagsBar = (props: MonumentsTagsBarProps) => {
   const [activeTags, setActiveTags] = useState<string[]>(['', '', '', '']);
-  console.log(activeTags);
   const tagsLists = props.lists.map((tagList, i) => (
     <TagsList
       key={i}

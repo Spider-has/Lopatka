@@ -38,7 +38,7 @@ func (r *MonumentPostgres) Create(monument lopata.Monuments) (int, error) {
 
 func (r *MonumentPostgres) GetAll() ([]lopata.MonumentPreview, error) {
 	var monuments []lopata.MonumentPreview
-	query := fmt.Sprintf("SELECT id, header, description, author_name, creation_date, main_image, monument_type, culture_type, era, district FROM %s", monumentsTable)
+	query := fmt.Sprintf("SELECT id, header, description, author_name, creation_date, main_image, monument_type, culture_type, era, district, coords FROM %s", monumentsTable)
 	err := r.db.Select(&monuments, query)
 	return monuments, err
 }

@@ -44,6 +44,7 @@ interface Monuments extends Post {
   cultureTag: TagProps;
   districtTag: TagProps;
   eraTag: TagProps;
+  Coordinates: string;
 }
 
 type PostProps = News | Monuments | Peoples;
