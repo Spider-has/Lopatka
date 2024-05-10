@@ -23,6 +23,7 @@ body::-webkit-scrollbar-thumb {
   min-height: 100vh;
   gap: 0;
   position: relative;
+
   &__top-panel-wrapper {
     width: 100%;
     display: flex;
@@ -36,6 +37,8 @@ body::-webkit-scrollbar-thumb {
   flex-direction: column;
   align-items: center;
   margin-bottom: 170px;
+
+  text-align: center;
 
   &__title {
     font: var(--text-header-1);
@@ -61,7 +64,8 @@ body::-webkit-scrollbar-thumb {
       gap: 20px;
       flex-direction: column;
       align-items: start;
-      
+      text-align: start;
+
 
       &__title {
         font: var(--text-header-2);
@@ -98,6 +102,7 @@ body::-webkit-scrollbar-thumb {
   display: flex;
   flex-direction: column;
   justify-content: start;
+
   &__subtitle-list {
     margin-top: 30px;
     margin-right: 63%;
@@ -112,6 +117,16 @@ body::-webkit-scrollbar-thumb {
 
     margin-right: 50%;
   }
+}
+.excanations-wrapper__top-panel-wrapper_mobile {
+  display: none;
+}
+.mobile-br {
+  display: none;
+}
+
+.archeology-wrapper-mobile {
+  display: none;
 }
 
 .archeology-wrapper {
@@ -134,12 +149,6 @@ body::-webkit-scrollbar-thumb {
 
 .buttons-wrapper {
   margin: 80px 0 131px 0;
-}
-
-.content-wrapper {
-  display: flex;
-  align-items: flex-start;
-  gap: 36px;
 }
 
 .questions-wrapper {
@@ -177,17 +186,11 @@ body::-webkit-scrollbar-thumb {
         height: 2px;
         background-color: var(--background-default);
       }
-
-      &__text {
-        font: var(--text-body-text);
-        color: var(--text-oncolor-default);
-        width: 58%;
-      }
     }
   }
 }
 
-.documents-wrapper {
+/*.documents-wrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -224,7 +227,7 @@ body::-webkit-scrollbar-thumb {
     }
   }
 }
-
+*/
 /*display: flex;
 background-color: transparent;
 border: none;
@@ -233,3 +236,136 @@ margin: 0 5px;
 color: #444746;
 text-decoration: none;
 width: 100%;*/
+
+@media screen and (max-width: 1500px) {
+  .volunteering-wrapper {
+    margin-bottom: 70px;
+
+    &__title {
+      width: 87vw;
+      font: var(--text-mobile-header-2);
+    }
+
+    &__subtitle {
+      display: flex;
+      justify-content: start;
+      width: 87vw;
+      font: var(--text-mobile-text-body);
+      margin-top: 18px;
+    }
+
+    &__table {
+      flex-direction: column;
+      gap: 40px;
+
+      &__element {
+
+        width: 87vw;
+
+        &__title {
+          font: var(--text-mobile-header-3);
+        }
+
+        &__text {
+          font: var(--text-mobile-text-body);
+        }
+
+        &__img {
+
+          width: 87vw;
+        }
+      }
+    }
+
+  }
+
+  .big-number {
+    font: var(--text-small-digit);
+    min-width: 20px;
+  }
+
+  .title-wrapper {
+    background: none;
+
+
+    &__subtitle-list {
+      margin-top: 25px;
+      margin-right: 90px;
+    }
+
+
+    &__subtitle {
+      font: var(--text-mobile-text-body);
+    }
+
+    &__title {
+      font: var(--text-mobile-header-1);
+      width: 100%;
+      margin-right: 50%;
+    }
+  }
+
+  .mobile-br {
+    display: block;
+  }
+
+  .archeology-wrapper {
+    display: none;
+  }
+
+  .buttons-wrapper {
+    margin: 40px 0 48px 0;
+  }
+
+  .text-arc {
+    display: none;
+  }
+  .excanations-wrapper__top-panel-wrapper_mobile {
+  display: block;
+  }
+  .questions-wrapper {
+
+    &__title {
+      font: var(--text-mobile-header-2);
+      width: 80%;
+      text-align: center;
+      margin-top: 60px;
+    }
+
+    &__questions-wrapper {
+      margin-top: 30px;
+      margin-bottom: 100px;
+      width: 80%;
+      gap: 30px;
+
+      &__question {
+        gap: 12px;
+      }
+    }
+  }
+.excanations-wrapper__top-panel-wrapper {
+  display: none;
+}
+  .excavations-info-wrapper {
+    margin: 70px 8px 70px 7px;
+
+    .big-number {
+      font: var(--text-small-digit);
+      min-width: 20px;
+    }
+
+    &__title {
+      font: var(--text-mobile-header-2);
+      text-align: center;
+      margin: 0 88px;
+    }
+
+    &__text {
+      font: var(--text-mobile-text-body);
+      width: 73vw;
+      margin-top: 30px;
+      margin-left: 22px;
+      margin-bottom: 25px;
+    }
+  }
+}

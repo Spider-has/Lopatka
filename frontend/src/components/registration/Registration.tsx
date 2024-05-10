@@ -11,7 +11,7 @@ export const Registration = () => {
       <div className="registration-wrapper">
         <div className="registration-wrapper__title">
           <h1>
-            Запись на <br /> раскопки за
+            Запись на <br className="desktop-br" /> раскопки за
           </h1>
           <h1>
             <span className="big-number">3</span> простых шага
@@ -33,9 +33,7 @@ export const Registration = () => {
                 </div>
               </div>
             </div>
-            <div className="steps-wrapper__step-image">
-              <img src={step1Img} alt="шаг 1" />
-            </div>
+            <img src={step1Img} alt="шаг 1" className="steps-wrapper__step-image" />
           </div>
           <div className="steps-wrapper__step">
             <div className="steps-wrapper__step-content">
@@ -48,9 +46,8 @@ export const Registration = () => {
                 </div>
               </div>
             </div>
-            <div className="steps-wrapper__step-image">
-              <img src={step2Img} alt="шаг 1" />
-            </div>
+            <img src={step2Img} alt="шаг 2" className="steps-wrapper__step-image" />
+
           </div>
           <div className="steps-wrapper__step">
             <div className="steps-wrapper__step-content">
@@ -63,9 +60,7 @@ export const Registration = () => {
                 </div>
               </div>
             </div>
-            <div className="steps-wrapper__step-image">
-              <img src={step3Img} alt="шаг 1" />
-            </div>
+            <img src={step3Img} alt="шаг 3" className="steps-wrapper__step-image" />
           </div>
         </div>
       </div>
@@ -73,9 +68,7 @@ export const Registration = () => {
         <div className="form-area__wrapper">
           <h1 className="form-area__title">А если нет доступных экспедиций</h1>
           <div className="form-area__main-content">
-            <div className="form-area__main-content-image">
-              <img src={skelet} alt="скелет" />
-            </div>
+            <img src={skelet} alt="скелет" className="form-area__main-content-image" />
             <form className="form-area__form">
               <label>
                 <input type="text" name="name" placeholder="Введите ваше имя" className="form-area__input" />

@@ -32,27 +32,28 @@ export const ExcavationsPage = () => {
         <div className="excanations-wrapper__top-panel-wrapper">
           <TopPanel colorType={topPanelColortype.light} withSearch={false} />
         </div>
+        <div className="excanations-wrapper__top-panel-wrapper excanations-wrapper__top-panel-wrapper_mobile">
+          <TopPanel colorType={topPanelColortype.dark} withSearch={false} />
+        </div>
         <div className="title-wrapper">
-          <h1 className="title-wrapper__title">Привет! На этой страничке ты сможешь:</h1>
+          <h1 className="title-wrapper__title">Привет! <br className="mobile-br" /> На этой <br className="mobile-br" /> страничке <br className="mobile-br" /> ты сможешь:</h1>
           <ul className="title-wrapper__subtitle-list">
-            <li className="title-wrapper__subtitle">узнать что такое археология</li>
+            <li className="title-wrapper__subtitle text-arc">узнать что такое археология</li>
             <li className="title-wrapper__subtitle">увидеть как проходит экспедиция</li>
             <li className="title-wrapper__subtitle">записаться на раскопки</li>
             <li className="title-wrapper__subtitle">узнать чем занимаются археологи после полевого сезона</li>
           </ul>
-          
-        <div className="buttons-wrapper">
+          <div className="buttons-wrapper">
             <Button
-            colors={ButtonColorTypes.Yellow}
-            
-            handler={() => { handleExpeditionButtonClick("registration");}}
-            type={ButtonTypes.Functional}
-            content={{
-              contentType: ButtonContentTypes.Text,
-              text: 'Записаться на раскопки',
-            }}
-          />
-        </div>
+              colors={ButtonColorTypes.Yellow}
+              handler={() => { handleExpeditionButtonClick("registration"); }}
+              type={ButtonTypes.Functional}
+              content={{
+                contentType: ButtonContentTypes.Text,
+                text: 'Записаться на раскопки',
+              }}
+            />
+          </div>
         </div>
         <div className="archeology-wrapper">
           <p className="archeology-wrapper__text">
@@ -170,7 +171,7 @@ export const ExcavationsPage = () => {
               <Question
                 text={'Чем еще можно помочь?'}
                 answer={
-                  'После окончания полевого сезона, когда все раскопки завершаются начинается работа лаборатории, где помощь волонтеров также нужна, - надо систематизировать все находки, попытаться собрать куски керамики воедино, помочь с обработкой артефактов.'
+                  'После окончания полевого сезона, начинается работа лаборатории, где помощь волонтеров также нужна, - надо систематизировать все находки, попытаться собрать куски керамики воедино, помочь с обработкой артефактов.'
                 }
               />
             </div>
