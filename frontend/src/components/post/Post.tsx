@@ -196,7 +196,7 @@ export const peopleLink = 'http://localhost:3000/people/';
 
 export const NoPostsArticle = () => {
   return (
-    <article className="article">
+    <article className="post">
       <div className="article-wrapper article-wrapper_no-post-content">
         <div className="article-wrapper__header">
           <h2>Тут пока ещё нет постов:(</h2>

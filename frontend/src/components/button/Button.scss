@@ -61,3 +61,12 @@
     gap: 5px;
   }
 }
+
+@media (max-width: 700px) {
+  .button {
+    &_BIG {
+      padding: 16px 27px;
+      font: var(--text-mobile-text-button-bold);
+    }
+  }
+}

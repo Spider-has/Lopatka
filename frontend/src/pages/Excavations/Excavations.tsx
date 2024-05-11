@@ -15,15 +15,15 @@ import excavationInfoImg6 from '../../images/excavationsInfo6.png';
 import volunteeringImg1 from '../../images/volunteeringImg1.png';
 import volunteeringImg2 from '../../images/volunteeringImg2.png';
 import volunteeringImg3 from '../../images/volunteeringImg3.png';
-import { TopPanel, topPanelColortype } from '../../components/topPanel/TopPanel';
+import { TopPanel, burgerColors, topPanelColortype } from '../../components/topPanel/TopPanel';
 const handleExpeditionButtonClick = (id: string) => {
   const e = document.getElementById(id);
-  console.log(e)
+  console.log(e);
   if (e) {
-    e.scrollIntoView({ block: "start", behavior: "smooth" });
-    console.log('ll')
+    e.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    console.log('ll');
   }
-}
+};
 export const ExcavationsPage = () => {
   const arrowRef = useRef<HTMLDivElement>(null);
   return (
@@ -33,10 +33,17 @@ export const ExcavationsPage = () => {
           <TopPanel colorType={topPanelColortype.light} withSearch={false} />
         </div>
         <div className="excanations-wrapper__top-panel-wrapper excanations-wrapper__top-panel-wrapper_mobile">
-          <TopPanel colorType={topPanelColortype.dark} withSearch={false} />
+          <TopPanel
+            burgerProps={{ colorType: burgerColors.light }}
+            colorType={topPanelColortype.dark}
+            withSearch={false}
+          />
         </div>
         <div className="title-wrapper">
-          <h1 className="title-wrapper__title">Привет! <br className="mobile-br" /> На этой <br className="mobile-br" /> страничке <br className="mobile-br" /> ты сможешь:</h1>
+          <h1 className="title-wrapper__title">
+            Привет! <br className="mobile-br" /> На этой <br className="mobile-br" /> страничке{' '}
+            <br className="mobile-br" /> ты сможешь:
+          </h1>
           <ul className="title-wrapper__subtitle-list">
             <li className="title-wrapper__subtitle text-arc">узнать что такое археология</li>
             <li className="title-wrapper__subtitle">увидеть как проходит экспедиция</li>
@@ -46,7 +53,9 @@ export const ExcavationsPage = () => {
           <div className="buttons-wrapper">
             <Button
               colors={ButtonColorTypes.Yellow}
-              handler={() => { handleExpeditionButtonClick("registration"); }}
+              handler={() => {
+                handleExpeditionButtonClick('registration');
+              }}
               type={ButtonTypes.Functional}
               content={{
                 contentType: ButtonContentTypes.Text,

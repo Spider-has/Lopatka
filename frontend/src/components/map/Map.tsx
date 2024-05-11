@@ -26,8 +26,6 @@ const Point = (props: { point: PointProps; handler: () => void }) => {
   const selectedMod = props.point.isSelected ? 'expedition-map__point_active' : '';
   const x = ((props.point.cordE - cordEMin) / (cordEMax - cordEMin)) * 100;
   const y = 100 - ((props.point.cordN - cordNMin) / (cordNMax - cordNMin)) * 100;
-  console.log(x, props.point.cordE, cordEMin, cordEMax, cordEMax - cordEMin);
-  console.log(y, props.point.cordN, cordNMin, cordNMax);
   return (
     <div
       onClick={() => {
@@ -54,7 +52,6 @@ export const ExpMap = (props: MapProps) => {
       />
     );
   });
-  console.log(props);
   return (
     <div className="expedition-map">
       <ExpeditionMap />

@@ -7,7 +7,7 @@
   border-radius: 10px;
   box-sizing: border-box;
   padding: 35px 50px 24px 38px;
-  align-items: flex-start;
+  align-items: center;
   &__content {
     font: var(--text-header-4);
     color: var(--text-oncolor-default);
@@ -48,11 +48,18 @@
   .main-content-area-wrapper__content-wrapper_monuments-wrapper {
     justify-content: flex-start;
     gap: 40px;
+    flex-wrap: wrap;
   }
 }
 
 @media (max-width: 1300px) {
   .main-content-area-wrapper__content-wrapper_monuments-wrapper {
     flex-direction: column;
+  }
+}
+
+@media (max-width: 700px) {
+  .monuments-tags-bar {
+    display: none;
   }
 }

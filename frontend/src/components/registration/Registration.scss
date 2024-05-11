@@ -198,6 +198,7 @@
 
     &__step-image {
       width: calc(100vw - 27px * 2);
+      max-width: 627px;
     }
 
     &__step-content {
@@ -272,6 +273,7 @@
 
     &__main-content-image {
       width: calc(100vw - 27px - 28px);
+      max-width: 457px;
     }
   }
 }

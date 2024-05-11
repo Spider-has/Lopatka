@@ -283,6 +283,14 @@ const convertDataToNormalMapFormat = (data: PostsAreaProps): PointProps[] => {
   ];
 };
 
+const getMonumentIndexById = (data: PostsAreaProps, id: string) => {
+  let index = 0;
+  data.posts.forEach((el, i) => {
+    if (el.id == id) index = i;
+  });
+  return index;
+};
+
 const MainContent = () => {
   const arrowRef = useRef<HTMLDivElement>(null);
   const [postData, setData] = useState<PostsAreaProps>({
@@ -290,7 +298,7 @@ const MainContent = () => {
   });
   const [filteredPosts, setFilteredPosts] = useState<PostsAreaProps>();
   const [auth, setAuth] = useState<boolean>(false);
-  const [mapPointId, setMapPointId] = useState('');
+  const [mapPointId, setMapPointId] = useState<string>('');
   const Tags: MonumentsTagsBarProps = {
     ...MonumentsTags,
     filterHandler: (activeTags: string[]) => {
@@ -309,7 +317,7 @@ const MainContent = () => {
       });
     isUserAuthCorrect().then(res => setAuth(res));
   }, []);
-  console.log(filteredPosts, postData);
+  const selectedMon = postData.posts[getMonumentIndexById(postData, mapPointId)];
   // const [openFilterBurger, setOpenFilterBurger] = useState<boolean>(false);
   // const burgerProps = openFilterBurger
   //   ? {
@@ -351,7 +359,13 @@ const MainContent = () => {
             )}
           </div>
           <div className="main-content-area-wrapper__post-area">
-            <IntrestingNowPanel text={'Экспедиция на остров Амоксары самые интересные раскопки там.'} />
+            {Number(mapPointId) > 0 && (
+              <IntrestingNowPanel
+                text={selectedMon ? selectedMon.Header : ''}
+                link={selectedMon ? selectedMon.id : ''}
+              />
+            )}
+
             {filteredPosts != undefined && filteredPosts.posts.length > 0 && <PostArea {...filteredPosts} />}
             {filteredPosts == undefined && postData.posts.length > 0 && <PostArea {...postData} />}
             {filteredPosts == undefined && postData.posts.length == 0 && <NoPostsArticle />}
@@ -376,11 +390,12 @@ const MainContent = () => {
   );
 };
 
-const IntrestingNowPanel = (props: { text: string }) => {
+export const monumentPath = '/monument/';
+const IntrestingNowPanel = (props: { text: string; link: string }) => {
   return (
     <div className="interesting-panel">
       <div className="interesting-panel__content">{props.text}</div>
-      <div>
+      <div className="interesting-panel__button-wrapper">
         <Button
           type={ButtonTypes.Linked}
           colors={ButtonColorTypes.LightTransparent}
@@ -388,7 +403,7 @@ const IntrestingNowPanel = (props: { text: string }) => {
             contentType: ButtonContentTypes.Icon,
             icon: <LinkedArrow />,
           }}
-          linkTo={'/'}
+          linkTo={monumentPath + props.link}
         />
       </div>
     </div>

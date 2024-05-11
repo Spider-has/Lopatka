@@ -52,6 +52,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			{
 				public.GET("/", h.getAllMonuments)
 				public.GET("/:id", h.getMonumentById)
+				public.GET("/map-data", h.getMapData)
 			}
 			private := monuments.Group("/private", h.userIdentity)
 			{

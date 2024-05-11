@@ -47,7 +47,6 @@ export const Registration = () => {
               </div>
             </div>
             <img src={step2Img} alt="шаг 2" className="steps-wrapper__step-image" />
-
           </div>
           <div className="steps-wrapper__step">
             <div className="steps-wrapper__step-content">

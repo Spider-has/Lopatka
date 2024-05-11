@@ -106,3 +106,20 @@ func (h *Handler) deleteMonument(c *gin.Context) {
 		Status: "ok",
 	})
 }
+
+
+type getMapDataResponse struct {
+	Data []lopata.MapData `json:"data"`
+}
+
+func (h *Handler) getMapData(c *gin.Context) {
+	monument, err := h.services.Monument.GetMapData()
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, getMapDataResponse{
+		Data: monument,
+	})
+}

@@ -160,6 +160,15 @@ export const Article = (props: ArticleProps) => {
         </div>
       </div>
       <div ref={contentRef} className="article__main-content"></div>
+
+      {props.type == postType.Monuments && (
+        <div className="article__mobile-tags">
+          <Tag {...props.monumentTag} />
+          <Tag {...props.cultureTag} />
+          <Tag {...props.eraTag} />
+          <Tag {...props.districtTag} />
+        </div>
+      )}
     </article>
   );
 };

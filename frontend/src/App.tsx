@@ -15,6 +15,7 @@ import { PeopleArticleEdit } from './pages/PeopleArticleEdit/PeopleArticleEdit';
 import { PeopleArticlePage } from './pages/PeopleArticle/PeopleArticle';
 import { ExcavationsPage } from './pages/Excavations/Excavations';
 import { MainPage } from './pages/MainPage/MainPage';
+import { Page404 } from './pages/page404/Page404';
 
 function App() {
   return (
@@ -22,17 +23,26 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
 
-        <Route path="/news/*" element={<NewsPage />} />
+        <Route path="/news" element={<NewsPage />} />
+        <Route path="/news/success-creation" element={<NewsPage />} />
+        <Route path="/news/success-update" element={<NewsPage />} />
+        <Route path="/news/success-delete" element={<NewsPage />} />
         <Route path="/new/:id" element={<NewPage />} />
         <Route path="/newedit/:id" element={<NewEdit />} />
         <Route path="/newCreation" element={<NewCreation />} />
 
-        <Route path="/monuments/*" element={<MonumentsPage />} />
+        <Route path="/monuments" element={<MonumentsPage />} />
+        <Route path="/monuments/success-creation" element={<MonumentsPage />} />
+        <Route path="/monuments/success-update" element={<MonumentsPage />} />
+        <Route path="/monuments/success-delete" element={<MonumentsPage />} />
         <Route path="/monument/:id" element={<MonumentPage />} />
         <Route path="/monumentCreation" element={<MonumentCreation />} />
         <Route path="/monumentEdit/:id" element={<MonumentEdit />} />
 
-        <Route path="/peoples/*" element={<PeoplePage />} />
+        <Route path="/peoples" element={<PeoplePage />} />
+        <Route path="/peoples/success-creation" element={<PeoplePage />} />
+        <Route path="/peoples/success-update" element={<PeoplePage />} />
+        <Route path="/peoples/success-delete" element={<PeoplePage />} />
         <Route path="/people/:id" element={<PeopleArticlePage />} />
         <Route path="/peopleArticleCreation" element={<PeopleArticleCreation />} />
         <Route path="/peopleArticleEdit/:id" element={<PeopleArticleEdit />} />
@@ -40,6 +50,7 @@ function App() {
         <Route path="/excavations" element={<ExcavationsPage />} />
 
         <Route path="/main" element={<MainPage />} />
+        <Route path="*" element={<Page404 />} />
       </Routes>
     </BrowserRouter>
   );

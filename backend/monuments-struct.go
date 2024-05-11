@@ -30,3 +30,10 @@ type Monuments struct {
 	MainContent          string  `json:"MainContent" db:"content" binding:"required"`
 	MainContentImageData []Image `json:"MainContentImageData"`
 }
+
+
+type MapData struct {
+	Id                 int    `json:"id" db:"id"`
+	Header             string `json:"Header" db:"header" binding:"required"`
+	Coordinates        string `json:"Coordinates" db:"coords" binding:"required"`
+}

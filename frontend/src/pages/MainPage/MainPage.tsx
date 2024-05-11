@@ -1,5 +1,5 @@
 import { ArheologyHeading } from '../../components/images/Images';
-import { TopPanel, topPanelColortype } from '../../components/topPanel/TopPanel';
+import { TopPanel, burgerColors, topPanelColortype } from '../../components/topPanel/TopPanel';
 import './MainPage.scss';
 
 import textFieldLopata from '../../images/textFieldLopata.png';
@@ -21,7 +21,7 @@ import {
   ButtonSizeTypes,
   ButtonTypes,
 } from '../../components/button/Button';
-import { ArrowLeft, ArrowRight, ExpeditionMap, LinkedArrowDark } from '../../icons/Icons';
+import { ArrowLeft, ArrowRight, LinkedArrow, LinkedArrowDark } from '../../icons/Icons';
 import { useEffect, useRef, useState } from 'react';
 import { fetchGetRequest } from '../../utils/fetchRequests/fetchRequest';
 import { sortByDate } from '../News/News';
@@ -29,6 +29,12 @@ import { PostsAreaProps, convertDbDataToNormalNewsProps } from '../../components
 import { Registration } from '../../components/registration/Registration';
 import { Footer } from '../../components/footer/Footer';
 import { UpArrow } from '../../components/upArrow/UpArrow';
+import { ExpMap, PointProps } from '../../components/map/Map';
+import { monumentPath } from '../Monuments/Monuments';
+
+import skeletMobile from '../../images/skelet-mobile-main.png';
+import mapMobile from '../../images/map-mobile.png';
+import skeletMapMobile from '../../images/skelet-map-main-mobile.png';
 
 const HeaderInfo = () => {
   return (
@@ -43,29 +49,52 @@ const HeaderInfo = () => {
 
 const FirstParagraph = () => {
   return (
-    <div className="about-us">
-      <div className="about-us__wrapper">
-        <div className="about-us__registration-wrapper">
-          <img className="about-us__text-field-image" src={textFieldLopata} alt="о лопате" />
-          <img src={skelet} alt="скелет" />
-          <div className="about-us__button-wrapper">
-            <Button
-              type={ButtonTypes.Functional}
-              content={{
-                contentType: ButtonContentTypes.Text,
-                text: 'Записаться на раскопки',
-              }}
-              size={ButtonSizeTypes.Big}
-            />
+    <>
+      <div className="about-us">
+        <div className="about-us__wrapper">
+          <div className="about-us__registration-wrapper">
+            <img className="about-us__text-field-image" src={textFieldLopata} alt="о лопате" />
+            <img src={skelet} alt="скелет" />
+            <div className="about-us__button-wrapper">
+              <Button
+                type={ButtonTypes.Functional}
+                content={{
+                  contentType: ButtonContentTypes.Text,
+                  text: 'Записаться на раскопки',
+                }}
+                size={ButtonSizeTypes.Big}
+              />
+            </div>
           </div>
-        </div>
-        <div className="about-us__img">
-          <div>
-            <img src={aboutUsImg} alt="члены экспедиции" />
+          <div className="about-us__img">
+            <div>
+              <img src={aboutUsImg} alt="члены экспедиции" />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+      <div className="about-us-mobile">
+        <div className="about-us-mobile__header-info">
+          <h1>Пощупай археологию</h1>
+          <p>На этом сайте ты сможешь погрузиться в мир археологии и даже записаться на раскопки!</p>
+        </div>
+        <div className="about-us-mobile__link-area">
+          <div className="about-us-mobile__button-wrapper">
+            <Button
+              type={ButtonTypes.Linked}
+              content={{
+                contentType: ButtonContentTypes.Text,
+                text: 'Читать про раскопки',
+              }}
+              linkTo={'/excavations'}
+            />
+          </div>
+          <div className="about-us-mobile__skelet-wrapper ">
+            <img src={skeletMobile} alt="Аркадий" />
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 
@@ -98,60 +127,199 @@ const EventCard = (props: eventCardProps) => {
 };
 
 const newPath = '/new/';
+const peoplePath = '/people/';
 
-const convertToEventProps = (data: PostsAreaProps): eventCardProps[] => {
-  const arrCopy = data.posts.length <= 6 ? data.posts : data.posts.slice(0, 7);
+const convertToEventProps = (data: PostsAreaProps, linkto: string): eventCardProps[] => {
+  const arrCopy = data.posts.length <= 3 ? data.posts : data.posts.slice(0, 7);
   return [
     ...arrCopy.map(el => {
       return {
         header: el.Header,
         description: el.Description,
-        linkTo: newPath + el.id,
+        linkTo: linkto + el.id,
       };
     }),
   ];
 };
 
 const LastEvents = () => {
-  const [eventsData, setEventsData] = useState<eventCardProps[]>();
+  const [eventsData, setEventsData] = useState<eventCardProps[]>([]);
   useEffect(() => {
     fetchGetRequest('http://localhost:8000/api/news/public/')
-      .then(res => {
-        if (res.data)
-          setEventsData(convertToEventProps(sortByDate(convertDbDataToNormalNewsProps(res.data))));
+      .then(res1 => {
+        console.log(res1);
+        fetchGetRequest('http://localhost:8000/api/peoples/public/')
+          .then(res2 => {
+            if (res2.data && res1.data)
+              setEventsData([
+                ...convertToEventProps(sortByDate(convertDbDataToNormalNewsProps(res1.data)), newPath),
+                ...convertToEventProps(sortByDate(convertDbDataToNormalNewsProps(res2.data)), peoplePath),
+              ]);
+            else if (res2.data)
+              setEventsData([
+                ...convertToEventProps(sortByDate(convertDbDataToNormalNewsProps(res2.data)), peoplePath),
+              ]);
+            else
+              setEventsData([
+                ...convertToEventProps(sortByDate(convertDbDataToNormalNewsProps(res1.data)), newPath),
+              ]);
+          })
+          .catch(err => {
+            console.log(err.message);
+          });
       })
       .catch(err => {
         console.log(err.message);
       });
   }, []);
+  console.log(eventsData);
+  const [eventIndexNow, setIndex] = useState(0);
   const events = eventsData?.map((el, i) => <EventCard key={i} {...el} />);
   return (
-    <div className="last-events">
-      <div className="last-events__content-wrapper">
-        <h2 className="last-events__heading">Последние события</h2>
-        <div className="last-events__events-block">{events}</div>
+    <>
+      <div className="last-events">
+        <div className="last-events__content-wrapper">
+          <h2 className="last-events__heading">Последние события</h2>
+          <div className="last-events__events-block">{events}</div>
+        </div>
       </div>
-    </div>
+      <div className="last-events-mobile">
+        <h2 className="last-events-mobile__heading">Последние события</h2>
+        <div className="last-events-mobile__event-wrapper">
+          <div
+            className="image-swiper__swiper-button last-events-mobile__swiper-button-left"
+            onClick={() => {
+              setIndex(eventIndexNow - 1 >= 0 ? eventIndexNow - 1 : eventsData.length - 1);
+            }}
+          >
+            <ArrowLeft />
+          </div>
+          <div className="last-events-mobile__events-block">
+            <EventCard {...eventsData[eventIndexNow]} />
+          </div>
+          <div
+            className="image-swiper__swiper-button last-events-mobile__swiper-button-right"
+            onClick={() => {
+              setIndex(eventIndexNow + 1 < eventsData.length ? eventIndexNow + 1 : 0);
+            }}
+          >
+            <ArrowRight />
+          </div>
+          <div className="image-swiper__swiper-stages last-events-mobile__swiper-stages">
+            <SwiperDots
+              count={eventsData.length}
+              indexNow={eventIndexNow}
+              setIndex={(i: number) => {
+                setIndex(i);
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
+type cordDbData = {
+  id: string;
+  Coordinates: string;
+  Header: string;
+};
 
+const getMonumentIndexById = (data: PointProps[], id: string) => {
+  let index = 0;
+  data.forEach((el, i) => {
+    if (el.id == id) index = i;
+  });
+  return index;
+};
+
+const convertToPointData = (data: cordDbData[]): PointProps[] => {
+  return [
+    ...data.map(el => {
+      return {
+        id: el.id,
+        isSelected: false,
+        cordN:
+          Number(el.Coordinates.slice(0, 2)) +
+          Number(el.Coordinates.slice(3, 5)) / 60 +
+          Number(el.Coordinates.slice(6, 8)) / 3600,
+        cordE:
+          Number(el.Coordinates.slice(11, 13)) +
+          Number(el.Coordinates.slice(14, 16)) / 60 +
+          Number(el.Coordinates.slice(17, 19)) / 3600,
+      };
+    }),
+  ];
+};
 const ExcavationsPlaces = () => {
+  const [mapData, setMapData] = useState<cordDbData[]>([]);
+  useEffect(() => {
+    fetchGetRequest('http://localhost:8000/api/monuments/public/map-data')
+      .then(res => {
+        console.log(res);
+        if (res) setMapData(res.data);
+      })
+      .catch(err => console.log(err.message));
+  }, []);
+  const [mapPointId, setMapPointId] = useState<string>('0');
+  const mapDataPoints = convertToPointData(mapData);
+  const selectedCard = mapData[getMonumentIndexById(mapDataPoints, mapPointId)];
   return (
-    <div className="excavations">
-      <div className="excavations__wrapper">
-        <div className="excavations__heading">Где проходили раскопки</div>
-        <div className="excavations__map-area">
-          <div className="excavations__selected-excavation"></div>
-          <div className="excavations__map-wrapper">
-            <ExpeditionMap />
-            <div className="excavations__skeletos-area">
-              <img className="excavations__text-field" src={excavationsTextField} alt="о экспедициях" />
-              <img src={skeletNormalSize} alt="скелет" />
+    <>
+      <div className="excavations">
+        <div className="excavations__wrapper">
+          <div className="excavations__heading">Где проходили раскопки</div>
+          <div className="excavations__map-area">
+            <div className="excavations__selected-excavation">
+              <div className="excavations__selected-excavation-header">
+                {selectedCard
+                  ? selectedCard.Header
+                  : 'Пока у нас нет памятников, но они уже скоро появятся!!!!'}
+              </div>
+              <div>
+                <Button
+                  type={ButtonTypes.Linked}
+                  colors={ButtonColorTypes.LightTransparent}
+                  content={{
+                    contentType: ButtonContentTypes.Icon,
+                    icon: <LinkedArrow />,
+                  }}
+                  linkTo={selectedCard ? monumentPath + selectedCard.id : ''}
+                />
+              </div>
+            </div>
+            <div className="excavations__map-wrapper">
+              <ExpMap setSelected={setMapPointId} selectedId={mapPointId} points={mapDataPoints} />
+              <div className="excavations__skeletos-area">
+                <img className="excavations__text-field" src={excavationsTextField} alt="о экспедициях" />
+                <img src={skeletNormalSize} alt="скелет" />
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+      <div className="excavations-mobile">
+        <div className="excavations-mobile__header">Где проходят раскопки</div>
+        <div className="excavations-mobile__map-area">
+          <div className="excavations-mobile__skelet">
+            <img src={skeletMapMobile} alt="аркаша!" />
+          </div>
+          <div>
+            <img src={mapMobile} alt="карта" />
+          </div>
+        </div>
+        <div>
+          <Button
+            type={ButtonTypes.Linked}
+            content={{
+              contentType: ButtonContentTypes.Text,
+              text: 'Археологические памятники',
+            }}
+            linkTo={'/monuments'}
+          />
+        </div>
+      </div>
+    </>
   );
 };
 
@@ -232,7 +400,7 @@ const ImageSwiper = () => {
         <div className="image-swiper__swiper-wrapper">
           <div className="image-swiper__swiper-button-area">
             <div
-              className="image-swiper__swiper-button"
+              className="image-swiper__swiper-button image-swiper__left"
               onClick={() => {
                 if (timeOut) clearTimeout(timeOut);
                 if (beforeImg.current && nowImg.current) {
@@ -248,7 +416,7 @@ const ImageSwiper = () => {
                     ...images,
                     indexNow: images.indexNow - 1 >= 0 ? images.indexNow - 1 : images.images.length - 1,
                   });
-                }, 500);
+                }, 490);
               }}
             >
               <ArrowLeft />
@@ -270,7 +438,7 @@ const ImageSwiper = () => {
           </div>
           <div className="image-swiper__swiper-button-area">
             <div
-              className="image-swiper__swiper-button"
+              className="image-swiper__swiper-button image-swiper__right"
               onClick={() => {
                 if (timeOut) clearTimeout(timeOut);
                 if (afterImg.current && nowImg.current) {
@@ -286,7 +454,7 @@ const ImageSwiper = () => {
                     ...images,
                     indexNow: images.indexNow + 1 < images.images.length ? images.indexNow + 1 : 0,
                   });
-                }, 500);
+                }, 490);
               }}
             >
               <ArrowRight />
@@ -312,7 +480,11 @@ export const MainPage = () => {
   return (
     <div className="main-wrapper">
       <div className="main-wrapper__content">
-        <TopPanel colorType={topPanelColortype.light} withSearch={false} />
+        <TopPanel
+          burgerProps={{ colorType: burgerColors.light }}
+          colorType={topPanelColortype.light}
+          withSearch={false}
+        />
         <HeaderInfo />
         <FirstParagraph />
         <LastEvents />

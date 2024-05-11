@@ -27,6 +27,7 @@ type Monument interface {
 	GetById(id int) (lopata.Monuments, error)
 	DeleteById(id int) (error)
 	UpdateById(user lopata.Monuments, id int) (error)
+	GetMapData() ([]lopata.MapData, error)
 }
 
 type People interface {

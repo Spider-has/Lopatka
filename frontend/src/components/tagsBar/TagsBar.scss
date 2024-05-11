@@ -142,5 +142,18 @@
         height: 20px;
       }
     }
+    &_article-text {
+      font: var(--text-mobile-tags);
+    }
+  }
+  .tags-bar-wrapper {
+    &__tag-container {
+      &:hover {
+        background-color: var(--background-hovered-search);
+      }
+      &_active {
+        background-color: var(--background-hovered-search);
+      }
+    }
   }
 }

@@ -94,6 +94,7 @@ export const RichTextEditor = (props: InputProps) => {
     if (props.loaded && props.EditorData) setEditor(props.EditorData);
   }, [props.loaded]);
 
+  console.log(editorData);
   const elems = editorData.content.map((elem, i) => {
     switch (elem.type) {
       case ContentTypes.Text: {
@@ -555,6 +556,11 @@ const replacer = (value: string) => {
   return value
     .replaceAll('<br>', '\n')
     .replaceAll('&nbsp;', ' ')
+    .replaceAll('<p>', '')
+    .replaceAll('</p>', '\n')
+    .replaceAll(/<p.*?>/g, '')
+    .replaceAll(/<span.*?>/g, '')
+    .replaceAll(/<\/span>/g, '')
     .replaceAll('<b>', '')
     .replaceAll('</b>', '')
     .replaceAll('<c>', '')

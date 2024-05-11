@@ -1,0 +1,139 @@
+.page-404-main-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--text-oncolor-default);
+}
+
+.page-404 {
+  display: flex;
+  padding: 110px 0 0 190px;
+  justify-content: space-between;
+  gap: 184px;
+  &__content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 57px;
+    align-items: flex-start;
+    color: var(--primary-default);
+    & h1 {
+      font: var(--text-small-digit-not-mobile);
+    }
+    & p {
+      font: var(--text-header-1);
+    }
+  }
+  &__image-wrapper {
+    overflow: hidden;
+  }
+  &__image {
+    min-width: 1083px;
+    min-height: 893px;
+    & img {
+      transform-origin: top right;
+      display: block;
+      transform: rotate(-8deg);
+    }
+  }
+  &__mobile-wrapper {
+    display: none;
+  }
+  &__footer {
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    color: var(--primary-default);
+  }
+  &__logos {
+    display: flex;
+    gap: 8px;
+    & svg {
+      width: 21px;
+      height: 21px;
+    }
+  }
+  &__liceum {
+    display: flex;
+    gap: 7px;
+    & img {
+      width: 60px;
+    }
+    & span {
+      font-family: 'Mulish';
+      font-weight: 400;
+      font-size: 10px;
+    }
+  }
+  &__phone {
+    font-family: 'Mulish';
+    font-weight: 400;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 1500px) {
+  .page-404 {
+    gap: 30px;
+    &__image {
+      min-width: 0;
+      width: 750px;
+      & img {
+        width: 100%;
+      }
+    }
+  }
+}
+
+@media (max-width: 1120px) {
+  .page-404 {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 35px;
+    &__image-wrapper {
+      width: 100%;
+    }
+    &__image {
+      min-width: 352px;
+      width: 100%;
+      min-height: 456px;
+      height: 830px;
+      & img {
+        width: 100%;
+      }
+    }
+    &__button-wrapper {
+      display: none;
+    }
+    &__mobile-wrapper {
+      display: block;
+    }
+  }
+}
+
+@media (max-width: 700px) {
+  .page-404 {
+    padding: 55px 0 0 28px;
+    &__image {
+      height: 600px;
+    }
+    &__content-wrapper {
+      & h1 {
+        font: var(--text-mobile-header-1);
+      }
+      & p {
+        font: var(--text-mobile-header-2);
+      }
+    }
+  }
+}
+
+@media (max-width: 450px) {
+  .page-404 {
+    &__image {
+      height: auto;
+      min-height: 360px;
+    }
+    &__footer {
+      display: flex;
+    }
+  }
+}

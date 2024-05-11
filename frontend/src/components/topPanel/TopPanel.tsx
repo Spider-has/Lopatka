@@ -3,10 +3,16 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { LogoIcon, SearchIcon, YellowLogo, logoColorType, logoSizeType } from '../../icons/Icons';
 
+export enum burgerColors {
+  dark = 'dark',
+  light = 'light',
+}
+
 type burgerPopoverProps = {
   content?: JSX.Element;
   isOpen?: boolean;
   setClose?: () => void;
+  colorType?: burgerColors;
 };
 
 const DefaultNavigationBurger = () => {
@@ -36,7 +42,6 @@ const BurgerPopover = (props: burgerPopoverProps) => {
   const backgroundRef = useRef<HTMLDivElement>(null);
   const [burgerOpen, setBurgerOpen] = useState<boolean>(false);
   useEffect(() => {
-    console.log(1);
     if (popoverRef.current && backgroundRef.current) {
       if (burgerOpen) {
         popoverRef.current.classList.add('burger-popover_opened');
@@ -48,7 +53,6 @@ const BurgerPopover = (props: burgerPopoverProps) => {
     }
   }, [burgerOpen]);
   useEffect(() => {
-    console.log(props.isOpen);
     if (props.isOpen && !burgerOpen) setBurgerOpen(true);
   }, [props.isOpen]);
   return (
@@ -66,12 +70,16 @@ const BurgerPopover = (props: burgerPopoverProps) => {
                     }, 300);
                 } else setBurgerOpen(true);
               }}
+              colorType={props.colorType}
               burgerState={burgerOpen}
             />
           </div>
           <div className="burger-top-panel__logo">
             <Link to={'/main'}>
-              <LogoIcon size={logoSizeType.Small} color={logoColorType.Light} />
+              {props.colorType === burgerColors.dark && (
+                <LogoIcon size={logoSizeType.Small} color={logoColorType.Light} />
+              )}
+              {props.colorType === burgerColors.light && <YellowLogo />}
             </Link>
           </div>
         </div>
@@ -98,9 +106,11 @@ const BurgerPopover = (props: burgerPopoverProps) => {
 type burgerIconProps = {
   handler: () => void;
   burgerState: boolean;
+  colorType?: burgerColors;
 };
 
 const BurgerIcon = (props: burgerIconProps) => {
+  const burgerMod = props.colorType == burgerColors.light ? 'burger-icon__line_dark' : '';
   const burgerState = props.burgerState;
   const lineRef1 = useRef<HTMLDivElement>(null);
   const lineRef2 = useRef<HTMLDivElement>(null);
@@ -125,9 +135,9 @@ const BurgerIcon = (props: burgerIconProps) => {
         props.handler();
       }}
     >
-      <div ref={lineRef1} className="burger-icon__line"></div>
-      <div ref={lineRef2} className="burger-icon__line"></div>
-      <div ref={lineRef3} className="burger-icon__line"></div>
+      <div ref={lineRef1} className={`burger-icon__line ${burgerMod}`}></div>
+      <div ref={lineRef2} className={`burger-icon__line ${burgerMod}`}></div>
+      <div ref={lineRef3} className={`burger-icon__line ${burgerMod}`}></div>
     </div>
   );
 };

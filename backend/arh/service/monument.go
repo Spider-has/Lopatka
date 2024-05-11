@@ -42,6 +42,10 @@ func (s *MonumentService) DeleteById(id int) (error){
 	return s.repo.DeleteById(id)
 }
 
+func (s *MonumentService) GetMapData() ([]lopata.MapData, error) {
+	return s.repo.GetMapData()
+}
+
 func (s *MonumentService) UpdateById(Monument lopata.Monuments, id int) (error) {
 	err := insertImageIntoStaticFolder(Monument.FirstScreenImgHref, Monument.FirstScreenImgName)
 	if err != nil {

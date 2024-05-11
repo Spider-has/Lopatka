@@ -66,7 +66,6 @@ body::-webkit-scrollbar-thumb {
       align-items: start;
       text-align: start;
 
-
       &__title {
         font: var(--text-header-2);
       }
@@ -259,7 +258,6 @@ width: 100%;*/
       gap: 40px;
 
       &__element {
-
         width: 87vw;
 
         &__title {
@@ -271,12 +269,10 @@ width: 100%;*/
         }
 
         &__img {
-
           width: 87vw;
         }
       }
     }
-
   }
 
   .big-number {
@@ -287,12 +283,10 @@ width: 100%;*/
   .title-wrapper {
     background: none;
 
-
     &__subtitle-list {
       margin-top: 25px;
       margin-right: 90px;
     }
-
 
     &__subtitle {
       font: var(--text-mobile-text-body);
@@ -320,11 +314,11 @@ width: 100%;*/
   .text-arc {
     display: none;
   }
-  .excanations-wrapper__top-panel-wrapper_mobile {
-  display: block;
+  .excanations-wrapper {
+    padding-top: 20px;
   }
-  .questions-wrapper {
 
+  .questions-wrapper {
     &__title {
       font: var(--text-mobile-header-2);
       width: 80%;
@@ -343,9 +337,7 @@ width: 100%;*/
       }
     }
   }
-.excanations-wrapper__top-panel-wrapper {
-  display: none;
-}
+
   .excavations-info-wrapper {
     margin: 70px 8px 70px 7px;
 
@@ -367,5 +359,14 @@ width: 100%;*/
       margin-left: 22px;
       margin-bottom: 25px;
     }
+  }
+}
+
+@media screen and (max-width: 1260px) {
+  .excanations-wrapper__top-panel-wrapper {
+    display: none;
+  }
+  .excanations-wrapper__top-panel-wrapper_mobile {
+    display: block;
   }
 }

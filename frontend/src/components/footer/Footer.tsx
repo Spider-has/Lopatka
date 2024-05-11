@@ -10,7 +10,7 @@ export const Footer = (props: FooterProps) => {
     <footer className={'footer' + (props.isLight ? ' footer_light' : '')}>
       <div className={'footer-wrapper'}>
         <div className="footer-wrapper__info-area footer-wrapper__info-area_small-gap">
-          <div>
+          <div className="footer-wrapper__lopata-wrapper">
             <LogoIcon
               color={props.isLight ? logoColorType.Light : logoColorType.Dark}
               size={logoSizeType.Small}
@@ -24,7 +24,7 @@ export const Footer = (props: FooterProps) => {
           </div>
         </div>
         <div className="footer-wrapper__info-area">
-          <div>
+          <div className="footer-wrapper__logos-area">
             <a href="https://vk.com/arxays12" target="_blank" rel="noreferrer">
               <VkLogo color={props.isLight ? logoColorType.Light : logoColorType.Dark} />
             </a>

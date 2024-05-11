@@ -65,3 +65,13 @@ func (r *MonumentPostgres) UpdateById(monument lopata.Monuments, id int) (error)
 	return err
 }
 
+
+func (r *MonumentPostgres) GetMapData() ([]lopata.MapData, error) {
+	var mapData []lopata.MapData
+	query := fmt.Sprintf("SELECT id, header, coords FROM %s", monumentsTable)
+	err := r.db.Select(&mapData, query)
+	return mapData, err
+}
+
+
+
