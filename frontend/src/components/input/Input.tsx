@@ -292,7 +292,7 @@ export const InputField = (props: InputProps) => {
 };
 
 const coordinatesReplacer = (newValue: string, oldValue: string) => {
-  if (newValue.search(/[^0-9°'" ]/g) == -1) {
+  if (newValue.search(/[^0-9°'"NE ]/g) == -1) {
     if (newValue.length >= 2 && oldValue.length <= 2 && !oldValue.includes('°'))
       return newValue.slice(0, 2) + '°' + newValue.slice(3, newValue.length);
     else if (newValue.length >= 5 && oldValue.length <= 5 && !oldValue.includes("'"))

@@ -44,6 +44,11 @@ type Repository struct {
 	New
 	Monument
 	People
+	RegistredUsers
+}
+
+type RegistredUsers interface {
+	Create(user lopata.RegistredUser) (int, error)
 }
 
 func NewRepository(db *sqlx.DB) *Repository {
@@ -52,5 +57,6 @@ func NewRepository(db *sqlx.DB) *Repository {
 		New: NewNewPostgres(db),
 		Monument: NewMonumentPostgres(db),
 		People: NewPeoplePostgres(db),
+		RegistredUsers: NewRegPostgres(db),
 	}
 }

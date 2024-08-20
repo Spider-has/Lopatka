@@ -234,22 +234,24 @@ const getMonumentIndexById = (data: PointProps[], id: string) => {
 };
 
 const convertToPointData = (data: cordDbData[]): PointProps[] => {
-  return [
-    ...data.map(el => {
-      return {
-        id: el.id,
-        isSelected: false,
-        cordN:
-          Number(el.Coordinates.slice(0, 2)) +
-          Number(el.Coordinates.slice(3, 5)) / 60 +
-          Number(el.Coordinates.slice(6, 8)) / 3600,
-        cordE:
-          Number(el.Coordinates.slice(11, 13)) +
-          Number(el.Coordinates.slice(14, 16)) / 60 +
-          Number(el.Coordinates.slice(17, 19)) / 3600,
-      };
-    }),
-  ];
+  if (data)
+    return [
+      ...data.map(el => {
+        return {
+          id: el.id,
+          isSelected: false,
+          cordN:
+            Number(el.Coordinates.slice(0, 2)) +
+            Number(el.Coordinates.slice(3, 5)) / 60 +
+            Number(el.Coordinates.slice(6, 8)) / 3600,
+          cordE:
+            Number(el.Coordinates.slice(11, 13)) +
+            Number(el.Coordinates.slice(14, 16)) / 60 +
+            Number(el.Coordinates.slice(17, 19)) / 3600,
+        };
+      }),
+    ];
+  else return [];
 };
 const ExcavationsPlaces = () => {
   const [mapData, setMapData] = useState<cordDbData[]>([]);
@@ -261,9 +263,11 @@ const ExcavationsPlaces = () => {
       })
       .catch(err => console.log(err.message));
   }, []);
-  const [mapPointId, setMapPointId] = useState<string>('0');
+  const [mapPointId, setMapPointId] = useState<string>('');
   const mapDataPoints = convertToPointData(mapData);
-  const selectedCard = mapData[getMonumentIndexById(mapDataPoints, mapPointId)];
+  const selectedCard = mapData[getMonumentIndexById(mapDataPoints, mapPointId)]
+    ? mapData[getMonumentIndexById(mapDataPoints, mapPointId)]
+    : {};
   return (
     <>
       <div className="excavations">
@@ -272,7 +276,7 @@ const ExcavationsPlaces = () => {
           <div className="excavations__map-area">
             <div className="excavations__selected-excavation">
               <div className="excavations__selected-excavation-header">
-                {selectedCard
+                {selectedCard != undefined
                   ? selectedCard.Header
                   : 'Пока у нас нет памятников, но они уже скоро появятся!!!!'}
               </div>

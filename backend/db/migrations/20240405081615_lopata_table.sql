@@ -21,6 +21,12 @@ CREATE TABLE IF NOT EXISTS new_item (
     content TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS registgred_users (
+    id SERIAL PRIMARY KEY unique,
+    user_name VARCHAR(255) NOT NULL,
+    user_email VARCHAR(255) NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS news_lists (
     id SERIAL PRIMARY KEY unique,
     user_id int references users (id) on delete cascade NOT NULL,
@@ -60,7 +66,7 @@ CREATE TABLE IF NOT EXISTS monuments_lists (
 );
 
 
-INSERT INTO users (name, email, password) VALUES ('Админ Админович Кистанов', 'adminTest@lopata.ru', '676873646b6c676a6b616a696f6768776e656b6a677177656e67313334323335b1b3773a05c0ed0176787a4f1574ff0075f7521e');
+INSERT INTO users (name, email, password) VALUES ('Админ Админович Кистанов', 'IvanBerezinEmail@gmail.com', '676873646b6c676a6b616a696f6768776e656b6a677177656e67313334323335b1b3773a05c0ed0176787a4f1574ff0075f7521e');
 
 -- +goose StatementEnd
 
@@ -74,4 +80,6 @@ DROP TABLE IF EXISTS monument_item;
 DROP TABLE IF EXISTS people_item;
 
 DROP TABLE IF EXISTS users;
+
+DROP TABLE IF EXISTS registgred_users;
 -- +goose StatementEnd

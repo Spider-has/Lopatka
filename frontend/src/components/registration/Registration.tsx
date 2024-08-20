@@ -4,8 +4,12 @@ import step2Img from '../../images/reg2.png';
 import step3Img from '../../images/reg3.png';
 
 import skelet from '../../images/skeletonReg.png';
+import { useRef } from 'react';
+import { fetchPostRequest } from '../../utils/fetchRequests/fetchRequest';
 
 export const Registration = () => {
+  const NameRef = useRef<HTMLInputElement>(null);
+  const EmailRef = useRef<HTMLInputElement>(null);
   return (
     <div className="registration">
       <div className="registration-wrapper">
@@ -68,9 +72,32 @@ export const Registration = () => {
           <h1 className="form-area__title">А если нет доступных экспедиций</h1>
           <div className="form-area__main-content">
             <img src={skelet} alt="скелет" className="form-area__main-content-image" />
-            <form className="form-area__form">
+            <form
+              onSubmit={event => {
+                event.preventDefault();
+                if (NameRef.current && EmailRef.current) {
+                  const name = NameRef.current.value;
+                  const email = EmailRef.current.value;
+                  if (name.length > 0 && email.length > 0) {
+                    fetchPostRequest('http://localhost:8000/registration/public/', {
+                      UserName: name,
+                      UserEmail: email,
+                    }).then(res => {
+                      if (res) console.log(1);
+                    });
+                  }
+                }
+              }}
+              className="form-area__form"
+            >
               <label>
-                <input type="text" name="name" placeholder="Введите ваше имя" className="form-area__input" />
+                <input
+                  ref={NameRef}
+                  type="text"
+                  name="name"
+                  placeholder="Введите ваше имя"
+                  className="form-area__input"
+                />
               </label>
               <label>
                 <input
@@ -80,7 +107,7 @@ export const Registration = () => {
                   className="form-area__input"
                 />
               </label>
-              <input type="submit" value="Оставить заявку" className="form-area__output" />
+              <input ref={EmailRef} type="submit" value="Оставить заявку" className="form-area__output" />
             </form>
           </div>
         </div>

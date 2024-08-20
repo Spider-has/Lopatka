@@ -14,6 +14,7 @@ const (
 	peoplesTable      = "people_item"
 	usersNewsTable      = "news_lists"
 	usersMonumentsTable = "monuments_lists"
+	registerTable = "registgred_users"
 )
 
 type Config struct {

@@ -39,12 +39,17 @@ type People interface {
 	UpdateById(user lopata.Peoples, id int) (error)
 }
 
+type RegistredUsers interface {
+	Create(user lopata.RegistredUser) (int, error)
+}
+
 type Service struct {
 	Authorization
 	NewsList
 	New
 	Monument
 	People
+	RegistredUsers
 }
 
 func NewService(repos *repository.Repository) *Service {
@@ -53,5 +58,6 @@ func NewService(repos *repository.Repository) *Service {
 		New: NewEditorService(repos.New),
 		Monument: NewMonumentService(repos.Monument),
 		People: NewPeopleService(repos.People),
+		RegistredUsers: NewRegService(repos.RegistredUsers),
 	}
 }

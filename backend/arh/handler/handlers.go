@@ -78,6 +78,14 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		}
 	}
 
+	registration := router.Group("/registration")
+	{
+		public := registration.Group("/public")
+		{
+			public.POST("/", h.createNewRegistred)
+		}
+	}
+
 	return router
 }
 
