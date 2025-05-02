@@ -67,9 +67,7 @@ const FirstParagraph = () => {
             </div>
           </div>
           <div className="about-us__img">
-            <div>
-              <img src={aboutUsImg} alt="члены экспедиции" />
-            </div>
+            <img src={aboutUsImg} alt="члены экспедиции" />
           </div>
         </div>
       </div>

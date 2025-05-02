@@ -44,9 +44,10 @@ export const MonumentPage = () => {
 
   return (
     <div className="main-page">
-      <div className="main-page__top-panel-wrapper">
-        <TopPanel colorType={topPanelColortype.dark} withSearch={true} />
-      </div>
+      <TopPanel
+        colorType={topPanelColortype.dark}
+        withSearch={false}
+      />
       {articleData != undefined && <ArticleContentBlock {...articleData} />}
       <Footer />
     </div>

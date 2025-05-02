@@ -28,11 +28,11 @@ export const ExcavationsPage = () => {
   const arrowRef = useRef<HTMLDivElement>(null);
   return (
     <div>
-      <section className="excanations-wrapper">
-        <div className="excanations-wrapper__top-panel-wrapper">
+      <section className="excavations-wrapper">
+        <div className="excavations-wrapper__top-panel-wrapper">
           <TopPanel colorType={topPanelColortype.light} withSearch={false} />
         </div>
-        <div className="excanations-wrapper__top-panel-wrapper excanations-wrapper__top-panel-wrapper_mobile">
+        <div className="excavations-wrapper__top-panel-wrapper excavations-wrapper__top-panel-wrapper_mobile">
           <TopPanel
             burgerProps={{ colorType: burgerColors.light }}
             colorType={topPanelColortype.dark}

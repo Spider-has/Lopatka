@@ -436,9 +436,11 @@ export const MonumentsPage = () => {
   }, [location]);
   return (
     <div className="main-page">
-      <div className="main-page__top-panel-wrapper">
-        <TopPanel colorType={topPanelColortype.dark} withSearch={true} />
-      </div>
+
+      <TopPanel
+        colorType={topPanelColortype.dark}
+        withSearch={false}
+      />
       <MainContent />
       <Footer />
       {popupData != undefined && (

@@ -15,7 +15,7 @@ export const Registration = () => {
       <div className="registration-wrapper">
         <div className="registration-wrapper__title">
           <h1>
-            Запись на <br className="desktop-br" /> раскопки за
+            Запишись <br className="desktop-br" /> на раскопки за
           </h1>
           <h1>
             <span className="big-number">3</span> простых шага
@@ -95,7 +95,7 @@ export const Registration = () => {
                   ref={NameRef}
                   type="text"
                   name="name"
-                  placeholder="Введите ваше имя"
+                  placeholder="Введи свое имя"
                   className="form-area__input"
                 />
               </label>
@@ -103,7 +103,7 @@ export const Registration = () => {
                 <input
                   type="text"
                   name="name"
-                  placeholder="Введите электронную почту"
+                  placeholder="Введи электронную почту"
                   className="form-area__input"
                 />
               </label>

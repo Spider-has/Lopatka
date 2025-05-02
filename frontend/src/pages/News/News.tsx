@@ -106,24 +106,27 @@ const MainContent = () => {
   const [openFilterBurger, setOpenFilterBurger] = useState<boolean>(false);
   const burgerProps = openFilterBurger
     ? {
-        isOpen: true,
-        content: (
-          <FilterTagsBar
-            filterHandler={tagsContent.filterHandler}
-            Tags={tagsContent.Tags}
-            styleType={tagBarStyles.mobile}
-          />
-        ),
-        setClose: () => {
-          setOpenFilterBurger(false);
-        },
-      }
+      isOpen: true,
+      content: (
+        <FilterTagsBar
+          filterHandler={tagsContent.filterHandler}
+          Tags={tagsContent.Tags}
+          styleType={tagBarStyles.mobile}
+        />
+      ),
+      setClose: () => {
+        setOpenFilterBurger(false);
+      },
+    }
     : undefined;
   return (
     <>
-      <div className="main-page__top-panel-wrapper">
-        <TopPanel colorType={topPanelColortype.dark} withSearch={true} burgerProps={burgerProps} />
-      </div>
+
+      <TopPanel
+        colorType={topPanelColortype.dark}
+        withSearch={false}
+        burgerProps={burgerProps}
+      />
       <section className="main-content-area-wrapper">
         <div className="main-content-area-wrapper__header">
           <h1>Новости</h1>

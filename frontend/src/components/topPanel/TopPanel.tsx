@@ -179,42 +179,43 @@ export const TopPanel = (props: TopPanelProps) => {
   }, [props.colorType]);
   return (
     <>
-      <div className={`top-panel ${props.colorType}`}>
-        <div className={`top-panel__border ${borderMod}`}></div>
-        <div className="top-panel__logo">
-          <Link to={'/main'}>
-            {props.colorType == topPanelColortype.dark && (
-              <LogoIcon size={logoSizeType.Small} color={logoColorType.Light} />
-            )}
-            {props.colorType == topPanelColortype.light && <YellowLogo />}
-          </Link>
-        </div>
-        <div className="top-panel__links-search-wrapper">
-          <div className="top-panel__links">
-            <Link className={`top-panel__link ${textMod}`} to={'/main'}>
-              Главная
-            </Link>
-            <Link className={`top-panel__link ${textMod}`} to={'/news'}>
-              Новости
-            </Link>
-            <Link className={`top-panel__link ${textMod}`} to={'/monuments'}>
-              Памятники
-            </Link>
-            <Link className={`top-panel__link ${textMod}`} to={'/peoples'}>
-              Люди
-            </Link>
-            <Link className={`top-panel__link ${textMod}`} to={'/excavations'}>
-              Раскопки
+      <div className={`top-panel-wrapper ${props.colorType == topPanelColortype.dark ? `top-panel-wrapper_dark` : 'top-panel-wrapper_light'}`}>
+        <div className={`top-panel ${props.colorType}`}>
+          <div className={`top-panel__border ${borderMod}`}></div>
+          <div className="top-panel__logo">
+            <Link to={'/main'}>
+              {props.colorType == topPanelColortype.dark && (
+                <LogoIcon size={logoSizeType.Small} color={logoColorType.Light} />
+              )}
+              {props.colorType == topPanelColortype.light && <YellowLogo />}
             </Link>
           </div>
-          {props.withSearch && (
-            <div className="top-panel__lupa">
-              <SearchIcon />
+          <div className="top-panel__links-search-wrapper">
+            <div className="top-panel__links">
+              <Link className={`top-panel__link ${textMod}`} to={'/main'}>
+                Главная
+              </Link>
+              <Link className={`top-panel__link ${textMod}`} to={'/news'}>
+                Новости
+              </Link>
+              <Link className={`top-panel__link ${textMod}`} to={'/monuments'}>
+                Памятники
+              </Link>
+              <Link className={`top-panel__link ${textMod}`} to={'/peoples'}>
+                Люди
+              </Link>
+              <Link className={`top-panel__link ${textMod}`} to={'/excavations'}>
+                Раскопки
+              </Link>
             </div>
-          )}
+            {props.withSearch && (
+              <div className="top-panel__lupa">
+                <SearchIcon />
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-      <BurgerTopPanel {...props.burgerProps} />
+        <BurgerTopPanel {...props.burgerProps} /></div>
     </>
   );
 };
